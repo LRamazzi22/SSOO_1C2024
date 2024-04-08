@@ -45,15 +45,17 @@ void enviar_paquete(t_paquete* paquete, int socket_cliente);
 void liberar_conexion(int socket_cliente);
 void eliminar_paquete(t_paquete* paquete);
 
-void* recibir_buffer(int*, int);
 
+//Funciones de Server
+
+void* recibir_buffer(int*, int);
 int iniciar_servidor(char*, t_log*);
 int esperar_cliente(int, t_log*);
 t_list* recibir_paquete(int);
 void recibir_mensaje(int, t_log*);
 int recibir_operacion(int);
 
-//Funciones de Server
+
 
 
 #endif

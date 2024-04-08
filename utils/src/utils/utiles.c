@@ -44,7 +44,7 @@ void* serializar_paquete(t_paquete* paquete, int bytes)
 	return magic;
 }
 
-int crear_conexion(char *ip, char* puerto) //Funcion para servidor
+int crear_conexion(char *ip, char* puerto) 
 {
 	struct addrinfo hints;
 	struct addrinfo *server_info;
@@ -142,8 +142,6 @@ void liberar_conexion(int socket_cliente)
 
 int iniciar_servidor(char* puerto_de_escucha, t_log* logger)
 {
-	// Quitar esta línea cuando hayamos terminado de implementar la funcion
-	// assert(!"no implementado!");
 
 	int socket_servidor;
 
@@ -174,9 +172,6 @@ int iniciar_servidor(char* puerto_de_escucha, t_log* logger)
 
 int esperar_cliente(int socket_servidor, t_log* logger)
 {
-	// Quitar esta línea cuando hayamos terminado de implementar la funcion
-	// assert(!"no implementado!");
-
 	// Aceptamos un nuevo cliente
 	int socket_cliente = accept(socket_servidor, NULL, NULL);;
 	log_info(logger, "Se conecto un cliente!");

@@ -2,23 +2,7 @@
 
 int main(int argc, char* argv[]) {
 
-    t_log* logger;
-	t_config* config;
-
-    char* PUERTO_ESCUCHA;
-    int TAM_MEMORIA;
-    int TAM_PAGINA;
-    char* PATH_INSTRUCCIONES;
-    int RETARDO_RESPUESTA;
-
-    config = iniciar_config("./memoria_config.config");
-    logger = iniciar_logger("./memoria.log", "Memoria_Logger", LOG_LEVEL_DEBUG);
-
-    PUERTO_ESCUCHA = config_get_string_value(config, "PUERTO_ESCUCHA");
-    TAM_MEMORIA = config_get_int_value(config, "TAM_MEMORIA");
-    TAM_PAGINA = config_get_int_value(config, "TAM_PAGINA"); 
-    PATH_INSTRUCCIONES = config_get_string_value(config, "PATH_INSTRUCCIONES");
-    RETARDO_RESPUESTA = config_get_int_value(config, "RETARDO_RESPUESTA");
+    inicializar_memoria();
 
     //Main para crear servidor
 
