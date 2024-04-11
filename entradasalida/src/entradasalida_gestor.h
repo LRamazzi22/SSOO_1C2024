@@ -16,12 +16,15 @@ Las variables deben ser previamente declaradas en su modulo
 extern t_log* logger;
 extern t_config* config;
 
+extern int entradasalida_cliente_memoria;
+extern int entradasalida_cliente_kernel;
+
 extern char* TIPO_INTERFAZ;
 extern int TIEMPO_UNIDAD_TRABAJO;
 extern char* IP_KERNEL;
-extern int PUERTO_KERNEL;
+extern char* PUERTO_KERNEL;
 extern char* IP_MEMORIA;
-extern int PUERTO_MEMORIA;
+extern char* PUERTO_MEMORIA;
 extern char* PATH_BASE_DIALFS;
 extern int BLOCK_SIZE;
 extern int BLOCK_COUNT;

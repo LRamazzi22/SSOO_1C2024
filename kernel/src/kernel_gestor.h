@@ -10,17 +10,25 @@ modulos del kernel pueden utilizarlas. Las variables deben ser previamente decla
 #include <stdio.h>
 #include <utils/utiles.h>
 
+
+
 //Variables Globales
 
 extern t_log* logger;
 extern t_config* config;
 
-extern int PUERTO_ESCUCHA;
+extern int kernel_server;
+extern int entradasalida_cliente;
+extern int kernel_cliente_dispatch;
+extern int kernel_cliente_interrupt;
+extern int kernel_cliente_memoria;
+
+extern char* PUERTO_ESCUCHA;
 extern char* IP_MEMORIA;
-extern int PUERTO_MEMORIA;
+extern char* PUERTO_MEMORIA;
 extern char* IP_CPU;
-extern int PUERTO_CPU_DISPATCH;
-extern int PUERTO_CPU_INTERRUPT;
+extern char* PUERTO_CPU_DISPATCH;
+extern char* PUERTO_CPU_INTERRUPT;
 extern char* ALGORITMO_PLANIFICACION;
 extern int QUANTUM;
 extern char** RECURSOS;

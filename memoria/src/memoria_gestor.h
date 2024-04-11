@@ -15,6 +15,11 @@ modulos de la Memoria pueden utilizarlas. Las variables deben ser previamente de
 extern t_log* logger;
 extern t_config* config;
 
+extern int memoria_server;
+extern int cpu_cliente;
+extern int kernel_cliente;
+extern int entradasalida_cliente;
+
 extern char* PUERTO_ESCUCHA;
 extern int TAM_MEMORIA;
 extern int TAM_PAGINA;

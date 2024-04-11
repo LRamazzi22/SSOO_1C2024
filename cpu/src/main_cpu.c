@@ -4,14 +4,33 @@ int main(int argc, char* argv[]) {
 
     inicializar_cpu();
 
-    //Conexion a Memoria
-    int conexion_a_memoria;
-    conexion_a_memoria = crear_conexion(IP_MEMORIA,PUERTO_MEMORIA);
-    printf("Funcionando");
-    enviar_mensaje("Hola, soy el CPU", conexion_a_memoria);
-    liberar_conexion(conexion_a_memoria);
+    //Iniciar CPU como Server
+    cpu_server_dispatch = iniciar_servidor(PUERTO_ESCUCHA_DISPATCH, logger);
+    cpu_server_interrupt = iniciar_servidor(PUERTO_ESCUCHA_INTERRUPT, logger);
 
-    decir_hola("CPU");
+    //Conectarse a la memoria
+    cpu_cliente_memoria = crear_conexion(IP_MEMORIA,PUERTO_MEMORIA);
+
+    //Esperar que se conecte el kernel
+    kernel_cliente_dispatch = esperar_cliente(cpu_server_dispatch, logger, "Kernel dispatch conectado");
+    kernel_cliente_interrupt = esperar_cliente(cpu_server_interrupt, logger, "Kernel interrupt conectado");
+
+    //Atender mensajes del Kernel Dispatch
+    pthread_t hilo_kernel_dispatch;
+	pthread_create(&hilo_kernel_dispatch,NULL,(void*)atender_kernel_dispatch, NULL);
+	pthread_detach(hilo_kernel_dispatch);
+
+    //Atender mensajes del Kernel Interrupt
+    pthread_t hilo_kernel_interrupt;
+	pthread_create(&hilo_kernel_interrupt,NULL,(void*)atender_kernel_interrupt, NULL);
+	pthread_detach(hilo_kernel_interrupt);
+
+    //Atender mensajes de la Memoria Server
+	pthread_t hilo_memoria_server;
+	pthread_create(&hilo_memoria_server,NULL,(void*)atender_memoria_cpu, NULL);
+	pthread_join(hilo_memoria_server, NULL);
+
+    terminar_programa(logger, config);
     return 0;
 }
 

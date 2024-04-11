@@ -12,13 +12,19 @@ modulos del CPU pueden utilizarlas. Las variables deben ser previamente declarad
 
 //Variables Globales
 
+extern int cpu_server_dispatch;
+extern int cpu_server_interrupt;
+extern int cpu_cliente_memoria;
+extern int kernel_cliente_dispatch;
+extern int kernel_cliente_interrupt;
+
 extern t_log* logger;
 extern t_config* config;
 
 extern char* IP_MEMORIA;
 extern char* PUERTO_MEMORIA;
-extern int PUERTO_ESCUCHA_DISPATCH;
-extern int PUERTO_ESCUCHA_INTERRUPT;
+extern char* PUERTO_ESCUCHA_DISPATCH;
+extern char* PUERTO_ESCUCHA_INTERRUPT;
 extern int CANTIDAD_ENTRADAS_TLB;
 extern char* ALGORITMO_TLB;
 

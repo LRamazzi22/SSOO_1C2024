@@ -6,39 +6,35 @@ int main(int argc, char* argv[]) {
 
     //Main para crear servidor
 
-    int server_fd = iniciar_servidor(PUERTO_ESCUCHA, logger);
-	log_info(logger, "Servidor listo para recibir al CPU");
-	int cliente_fd = esperar_cliente(server_fd, logger);
+	//Se inicia la memoria como servidor
+    memoria_server = iniciar_servidor(PUERTO_ESCUCHA, logger);
+	
+	//Esperar la conexion del cpu
+	cpu_cliente = esperar_cliente(memoria_server, logger, "Cpu conectada");
 
-	t_list* lista;
-	while (1) {
-		int cod_op = recibir_operacion(cliente_fd);
-		switch (cod_op) {
-		case MENSAJE:
-			recibir_mensaje(cliente_fd, logger);
-			break;
-		case PAQUETE:
-			lista = recibir_paquete(cliente_fd);
-			log_info(logger, "Me llegaron los siguientes valores:\n");
-			//list_iterate(lista, (void*) iterator);
-			break;
-		case -1:
-			log_error(logger, "El cliente se desconecto. Terminando servidor");
-			return EXIT_FAILURE;
-		default:
-			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
-			break;
-		}
-	}
+	//Esperar la conexion del kernel
+	kernel_cliente = esperar_cliente(memoria_server,logger, "Kernel Conectado");
+
+	//Esperar la conexion de la Entrada/Salida
+	entradasalida_cliente = esperar_cliente(memoria_server, logger, "Entrada/Salida Conectado");
+	
+	//Atender mensajes del cpu
+	pthread_t hilo_cpu;
+	pthread_create(&hilo_cpu,NULL,(void*)atender_cpu_memoria, NULL);
+	pthread_detach(hilo_cpu);
+
+	//Atender mensajes del kernel
+	pthread_t hilo_kernel;
+	pthread_create(&hilo_kernel,NULL,(void*)atender_kernel_memoria, NULL);
+	pthread_detach(hilo_kernel);
+
+	//Atender mensajes de Entrada/Salida
+	pthread_t hilo_entradasalida;
+	pthread_create(&hilo_entradasalida,NULL,(void*)atender_entradasalida_memoria, NULL);
+	pthread_join(hilo_entradasalida, NULL);
+	
+	terminar_programa(logger, config);
 	return EXIT_SUCCESS;
-
-
-    //decir_hola("Memoria");
-    //return 0;
 }
 
-/*
-void iterator(char* value, t_log* logger) {
-	log_info(logger,"%s", value);
-}
-*/
+
