@@ -17,9 +17,11 @@
 
 typedef enum
 {
-	MENSAJE,
-	PAQUETE
-}op_code;
+	HANDSHAKE,
+	PAQUETE,
+	PROTOCOLO
+
+} op_code;
 
 typedef struct
 {
@@ -40,24 +42,29 @@ void terminar_programa(t_log*, t_config*);
 
 //Funciones de Cliente
 int crear_conexion(char*, char*);
-void enviar_mensaje(char*, int);
-t_paquete* crear_paquete(void);
-void agregar_a_paquete(t_paquete*, void*, int);
-void enviar_paquete(t_paquete*, int);
-void liberar_conexion(int);
-void eliminar_paquete(t_paquete*);
-
 
 //Funciones de Server
 
-void* recibir_buffer(int*, int);
 int iniciar_servidor(char*, t_log*);
 int esperar_cliente(int, t_log*, char*);
-t_list* recibir_paquete(int);
-void recibir_mensaje(int, t_log*);
+void liberar_conexion(int);
+
+
+
+
+//-------------------- Protoloco de Comunicacion --------------------//
+void enviar_handshake(char*, int);
+void crear_buffer(t_paquete*);
+t_paquete* crear_paquete(op_code);
+void agregar_a_paquete(t_paquete*, void*, int);
+void* serializar_paquete(t_paquete*, int);
+void enviar_paquete(t_paquete*, int);
+void eliminar_paquete(t_paquete*);
+void eliminar_buffer(t_buffer*);
+
 int recibir_operacion(int);
-
-
-
+t_buffer* recibir_buffer(int);
+void* extraer_contenido_buffer(t_buffer*, t_log*);
+int extraer_int_buffer(t_buffer*, t_log*);
 
 #endif

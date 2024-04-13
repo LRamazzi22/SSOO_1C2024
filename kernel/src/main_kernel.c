@@ -19,6 +19,11 @@ int main(int argc, char* argv[]) {
     //Esperar conexion de Entrada Salida
     entradasalida_cliente = esperar_cliente(kernel_server, logger, "Entrada Salida Conectado");
     
+
+    enviar_handshake("Kernel",kernel_cliente_memoria);
+    enviar_handshake("Kernel Dispatch", kernel_cliente_dispatch);
+    enviar_handshake("Kernel Interrupt", kernel_cliente_interrupt);
+    
     //Atender mensajes del Entrada Salida
     
     pthread_t hilo_entradasalida_kernel;

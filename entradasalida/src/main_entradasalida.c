@@ -15,6 +15,9 @@ int main(int argc, char* argv[]) {
 	pthread_create(&hilo_kernel_entradasalida,NULL,(void*)atender_kernel_entradasalida, NULL);
 	pthread_detach(hilo_kernel_entradasalida);
 
+    enviar_handshake("Entrada/Salida", entradasalida_cliente_kernel);
+    enviar_handshake("Entrada/Salida", entradasalida_cliente_memoria);
+
     //Atender mensajes de la Memoria
 	pthread_t hilo_memoria_entradasalida;
 	pthread_create(&hilo_memoria_entradasalida,NULL,(void*)atender_memoria_entradasalida, NULL);

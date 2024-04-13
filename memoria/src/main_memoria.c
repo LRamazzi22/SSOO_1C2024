@@ -11,6 +11,7 @@ int main(int argc, char* argv[]) {
 	
 	//Esperar la conexion del cpu
 	cpu_cliente = esperar_cliente(memoria_server, logger, "Cpu conectada");
+	
 
 	//Esperar la conexion del kernel
 	kernel_cliente = esperar_cliente(memoria_server,logger, "Kernel Conectado");

@@ -21,6 +21,8 @@ char* PUERTO_ESCUCHA_INTERRUPT;
 int CANTIDAD_ENTRADAS_TLB;
 char* ALGORITMO_TLB;
 
+void prueba_de_protocolo();
+
 #endif
 
 
