@@ -4,6 +4,7 @@
 #include <kernel_gestor.h>
 #include <inicializar_kernel.h>
 #include <atender_mensajes.h>
+#include <consola.h>
 
 
 //Variables Globales
