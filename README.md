@@ -1,3 +1,7 @@
+# Instrucciones para desplegar
+
+Ver en Instrucciones.md
+
 # tp-scaffold
 
 Esta es una plantilla de proyecto diseñada para generar un TP de Sistemas
