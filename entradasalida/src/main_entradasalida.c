@@ -23,6 +23,12 @@ int main(int argc, char* argv[]) {
 	pthread_create(&hilo_memoria_entradasalida,NULL,(void*)atender_memoria_entradasalida, NULL);
 	pthread_join(hilo_memoria_entradasalida, NULL);
 
+    liberar_conexion(entradasalida_cliente_kernel);
+    liberar_conexion(entradasalida_cliente_memoria);
+    
+    terminar_programa(logger, config);
+
+
     return 0;
     
 }

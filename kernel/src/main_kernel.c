@@ -46,6 +46,10 @@ int main(int argc, char* argv[]) {
 	pthread_join(hilo_Interrupt_Kernel, NULL);
     
 
+    liberar_conexion(kernel_cliente_dispatch);
+    liberar_conexion(kernel_cliente_interrupt);
+    liberar_conexion(entradasalida_cliente);
+    liberar_conexion(kernel_server);
     terminar_programa(logger, config);
     return 0;
 }

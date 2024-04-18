@@ -33,6 +33,11 @@ int main(int argc, char* argv[]) {
 	pthread_t hilo_entradasalida;
 	pthread_create(&hilo_entradasalida,NULL,(void*)atender_entradasalida_memoria, NULL);
 	pthread_join(hilo_entradasalida, NULL);
+
+	liberar_conexion(cpu_cliente);
+	liberar_conexion(kernel_cliente);
+	liberar_conexion(entradasalida_cliente);
+	liberar_conexion(memoria_server);
 	
 	terminar_programa(logger, config);
 	return EXIT_SUCCESS;
