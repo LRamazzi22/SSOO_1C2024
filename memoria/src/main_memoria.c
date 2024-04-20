@@ -4,7 +4,14 @@ int main(int argc, char* argv[]) {
 
     inicializar_memoria();
 
-    //Main para crear servidor
+    if(TAM_MEMORIA % TAM_PAGINA != 0){
+		log_error(logger, "Tamaño de memoria no es multiplo de tamaño de memoria");
+		exit(EXIT_FAILURE);
+	}
+	void* reserva_memoria = malloc(TAM_MEMORIA);
+	instrucciones -> cantidad_instrucciones = 0;
+	instrucciones -> lista_de_instrucciones = NULL;
+	
 
 	//Se inicia la memoria como servidor
     memoria_server = iniciar_servidor(PUERTO_ESCUCHA, logger);
@@ -40,7 +47,8 @@ int main(int argc, char* argv[]) {
 	liberar_conexion(memoria_server);
 	
 	terminar_programa(logger, config);
+	free(reserva_memoria);
 	return EXIT_SUCCESS;
+
+	
 }
-
-

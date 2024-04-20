@@ -28,7 +28,11 @@ extern int RETARDO_RESPUESTA;
 
 
 
+typedef struct {
+    char ** lista_de_instrucciones;
+    int cantidad_instrucciones;
+}memoriaInstrucciones;
 
-
+extern memoriaInstrucciones* instrucciones;
 
 #endif
