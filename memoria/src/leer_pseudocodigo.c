@@ -2,26 +2,38 @@
 
 int leer_archivo(char *nombArch){
     char * archivo = PATH_INSTRUCCIONES;
-    int contador = 0;
 
     string_append(&archivo, nombArch);
     FILE* archivo_pseudo = fopen(archivo, "r");
     
     char * instruccion = string_new();
-    char* leido = "";
-    int programCounter = instrucciones->cantidad_instrucciones;
-    while (feof(archivo_pseudo) != 0)
-    {
-        do{
-           fread(leido, sizeof(char),1, archivo_pseudo);
-           string_append(&instruccion,leido);  
-        } while (*leido != 10);
-        
-        strcpy(instrucciones->lista_de_instrucciones[instrucciones->cantidad_instrucciones + contador],instruccion);
-        contador++;
-        instrucciones->cantidad_instrucciones++;
-    }
+    int programCounter = cantidad_instrucciones;
 
+    char leido = fgetc(archivo_pseudo);
+    string_append(&instruccion,&leido);
+    while (!feof(archivo_pseudo))
+    {
+        while(leido != '\n'){
+            leido= fgetc(archivo_pseudo);
+            string_append(&instruccion,&leido);
+
+        }
+        
+        
+        lista_de_instrucciones = realloc(lista_de_instrucciones, (cantidad_instrucciones+1)*sizeof(char*));
+        lista_de_instrucciones[cantidad_instrucciones] = malloc(strlen(instruccion)+1);
+        memcpy(lista_de_instrucciones[cantidad_instrucciones], instruccion,strlen(instruccion)+1);
+        cantidad_instrucciones++;
+        
+        leido= fgetc(archivo_pseudo);
+        free(instruccion);
+        instruccion = string_new();
+        string_append(&instruccion,&leido);
+        
+        
+    }
+    free(instruccion);
+    free(archivo);
     fclose(archivo_pseudo);
     return programCounter;
 }

@@ -9,8 +9,21 @@ int main(int argc, char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 	void* reserva_memoria = malloc(TAM_MEMORIA);
-	instrucciones -> cantidad_instrucciones = 0;
-	instrucciones -> lista_de_instrucciones = NULL;
+	cantidad_instrucciones = 0;
+	/*
+	
+	char* hola = "Hola ";
+	lista_de_instrucciones[0]=hola;
+	lista_de_instrucciones[1] = "Como";
+	printf("%s",lista_de_instrucciones[0]);
+	printf("%s",lista_de_instrucciones[1]);
+	*/
+
+	char* nombre = "Pseudo.txt";
+	int p= leer_archivo(nombre);
+	printf("%s",lista_de_instrucciones[0]);
+	printf("%s",lista_de_instrucciones[1]);
+	
 	
 
 	//Se inicia la memoria como servidor

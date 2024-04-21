@@ -20,6 +20,7 @@ int TAM_PAGINA;
 char* PATH_INSTRUCCIONES;
 int RETARDO_RESPUESTA;
 
-memoriaInstrucciones* instrucciones;
+char ** lista_de_instrucciones;
+int cantidad_instrucciones;
 
 #endif

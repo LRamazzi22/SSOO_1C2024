@@ -27,12 +27,10 @@ extern char* PATH_INSTRUCCIONES;
 extern int RETARDO_RESPUESTA;
 
 
+extern char ** lista_de_instrucciones;
+extern int cantidad_instrucciones;
 
-typedef struct {
-    char ** lista_de_instrucciones;
-    int cantidad_instrucciones;
-}memoriaInstrucciones;
 
-extern memoriaInstrucciones* instrucciones;
+
 
 #endif
