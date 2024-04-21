@@ -28,9 +28,11 @@ int main(int argc, char* argv[]) {
 	pthread_detach(hilo_kernel_interrupt);
 
     //Atender mensajes de la Memoria Server
+    /*
 	pthread_t hilo_memoria_server;
 	pthread_create(&hilo_memoria_server,NULL,(void*)atender_memoria_cpu, NULL);
 	pthread_detach(hilo_memoria_server);
+    */
 
     enviar_handshake("CPU", cpu_cliente_memoria);
 
@@ -38,6 +40,8 @@ int main(int argc, char* argv[]) {
     char hola = getchar();
 
     prueba_de_protocolo();
+
+    //solicitar_instruccion(0);
 
     liberar_conexion(cpu_cliente_memoria);
     liberar_conexion(cpu_server_dispatch);
@@ -50,11 +54,20 @@ int main(int argc, char* argv[]) {
 void prueba_de_protocolo(){
     t_paquete* paquete = crear_paquete(PROTOCOLO);
     int num = 23;
-    agregar_a_paquete(paquete, &num, sizeof(int));
+    agregar_int_a_paquete(paquete,num);
     char * mensaje = "Hola como estas, soy el cpu.\n\n";
-    agregar_a_paquete(paquete, mensaje, strlen(mensaje)+1);
+    agregar_string_a_paquete(paquete, mensaje);
     enviar_paquete(paquete, cpu_cliente_memoria);
     eliminar_paquete(paquete);
+}
+
+void solicitar_instruccion(int programCounter){
+    t_paquete* paquete = crear_paquete(PEDIR_INSTRUCCION);
+    agregar_int_a_paquete(paquete, programCounter);
+    enviar_paquete(paquete, cpu_cliente_memoria);
+    eliminar_paquete(paquete);
+    atender_memoria_cpu_sin_while();
+    //printf("%s",instruccion_a_decodificar);
 }
 
 

@@ -156,7 +156,7 @@ void crear_buffer(t_paquete* paquete)
 	paquete->buffer->stream = NULL;
 }
 
-t_paquete* crear_paquete(op_code codigo_de_operacion)
+t_paquete* crear_paquete(int codigo_de_operacion)
 {
 	t_paquete* paquete = malloc(sizeof(t_paquete));
 	paquete->codigo_operacion = codigo_de_operacion;
@@ -176,6 +176,14 @@ void agregar_a_paquete(t_paquete* paquete, void* valor, int tamanio)
 	//Se establece el nuevo tamanio
 	paquete->buffer->size += tamanio + sizeof(int);
 	return;
+}
+
+void agregar_int_a_paquete(t_paquete* paquete, int num){
+	agregar_a_paquete(paquete, &num, sizeof(int));
+}
+
+void agregar_string_a_paquete(t_paquete* paquete, char* el_String){
+	agregar_a_paquete(paquete,el_String,strlen(el_String)+1);
 }
 
 void* serializar_paquete(t_paquete* paquete, int tamanio_paquete)
@@ -280,6 +288,11 @@ int extraer_int_buffer(t_buffer* buffer, t_log* logger){
 	int numero_a_retornar = *un_int;
 	free(un_int);
 	return numero_a_retornar;
+}
+
+char* extraer_string_buffer(t_buffer* buffer, t_log* logger){
+	char* un_String = extraer_contenido_buffer(buffer, logger);
+	return un_String;
 }
 
 

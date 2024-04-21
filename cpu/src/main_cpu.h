@@ -21,7 +21,10 @@ char* PUERTO_ESCUCHA_INTERRUPT;
 int CANTIDAD_ENTRADAS_TLB;
 char* ALGORITMO_TLB;
 
+char* instruccion_a_decodificar; //Variable donde se almacena la instruccion recibida por la memoria, es necesario decodificarla
+
 void prueba_de_protocolo();
+void solicitar_instruccion(int );
 
 #endif
 

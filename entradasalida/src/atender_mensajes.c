@@ -7,7 +7,7 @@ void atender_kernel_entradasalida(){
 		switch (cod_op) {
 		case HANDSHAKE:
 			t_buffer* buffer = recibir_buffer(entradasalida_cliente_kernel);
-			char* mensaje = extraer_contenido_buffer(buffer, logger);
+			char* mensaje = extraer_string_buffer(buffer, logger);
 			printf("Recibi un handshake de: %s, como cliente",mensaje);
 			free(mensaje);
 			break;
@@ -28,7 +28,7 @@ void atender_memoria_entradasalida(){
 		switch (cod_op) {
 		case HANDSHAKE:
 			t_buffer* buffer = recibir_buffer(entradasalida_cliente_memoria);
-			char* mensaje = extraer_contenido_buffer(buffer, logger);
+			char* mensaje = extraer_string_buffer(buffer, logger);
 			printf("Recibi un handshake de: %s, como cliente",mensaje);
 			free(mensaje);
 			break;

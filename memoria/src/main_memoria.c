@@ -10,19 +10,14 @@ int main(int argc, char* argv[]) {
 	}
 	void* reserva_memoria = malloc(TAM_MEMORIA);
 	cantidad_instrucciones = 0;
-	/*
 	
-	char* hola = "Hola ";
-	lista_de_instrucciones[0]=hola;
-	lista_de_instrucciones[1] = "Como";
-	printf("%s",lista_de_instrucciones[0]);
-	printf("%s",lista_de_instrucciones[1]);
-	*/
 
+	/* Descomentar el bloque si tiene un archivo .txt en el path adecuado.
 	char* nombre = "Pseudo.txt";
 	int p= leer_archivo(nombre);
 	printf("%s",lista_de_instrucciones[0]);
 	printf("%s",lista_de_instrucciones[1]);
+	*/
 	
 	
 

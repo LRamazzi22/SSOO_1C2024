@@ -28,4 +28,6 @@ extern char* PUERTO_ESCUCHA_INTERRUPT;
 extern int CANTIDAD_ENTRADAS_TLB;
 extern char* ALGORITMO_TLB;
 
+extern char* instruccion_a_decodificar;
+
 #endif

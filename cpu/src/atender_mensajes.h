@@ -6,5 +6,6 @@
 void atender_kernel_dispatch();
 void atender_kernel_interrupt();
 void atender_memoria_cpu();
+void atender_memoria_cpu_sin_while();
 
 #endif

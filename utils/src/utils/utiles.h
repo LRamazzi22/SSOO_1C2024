@@ -20,9 +20,12 @@ typedef enum
 {
 	HANDSHAKE,
 	PAQUETE,
-	PROTOCOLO
+	PROTOCOLO,
+	PEDIR_INSTRUCCION
 
 } op_code;
+
+
 
 typedef struct
 {
@@ -56,8 +59,10 @@ void liberar_conexion(int);
 //-------------------- Protoloco de Comunicacion --------------------//
 void enviar_handshake(char*, int);
 void crear_buffer(t_paquete*);
-t_paquete* crear_paquete(op_code);
+t_paquete* crear_paquete(int);
 void agregar_a_paquete(t_paquete*, void*, int);
+void agregar_int_a_paquete(t_paquete*, int);
+void agregar_string_a_paquete(t_paquete*, char*);
 void* serializar_paquete(t_paquete*, int);
 void enviar_paquete(t_paquete*, int);
 void eliminar_paquete(t_paquete*);
@@ -67,5 +72,6 @@ int recibir_operacion(int);
 t_buffer* recibir_buffer(int);
 void* extraer_contenido_buffer(t_buffer*, t_log*);
 int extraer_int_buffer(t_buffer*, t_log*);
+char* extraer_string_buffer(t_buffer*, t_log*);
 
 #endif
