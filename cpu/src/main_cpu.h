@@ -23,6 +23,8 @@ char* ALGORITMO_TLB;
 
 char* instruccion_a_decodificar; //Variable donde se almacena la instruccion recibida por la memoria, es necesario decodificarla
 
+registros_cpu los_registros_de_la_cpu;
+
 void prueba_de_protocolo();
 void solicitar_instruccion(int );
 

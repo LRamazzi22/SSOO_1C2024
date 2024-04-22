@@ -39,6 +39,22 @@ typedef struct
 	t_buffer* buffer;
 } t_paquete;
 
+typedef struct 
+{
+	uint32_t PC;
+	uint8_t AX;
+	uint8_t BX;
+	uint8_t CX;
+	uint8_t DX;
+	uint32_t EAX;
+	uint32_t EBX;
+	uint32_t ECX;
+	uint32_t EDX;
+	uint32_t SI;
+	uint16_t DI;
+} registros_cpu;
+
+
 void decir_hola(char*);
 t_config* iniciar_config(char*);
 t_log* iniciar_logger(char*, char*, int);
