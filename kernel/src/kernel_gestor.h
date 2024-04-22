@@ -10,6 +10,8 @@ modulos del kernel pueden utilizarlas. Las variables deben ser previamente decla
 #include <stdio.h>
 #include <utils/utiles.h>
 
+#include <readline/readline.h>
+
 
 
 //Variables Globales

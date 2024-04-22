@@ -43,7 +43,11 @@ int main(int argc, char* argv[]) {
     //Atender mensajes de CPU Interrupt
     pthread_t hilo_Interrupt_Kernel;
 	pthread_create(&hilo_Interrupt_Kernel,NULL,(void*)atender_cpu_interrupt, NULL);
-	pthread_join(hilo_Interrupt_Kernel, NULL);
+	pthread_detach(hilo_Interrupt_Kernel);
+
+    sleep(1);
+
+    consola_kernel();
     
 
     liberar_conexion(kernel_cliente_dispatch);

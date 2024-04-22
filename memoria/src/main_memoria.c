@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
 	cantidad_instrucciones = 0;
 	
 
-	/* Descomentar el bloque si tiene un archivo .txt en el path adecuado.
+	/* Descomentar el bloque si tiene el archivo .txt en el path adecuado. ES una prueba de funcionamiento
 	char* nombre = "Pseudo.txt";
 	int p= leer_archivo(nombre);
 	printf("%s",lista_de_instrucciones[0]);
