@@ -30,4 +30,6 @@ extern char* ALGORITMO_TLB;
 
 extern char* instruccion_a_decodificar;
 
+extern registros_cpu los_registros_de_la_cpu;
+
 #endif

@@ -12,6 +12,12 @@ modulos del kernel pueden utilizarlas. Las variables deben ser previamente decla
 
 #include <readline/readline.h>
 
+typedef struct 
+{
+    int PID;
+    int quantum;
+    registros_cpu registros_cpu_en_pcb;
+}pcb;
 
 
 //Variables Globales
