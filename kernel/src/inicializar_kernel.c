@@ -1,6 +1,7 @@
 #include <inicializar_kernel.h>
 
 void inicializar_kernel(){
+    int pid_acumulado = 0;
     logger = iniciar_logger("./kernel.log", "Kernel_Logger", LOG_LEVEL_INFO);
     inicializar_config_kernel();
 }

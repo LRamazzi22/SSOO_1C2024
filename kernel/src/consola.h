@@ -2,6 +2,7 @@
 #define CONSOLA_H_
 
 #include <kernel_gestor.h>
+#include <inicializar_kernel.h>
 
 
 typedef enum
@@ -20,5 +21,7 @@ typedef enum
 void consola_kernel();
 comandos validar_comando(char**);
 void ejecutar_comando(comandos, char**);
+
+
 
 #endif

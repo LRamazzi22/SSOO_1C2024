@@ -6,5 +6,4 @@
 void inicializar_kernel();
 void inicializar_config_kernel();
 
-
 #endif

@@ -31,6 +31,7 @@ typedef struct
 
 
 //Variables Globales
+extern int pid_acumulado;
 
 extern t_log* logger;
 extern t_config* config;

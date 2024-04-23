@@ -91,3 +91,37 @@ void ejecutar_comando(comandos tipo_comandos, char** comando_por_partes){
     }
 
 }
+
+int crear_proceso(char* ruta_pseudocodigo){
+    
+    int pid_acumulado;
+
+    // Recibirá un path por consola.
+    // Crear PCB del proceso.
+
+    pcb *pcb_nuevo_proceso = malloc(sizeof(pcb)); // Liberar cuando no se use mas. (EXIT)
+
+    // + Actualizar PCB.
+    pcb_nuevo_proceso->estado_proceso = NEW;
+    pcb_nuevo_proceso->quantum = QUANTUM; // Por el momento, después definimos el valor inicial.
+    pcb_nuevo_proceso->PID = pid_acumulado++;
+
+     // TODO: Mandarlo a la cola NEW 
+
+    // Avisará a la memoria que debe iniciar un proceso.
+     // La idea es pasarle el path a memoria, el FS se encuentra donde se ejecute el modulo de memoria. S
+    // Mandar el OPCODE de iniciar proceso + buffer que contenga el path.
+
+    t_paquete* paquete_codeop_ruta = crear_paquete(CREAR_PROCESO);
+    agregar_string_a_paquete(paquete_codeop_ruta,ruta_pseudocodigo);
+    enviar_paquete(paquete_codeop_ruta,kernel_cliente_memoria);
+    eliminar_paquete(paquete_codeop_ruta);
+   
+    //SI EL GRADO DE MULTIPROG ACEPTA... CONTINUARÁ... EN otra función que se ocupe de mandar a READY.
+
+    // Memoria me tiene que avisar que está tiene cargadas las instrucciones en memoria.
+    // Cuando estén las instrucciones cargadas se actualizará el PCB con estado ready
+    // Se pasará a la cola de READY + Actualizar PCB. De lo contrario seguirá en NEW hasta que aplique.
+
+    return 0;
+}
