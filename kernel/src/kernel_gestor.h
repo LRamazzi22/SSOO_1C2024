@@ -12,12 +12,22 @@ modulos del kernel pueden utilizarlas. Las variables deben ser previamente decla
 
 #include <readline/readline.h>
 
+typedef enum {
+    NEW = 0,
+    READY = 1,
+    EXEC = 2,
+    BLOCKED = 3,
+    EXIT_PROCESS = 4
+} psw;
 typedef struct 
 {
     int PID;
     int quantum;
     registros_cpu registros_cpu_en_pcb;
-}pcb;
+    psw estado_proceso; // Agrego PCB para identificar el estado del proceso.
+
+} pcb;
+
 
 
 //Variables Globales
