@@ -26,7 +26,8 @@ comandos validar_comando(char** comando_por_partes){
         return EJECUTAR_SCRIPT;
     }
     else if(strcmp(comando_por_partes[0],"INICIAR_PROCESO")==0){
-        return INICIAR_PROCESO;
+        crear_proceso(comando_por_partes[1]);
+        //return INICIAR_PROCESO;
     }
     else if(strcmp(comando_por_partes[0],"FINALIZAR_PROCESO")==0){
         return FINALIZAR_PROCESO;
@@ -93,9 +94,9 @@ void ejecutar_comando(comandos tipo_comandos, char** comando_por_partes){
 }
 
 int crear_proceso(char* ruta_pseudocodigo){
-    
-    int pid_acumulado;
 
+    int pid_acumulado;
+    
     // Recibirá un path por consola.
     // Crear PCB del proceso.
 
