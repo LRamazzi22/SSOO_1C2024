@@ -25,7 +25,7 @@ void atender_cpu_memoria(){
 			buffer = recibir_buffer(cpu_cliente);
 			int pc = extraer_int_buffer(buffer,logger);
 			t_paquete* paquete = crear_paquete(PEDIR_INSTRUCCION);
-			char * instruccion = lista_de_instrucciones[pc];
+			char * instruccion = list_get(lista_de_instrucciones,pc);
 			agregar_string_a_paquete(paquete, instruccion);
 			enviar_paquete(paquete, cpu_cliente);
     		eliminar_paquete(paquete);

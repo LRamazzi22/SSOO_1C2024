@@ -10,14 +10,16 @@ int main(int argc, char* argv[]) {
 	}
 	void* reserva_memoria = malloc(TAM_MEMORIA);
 	cantidad_instrucciones = 0;
+	lista_de_instrucciones = list_create();
 	
 
-	/* Descomentar el bloque si tiene el archivo .txt en el path adecuado. ES una prueba de funcionamiento
-	char* nombre = "Pseudo.txt";
+	// Descomentar el bloque si tiene el archivo .txt en el path adecuado. ES una prueba de funcionamiento
+	char* nombre = "pseudo.txt";
 	int p= leer_archivo(nombre);
-	printf("%s",lista_de_instrucciones[0]);
-	printf("%s",lista_de_instrucciones[1]);
-	*/
+	int* hola = list_get(lista_de_instrucciones,0);
+	printf("%d",hola);
+	int* holaa = list_get(lista_de_instrucciones,1);
+	printf("%d",holaa);	 
 	
 	
 

@@ -27,7 +27,7 @@ extern char* PATH_INSTRUCCIONES;
 extern int RETARDO_RESPUESTA;
 
 
-extern char ** lista_de_instrucciones;
+extern t_list* lista_de_instrucciones;
 extern int cantidad_instrucciones;
 
 
