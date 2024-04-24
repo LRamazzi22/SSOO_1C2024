@@ -9,6 +9,10 @@
 
 //Variables Globales
 
+int pid_acumulado = 0;
+
+pthread_mutex_t mutex_para_pid;
+
 t_log* logger;
 t_config* config;
 

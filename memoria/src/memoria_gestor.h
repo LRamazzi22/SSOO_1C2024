@@ -15,6 +15,8 @@ modulos de la Memoria pueden utilizarlas. Las variables deben ser previamente de
 extern t_log* logger;
 extern t_config* config;
 
+extern pthread_mutex_t mutex_para_leer_pseudo;
+
 extern int memoria_server;
 extern int cpu_cliente;
 extern int kernel_cliente;

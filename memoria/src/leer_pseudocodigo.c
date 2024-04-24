@@ -1,6 +1,7 @@
 #include <leer_pseudocodigo.h>
 
 int leer_archivo(char *nombArch, t_dictionary* diccionario){
+    pthread_mutex_lock(&mutex_para_leer_pseudo);
     char * archivo = PATH_INSTRUCCIONES;
 
     string_append(&archivo, nombArch);
@@ -28,5 +29,7 @@ int leer_archivo(char *nombArch, t_dictionary* diccionario){
     }
     free(archivo);
     fclose(archivo_pseudo);
+    pthread_mutex_unlock(&mutex_para_leer_pseudo);
     return programCounter;
+    
 }

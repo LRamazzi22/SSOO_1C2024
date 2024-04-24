@@ -22,7 +22,7 @@ typedef enum {
 typedef struct 
 {
     int PID;
-    int quantum;
+    int quantum_restante;
     t_registros_cpu registros_cpu_en_pcb;
     psw estado_proceso; // Agrego PCB para identificar el estado del proceso.
 
@@ -32,6 +32,8 @@ typedef struct
 
 //Variables Globales
 extern int pid_acumulado;
+
+extern pthread_mutex_t mutex_para_pid;
 
 extern t_log* logger;
 extern t_config* config;

@@ -3,6 +3,7 @@
 
 #include <kernel_gestor.h>
 #include <inicializar_kernel.h>
+#include <crear_pcb.h>
 
 
 typedef enum

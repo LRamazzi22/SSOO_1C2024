@@ -20,6 +20,23 @@ void atender_memoria(){
 		}
 	}
 }
+int recibir_PC_memoria(){
+	int cod_op = recibir_operacion(kernel_cliente_memoria);
+	switch (cod_op) {
+	case CREAR_PROCESO:
+		t_buffer* buffer = recibir_buffer(kernel_cliente_memoria);
+		int pc = extraer_int_buffer(buffer, logger);
+		return pc;
+		break;
+	case -1:
+		log_error(logger, "Se desconceto la Memoria");
+		exit(EXIT_FAILURE);
+	default:
+		log_warning(logger,"La operacion no es la de crear proceso");
+		return -1;
+		break;
+	}
+}
 
 void atender_cpu_dispatch(){
     while (1) {
