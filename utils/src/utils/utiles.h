@@ -12,6 +12,7 @@
 #include <string.h>
 #include <commons/string.h>
 #include <commons/collections/list.h>
+#include <commons/collections/dictionary.h>
 #include <pthread.h>
 #include <commons/log.h>
 #include <commons/config.h>
@@ -22,7 +23,8 @@ typedef enum
 	HANDSHAKE,
 	PAQUETE,
 	PROTOCOLO,
-	PEDIR_INSTRUCCION
+	PEDIR_INSTRUCCION,
+    CREAR_PROCESO
 
 } op_code;
 

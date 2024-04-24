@@ -6,15 +6,14 @@ void atender_cpu_memoria(){
     while (1) {
 		log_info(logger, "Esperando mensajes de CPU");
 		int cod_op = recibir_operacion(cpu_cliente);
+		buffer = recibir_buffer(cpu_cliente);
 		switch (cod_op) {
 		case HANDSHAKE:
-			buffer = recibir_buffer(cpu_cliente);
 			mensaje = extraer_string_buffer(buffer, logger);
 			printf("Recibi un handshake de: %s, como cliente",mensaje);
 			free(mensaje);
 			break;
 		case PROTOCOLO:
-			buffer = recibir_buffer(cpu_cliente);
 			int num = extraer_int_buffer(buffer, logger);
 			mensaje = extraer_string_buffer(buffer, logger);
 			printf("El numero es: %d \n", num);
@@ -22,14 +21,8 @@ void atender_cpu_memoria(){
 			free(mensaje);
 			break;
 		case PEDIR_INSTRUCCION:
-			buffer = recibir_buffer(cpu_cliente);
 			int pc = extraer_int_buffer(buffer,logger);
-			t_paquete* paquete = crear_paquete(PEDIR_INSTRUCCION);
-			char * instruccion = list_get(lista_de_instrucciones,pc);
-			agregar_string_a_paquete(paquete, instruccion);
-			enviar_paquete(paquete, cpu_cliente);
-    		eliminar_paquete(paquete);
-			free(instruccion);
+			enviar_instruccion(pc);
 			break;
 		case -1:
 			log_error(logger, "El CPU se desconecto");
@@ -39,6 +32,15 @@ void atender_cpu_memoria(){
 			break;
 		}
 	}
+}
+void enviar_instruccion(int pc){
+	t_paquete* paquete = crear_paquete(PEDIR_INSTRUCCION);
+	char pcDictionary [2];
+    sprintf(pcDictionary,"%d",pc);
+	char * instruccion = dictionary_get(diccionario_de_instrucciones,pcDictionary);
+	agregar_string_a_paquete(paquete, instruccion);
+	enviar_paquete(paquete, cpu_cliente);
+    eliminar_paquete(paquete);
 }
 
 void atender_kernel_memoria(){

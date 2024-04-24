@@ -21,6 +21,7 @@ typedef enum
 void consola_kernel();
 comandos validar_comando(char**);
 void ejecutar_comando(comandos, char**);
+int crear_proceso(char*);
 
 
 

@@ -74,29 +74,29 @@ void solicitar_instruccion(int programCounter){
 t_registros_cpu* iniciar_registros_cpu(){
     t_registros_cpu* registro = malloc(sizeof(t_registros_cpu));
 
-    registro->pc = malloc(sizeof(4));
-    registro->ax = malloc(sizeof(1));
-    registro->bx = malloc(sizeof(1));
-    registro->cx = malloc(sizeof(1));
-    registro->dx = malloc(sizeof(1));
-    registro->eax = malloc(sizeof(4));
-    registro->ebx = malloc(sizeof(4));
-    registro->ecx = malloc(sizeof(4));
-    registro->edx = malloc(sizeof(4));
-    registro->si = malloc(sizeof(4));
-    registro->di = malloc(sizeof(4));
+    registro->PC = malloc(sizeof(4));
+    registro->AX = malloc(sizeof(1));
+    registro->BX = malloc(sizeof(1));
+    registro->CX = malloc(sizeof(1));
+    registro->DX = malloc(sizeof(1));
+    registro->EAX = malloc(sizeof(4));
+    registro->EBX = malloc(sizeof(4));
+    registro->ECX = malloc(sizeof(4));
+    registro->EDX = malloc(sizeof(4));
+    registro->SI = malloc(sizeof(4));
+    registro->DI = malloc(sizeof(4));
 
-    registro->pc = 0;
-    registro->ax = NULL;
-    registro->bx = NULL;
-    registro->cx = NULL;
-    registro->dx = NULL;
-    registro->eax = NULL;
-    registro->ebx = NULL;
-    registro->ecx = NULL;
-    registro->edx = NULL;
-    registro->si = NULL;
-    registro->di = NULL;
+    registro->PC = 0;
+    registro->AX = NULL;
+    registro->BX = NULL;
+    registro->CX = NULL;
+    registro->DX = NULL;
+    registro->EAX = NULL;
+    registro->EBX = NULL;
+    registro->ECX = NULL;
+    registro->EDX = NULL;
+    registro->SI = NULL;
+    registro->DI = NULL;
 
     return registro;
 
@@ -104,9 +104,9 @@ t_registros_cpu* iniciar_registros_cpu(){
 
 //Hay que pulir mucho pseucodigo jej
 void fetch(/*Aca podria haber una estructura pcb o del contexto de ejecucion*/){
-    //instruccion_a_ejecutar = lista_instrucciones[pc] -> esto esta hecho con la lista de instrucciones que tenemos podriamos tener lista encadenada de nodos
+    //llamado a solicitar_instruccion. La instruccion se almacena en la variable global instruccion_a_decodificar
     //pc++;
-    //decode(instruccion);
+    
 }
 
 void decode(){
