@@ -2,8 +2,7 @@
 
 int leer_archivo(char *nombArch, t_dictionary* diccionario){
     pthread_mutex_lock(&mutex_para_leer_pseudo);
-    char * archivo = PATH_INSTRUCCIONES;
-
+    char * archivo = strdup(PATH_INSTRUCCIONES);
     string_append(&archivo, nombArch);
     FILE* archivo_pseudo = fopen(archivo, "r");
     int programCounter = cantidad_instrucciones;
@@ -24,7 +23,6 @@ int leer_archivo(char *nombArch, t_dictionary* diccionario){
 
         
     }
-    free(archivo);
     fclose(archivo_pseudo);
     pthread_mutex_unlock(&mutex_para_leer_pseudo);
     return programCounter;
