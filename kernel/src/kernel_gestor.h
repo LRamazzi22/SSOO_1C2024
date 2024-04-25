@@ -23,7 +23,7 @@ typedef struct
 {
     int PID;
     int quantum_restante;
-    t_registros_cpu registros_cpu_en_pcb;
+    t_registros_cpu* registros_cpu_en_pcb;
     psw estado_proceso; // Agrego PCB para identificar el estado del proceso.
 
 } pcb;

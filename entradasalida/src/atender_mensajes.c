@@ -12,7 +12,7 @@ void atender_kernel_entradasalida(){
 			free(mensaje);
 			break;
 		case -1:
-			log_error(logger, "Se desconceto el Kernel");
+			log_error(logger, "Se desconecto el Kernel");
 			exit(EXIT_FAILURE);
 		default:
 			log_warning(logger,"Operacion desconocida. No quieras meter la pata");

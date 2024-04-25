@@ -55,8 +55,12 @@ void crear_proceso(void* ruta_pseudocodigo){
     // Crear PCB del proceso.
     pthread_mutex_lock(&mutex_para_creacion_proceso);
     pcb* pcb_proceso = creacion_pcb((char*)ruta_pseudocodigo);
-
-    queue_push(cola_new,pcb_proceso);
+    if(pcb_proceso != NULL){
+        queue_push(cola_new,pcb_proceso);
+    }
+    else{
+        log_error(logger,"No existe ese archivo de Pseudocodigo");
+    }
     free(ruta_pseudocodigo);
 
     pthread_mutex_unlock(&mutex_para_creacion_proceso);

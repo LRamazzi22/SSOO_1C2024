@@ -60,7 +60,6 @@ void atender_kernel_memoria(){
 			char* ruta_pseudocodigo = extraer_string_buffer(buffer,logger);
 			int programCounter = leer_archivo(ruta_pseudocodigo,diccionario_de_instrucciones);
 			enviar_program_counter(programCounter);
-			//free(ruta_pseudocodigo);
 			break;
 		case -1:
 			log_error(logger, "El Kernel se desconecto");

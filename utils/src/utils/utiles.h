@@ -80,17 +80,17 @@ char* extraer_string_buffer(t_buffer*, t_log*);
 //---------------------Estructuras para Ciclo de Instruccion--------------//
 
 typedef struct{
-    uint32_t PC; //Program Counter (no sabemos si hacerlo tipo extern porq tambien tiene q estar en los pcb's)
-    uint8_t AX; //Registro generico
-    uint8_t BX; // "       "
-    uint8_t CX; // "       "
-    uint8_t DX; // "       "
-    uint32_t EAX; // "       "
-    uint32_t EBX; // "       "
-    uint32_t ECX; // "       "
-    uint32_t EDX; // "       "
-    uint32_t SI; //direccion de memoria de origen desde donde se copia un string
-    uint32_t DI; //direccion de memoria de destino donde se copia un string
+    uint32_t* PC; //Program Counter (no sabemos si hacerlo tipo extern porq tambien tiene q estar en los pcb's)
+    uint8_t* AX; //Registro generico
+    uint8_t* BX; // "       "
+    uint8_t* CX; // "       "
+    uint8_t* DX; // "       "
+    uint32_t* EAX; // "       "
+    uint32_t* EBX; // "       "
+    uint32_t* ECX; // "       "
+    uint32_t* EDX; // "       "
+    uint32_t* SI; //direccion de memoria de origen desde donde se copia un string
+    uint32_t* DI; //direccion de memoria de destino donde se copia un string
 
 } t_registros_cpu;
 
@@ -111,7 +111,8 @@ typedef enum{
     IO_FS_CREATE,
     IO_FS_TRUNCATE,
     IO_FS_WRITE, 
-    IO_FS_READ, 
+    IO_FS_READ,
+    IO_FS_DELETE,
     EXIT,
 } t_nombre_instruccion; //Podriamos cambiar leer pseudocodigo para que haga una lista encadenada de "nodos" de tipo instruccion (ver abajo) y asi no tener que comparar
 					 //strings a la hora de leer una instruccion (a chekear este disenioo)

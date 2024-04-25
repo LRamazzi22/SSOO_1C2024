@@ -4,6 +4,7 @@
 #include <cpu_gestor.h>
 #include <inicializar_cpu.h>
 #include <atender_mensajes.h>
+#include <ciclo_cpu.h>
 
 t_log* logger;
 t_config* config;
@@ -23,10 +24,11 @@ char* ALGORITMO_TLB;
 
 char* instruccion_a_decodificar; //Variable donde se almacena la instruccion recibida por la memoria, es necesario decodificarla
 
-t_registros_cpu los_registros_de_la_cpu;
+t_registros_cpu*  los_registros_de_la_cpu;
 
 void prueba_de_protocolo();
 void solicitar_instruccion(int );
+t_registros_cpu* iniciar_registros_cpu();
 
 #endif
 

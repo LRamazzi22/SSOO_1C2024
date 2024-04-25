@@ -5,21 +5,13 @@ int main(int argc, char* argv[]) {
     inicializar_memoria();
 
     if(TAM_MEMORIA % TAM_PAGINA != 0){
-		log_error(logger, "Tamaño de memoria no es multiplo de tamaño de memoria");
+		log_error(logger, "Tamanio de memoria no es multiplo de tamanio de memoria");
 		exit(EXIT_FAILURE);
 	}
 	void* reserva_memoria = malloc(TAM_MEMORIA);
 	cantidad_instrucciones = 0;
 	diccionario_de_instrucciones = dictionary_create();
-
-	
-	
-	/*
-	char* nombre = "Pseudo.txt";
-	int p= leer_archivo(nombre,diccionario_de_instrucciones);
-	*/
-	
-
+		
 	//Se inicia la memoria como servidor
     memoria_server = iniciar_servidor(PUERTO_ESCUCHA, logger);
 	

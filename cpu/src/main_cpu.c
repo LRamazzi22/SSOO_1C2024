@@ -3,6 +3,7 @@
 int main(int argc, char* argv[]) {
 
     inicializar_cpu();
+    los_registros_de_la_cpu = iniciar_registros_cpu();
 
     //Iniciar CPU como Server
     cpu_server_dispatch = iniciar_servidor(PUERTO_ESCUCHA_DISPATCH, logger);
@@ -39,9 +40,11 @@ int main(int argc, char* argv[]) {
     printf("\nUna vez conectados todos los modulos en el orden establecido en el Instruciones.MD, presione ENTER para iniciar la prueba\n\n");
     char hola = getchar();
 
-    prueba_de_protocolo();
+    //prueba_de_protocolo();
 
     //solicitar_instruccion(0);
+    *los_registros_de_la_cpu -> PC = 0;
+    ciclo();
 
     liberar_conexion(cpu_cliente_memoria);
     liberar_conexion(cpu_server_dispatch);
@@ -61,60 +64,22 @@ void prueba_de_protocolo(){
     eliminar_paquete(paquete);
 }
 
-void solicitar_instruccion(int programCounter){
-    t_paquete* paquete = crear_paquete(PEDIR_INSTRUCCION);
-    agregar_int_a_paquete(paquete, programCounter);
-    enviar_paquete(paquete, cpu_cliente_memoria);
-    eliminar_paquete(paquete);
-    atender_memoria_cpu_sin_while();
-    //printf("%s",instruccion_a_decodificar);
-}
-
-
 t_registros_cpu* iniciar_registros_cpu(){
     t_registros_cpu* registro = malloc(sizeof(t_registros_cpu));
 
-    registro->PC = malloc(sizeof(4));
-    registro->AX = malloc(sizeof(1));
-    registro->BX = malloc(sizeof(1));
-    registro->CX = malloc(sizeof(1));
-    registro->DX = malloc(sizeof(1));
-    registro->EAX = malloc(sizeof(4));
-    registro->EBX = malloc(sizeof(4));
-    registro->ECX = malloc(sizeof(4));
-    registro->EDX = malloc(sizeof(4));
-    registro->SI = malloc(sizeof(4));
-    registro->DI = malloc(sizeof(4));
-
-    registro->PC = 0;
-    registro->AX = NULL;
-    registro->BX = NULL;
-    registro->CX = NULL;
-    registro->DX = NULL;
-    registro->EAX = NULL;
-    registro->EBX = NULL;
-    registro->ECX = NULL;
-    registro->EDX = NULL;
-    registro->SI = NULL;
-    registro->DI = NULL;
+    registro->PC = calloc(1,sizeof(uint32_t));
+    registro->AX = calloc(1,sizeof(uint8_t));
+    registro->BX = calloc(1,sizeof(uint8_t));
+    registro->CX = calloc(1,sizeof(uint8_t));
+    registro->DX = calloc(1,sizeof(uint8_t));
+    registro->EAX = calloc(1,sizeof(uint32_t));
+    registro->EBX = calloc(1,sizeof(uint32_t));
+    registro->ECX = calloc(1,sizeof(uint32_t));
+    registro->EDX = calloc(1,sizeof(uint32_t));
+    registro->SI = calloc(1,sizeof(uint32_t));
+    registro->DI = calloc(1,sizeof(uint32_t));
 
     return registro;
 
 }
 
-//Hay que pulir mucho pseucodigo jej
-void fetch(/*Aca podria haber una estructura pcb o del contexto de ejecucion*/){
-    //llamado a solicitar_instruccion. La instruccion se almacena en la variable global instruccion_a_decodificar
-    //pc++;
-    
-}
-
-void decode(){
-    //TODO
-    //aca iria un switch con casos que pide la consigna como instrucciones 
-
-}
-
-void execute(){
-    //TODO
-}

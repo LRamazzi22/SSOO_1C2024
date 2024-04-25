@@ -12,20 +12,21 @@ pcb* creacion_pcb(char* ruta_pseudocodigo){
     eliminar_paquete(paquete_codeop_ruta);
     int programCounter = recibir_PC_memoria();
     if(programCounter <0){
-        log_error(logger, "Error al recibir el program counter");
-        exit(EXIT_FAILURE);
+        return NULL;
     }
-    el_pcb ->registros_cpu_en_pcb.PC = programCounter;
-    el_pcb ->registros_cpu_en_pcb.AX = 0;
-    el_pcb ->registros_cpu_en_pcb.BX = 0;
-    el_pcb ->registros_cpu_en_pcb.CX = 0;
-    el_pcb ->registros_cpu_en_pcb.DX = 0;
-    el_pcb ->registros_cpu_en_pcb.EAX = 0;
-    el_pcb ->registros_cpu_en_pcb.EBX = 0;
-    el_pcb ->registros_cpu_en_pcb.ECX = 0;
-    el_pcb ->registros_cpu_en_pcb.EDX = 0;
-    el_pcb ->registros_cpu_en_pcb.DI = 0;
-    el_pcb ->registros_cpu_en_pcb.SI = 0;
+    el_pcb ->registros_cpu_en_pcb = malloc(sizeof(t_registros_cpu));
+    el_pcb ->registros_cpu_en_pcb->PC = malloc(sizeof(uint32_t));
+    *el_pcb->registros_cpu_en_pcb->PC = programCounter;
+    el_pcb ->registros_cpu_en_pcb->AX = calloc(1,sizeof(uint8_t));
+    el_pcb ->registros_cpu_en_pcb->BX = calloc(1,sizeof(uint8_t));
+    el_pcb ->registros_cpu_en_pcb->CX = calloc(1,sizeof(uint8_t));
+    el_pcb ->registros_cpu_en_pcb->DX = calloc(1,sizeof(uint8_t));
+    el_pcb ->registros_cpu_en_pcb->EAX = calloc(1,sizeof(uint32_t));
+    el_pcb ->registros_cpu_en_pcb->EBX = calloc(1,sizeof(uint32_t));
+    el_pcb ->registros_cpu_en_pcb->ECX = calloc(1,sizeof(uint32_t));
+    el_pcb ->registros_cpu_en_pcb->EDX = calloc(1,sizeof(uint32_t));
+    el_pcb ->registros_cpu_en_pcb->DI = calloc(1,sizeof(uint32_t));
+    el_pcb ->registros_cpu_en_pcb->SI = calloc(1,sizeof(uint32_t));
 
     return el_pcb;
 
