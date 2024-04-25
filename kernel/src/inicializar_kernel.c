@@ -1,8 +1,12 @@
 #include <inicializar_kernel.h>
 
 void inicializar_kernel(){
-    int pid_acumulado = 0;
+    pid_acumulado = 0;
     logger = iniciar_logger("./kernel.log", "Kernel_Logger", LOG_LEVEL_INFO);
+    cola_new = queue_create();
+    cola_ready = queue_create();
+    cola_blocked = queue_create();
+    cola_exit = queue_create();
     inicializar_config_kernel();
 }
 

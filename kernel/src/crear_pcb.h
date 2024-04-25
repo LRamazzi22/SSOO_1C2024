@@ -5,7 +5,6 @@
 #include <atender_mensajes.h>
 
 pcb* creacion_pcb(char*);
-int crear_pid();
 
 
 

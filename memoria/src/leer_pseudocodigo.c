@@ -6,13 +6,10 @@ int leer_archivo(char *nombArch, t_dictionary* diccionario){
 
     string_append(&archivo, nombArch);
     FILE* archivo_pseudo = fopen(archivo, "r");
-    
     int programCounter = cantidad_instrucciones;
     char* instruccion = string_new();
     while (!feof(archivo_pseudo))
     {
-
-        
         
         fgets(instruccion,256,archivo_pseudo);
         char* a_guardar = strdup(instruccion);

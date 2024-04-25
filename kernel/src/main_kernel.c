@@ -31,9 +31,9 @@ int main(int argc, char* argv[]) {
 	pthread_detach(hilo_entradasalida_kernel);
     
     //Atender mensajes de Memoria
-    pthread_t hilo_memoria_kernel;
-	pthread_create(&hilo_memoria_kernel,NULL,(void*)atender_memoria, NULL);
-	pthread_detach(hilo_memoria_kernel);
+    //pthread_t hilo_memoria_kernel;
+	//pthread_create(&hilo_memoria_kernel,NULL,(void*)atender_memoria, NULL);
+	//pthread_detach(hilo_memoria_kernel);
 
     //Atender mensajes de CPU Dispatch
     pthread_t hilo_dispatch_kernel;

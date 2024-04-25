@@ -9,9 +9,9 @@
 
 //Variables Globales
 
-int pid_acumulado = 0;
+int pid_acumulado;
 
-pthread_mutex_t mutex_para_pid;
+pthread_mutex_t mutex_para_creacion_proceso;
 
 t_log* logger;
 t_config* config;
@@ -34,6 +34,11 @@ int QUANTUM;
 char** RECURSOS;
 char** INSTANCIAS_RECURSOS;
 int GRADO_MULTIPROGRAMACION;
+
+t_queue* cola_new;
+t_queue* cola_ready;
+t_queue* cola_blocked;
+t_queue* cola_exit;
 
 
 #endif

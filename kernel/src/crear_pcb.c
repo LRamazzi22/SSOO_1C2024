@@ -3,7 +3,8 @@
 pcb* creacion_pcb(char* ruta_pseudocodigo){
     pcb* el_pcb = malloc(sizeof(pcb));
     el_pcb ->estado_proceso = NEW;
-    el_pcb ->PID = crear_pid();
+    el_pcb ->PID = pid_acumulado;
+    pid_acumulado++;
     el_pcb ->quantum_restante = QUANTUM;
     t_paquete* paquete_codeop_ruta = crear_paquete(CREAR_PROCESO);
     agregar_string_a_paquete(paquete_codeop_ruta,ruta_pseudocodigo);
@@ -30,11 +31,3 @@ pcb* creacion_pcb(char* ruta_pseudocodigo){
 
 }
 
-int crear_pid(){
-    int pid;
-    pthread_mutex_lock(&mutex_para_pid);
-    pid = pid_acumulado;
-    pid_acumulado++;
-    pthread_mutex_unlock(&mutex_para_pid);
-    return pid;
-}

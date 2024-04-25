@@ -5,12 +5,10 @@ void consola_kernel(){
     log_info(logger, "INICIANDO CONSOLA \n");
     char* leido;
     leido = readline(">");
-    int tipo_comando;
 
     while(strcmp(leido,"EXIT")!=0){
         char** comando_por_partes = string_split(leido, " "); //SE divide lo leido, separandolos por los espacios
-        tipo_comando = validar_comando(comando_por_partes); //DEvuelve un enum de comandos
-        ejecutar_comando(tipo_comando, comando_por_partes); //Utilizando el enum y el comando ya separado por espacios, ejecuta el comando. EN caso de no existir, da el aviso de que no existe
+        validar_y_ejecutar_comando(comando_por_partes);
         string_array_destroy(comando_por_partes);
         free(leido);
         leido = readline(">");
@@ -18,95 +16,54 @@ void consola_kernel(){
     free(leido);
 }
 
-comandos validar_comando(char** comando_por_partes){
+void validar_y_ejecutar_comando(char** comando_por_partes){
     
     //En cuanto se agreguen las funciones de los comandos, hay que agregar mas validaciones
     
     if(strcmp(comando_por_partes[0],"EJECUTAR_SCRIPT")==0){
-        return EJECUTAR_SCRIPT;
+        printf("Hola, soy ejecutar script\n");
     }
-    else if(strcmp(comando_por_partes[0],"INICIAR_PROCESO")==0){
-        crear_proceso(comando_por_partes[1]);
-        //return INICIAR_PROCESO;
+    else if((strcmp(comando_por_partes[0],"INICIAR_PROCESO")==0) && (string_array_size(comando_por_partes)==2) && (strcmp(comando_por_partes[1],"")!=0)){
+        pthread_t hilo_crear_proceso;
+        char* ruta = strdup(comando_por_partes[1]);
+        pthread_create(&hilo_crear_proceso, NULL, (void*)crear_proceso,(void*)ruta);
+        pthread_detach(hilo_crear_proceso);
     }
     else if(strcmp(comando_por_partes[0],"FINALIZAR_PROCESO")==0){
-        return FINALIZAR_PROCESO;
+        printf("Hola, soy finalizar proceso\n");
     }
     else if(strcmp(comando_por_partes[0],"DETENER_PLANIFICACION")==0){
-        return DETENER_PLANIFICACION;
+        printf("Hola, soy detener planificacion\n");
     }
     else if(strcmp(comando_por_partes[0],"INICIAR_PLANIFICACION")==0){
-        return INICIAR_PLANIFICACION;
+        printf("Hola, soy iniciar planificacion\n");
     }
     else if(strcmp(comando_por_partes[0],"MULTIPROGRAMACION")==0){
-        return MULTIPROGRAMACION;
+        printf("Hola, soy multiprogramacion\n");
     }
     else if(strcmp(comando_por_partes[0],"PROCESO_ESTADO")==0){
-        return PROCESO_ESTADO;
+        printf("Hola, soy proceso estado\n");
     }
     else{
-        return NO_RECONOCIDO;
+        log_error(logger, "ERROR. COMANDO NO RECONOCIDO O SINTAXIS ERRONEA");
     }
     
-
 }
 
-void ejecutar_comando(comandos tipo_comandos, char** comando_por_partes){
-
-    switch (tipo_comandos)
-    {
-    case EJECUTAR_SCRIPT:
-        printf("Hola, soy ejecutar script\n");
-        break;
-    
-    case INICIAR_PROCESO:
-        printf("Hola, soy iniciar proceso\n");
-        break;
-
-    case FINALIZAR_PROCESO:
-        printf("Hola, soy finalizar proceso\n");
-        break;
-
-    case DETENER_PLANIFICACION:
-        printf("Hola, soy detener planificacion\n");
-        break;
-
-    case INICIAR_PLANIFICACION:
-        printf("Hola, soy iniciar planificacion\n");
-        break;
-
-    case MULTIPROGRAMACION:
-        printf("Hola, soy multiprogramacion\n");
-        break;
-
-    case PROCESO_ESTADO:
-        printf("Hola, soy proceso estado\n");
-        break;
-
-    case NO_RECONOCIDO:
-        log_error(logger, "ERROR. COMANDO NO RECONOCIDO");
-        break;
-    default:
-        log_error(logger, "ERROR. Que extraño, validar comando no detecto esto como comando no reconocido");
-        break;
-    }
-
-}
-
-int crear_proceso(char* ruta_pseudocodigo){
+void crear_proceso(void* ruta_pseudocodigo){
     // Recibirá un path por consola.
     // Crear PCB del proceso.
+    pthread_mutex_lock(&mutex_para_creacion_proceso);
+    pcb* pcb_proceso = creacion_pcb((char*)ruta_pseudocodigo);
 
-    pcb* pcb_proceso = creacion_pcb(ruta_pseudocodigo);
+    queue_push(cola_new,pcb_proceso);
+    free(ruta_pseudocodigo);
 
-     // TODO: Mandarlo a la cola NEW 
-    
+    pthread_mutex_unlock(&mutex_para_creacion_proceso);
    
     //SI EL GRADO DE MULTIPROG ACEPTA... CONTINUARÁ... EN otra función que se ocupe de mandar a READY.
 
     // Memoria me tiene que avisar que está tiene cargadas las instrucciones en memoria.
     // Cuando estén las instrucciones cargadas se actualizará el PCB con estado ready
     // Se pasará a la cola de READY + Actualizar PCB. De lo contrario seguirá en NEW hasta que aplique.
-
-    return 0;
 }

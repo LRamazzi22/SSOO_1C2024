@@ -33,7 +33,7 @@ typedef struct
 //Variables Globales
 extern int pid_acumulado;
 
-extern pthread_mutex_t mutex_para_pid;
+extern pthread_mutex_t mutex_para_creacion_proceso;
 
 extern t_log* logger;
 extern t_config* config;
@@ -55,6 +55,11 @@ extern int QUANTUM;
 extern char** RECURSOS;
 extern char** INSTANCIAS_RECURSOS;
 extern int GRADO_MULTIPROGRAMACION;
+
+extern t_queue* cola_new;
+extern t_queue* cola_ready;
+extern t_queue* cola_blocked;
+extern t_queue* cola_exit;
 
 
 
