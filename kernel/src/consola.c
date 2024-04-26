@@ -56,7 +56,12 @@ void crear_proceso(void* ruta_pseudocodigo){
     pthread_mutex_lock(&mutex_para_creacion_proceso);
     pcb* pcb_proceso = creacion_pcb((char*)ruta_pseudocodigo);
     if(pcb_proceso != NULL){
-        queue_push(cola_new,pcb_proceso);
+        queue_push(cola_new,pcb_proceso)
+        if (grado_multiprogramacion_variable > 0) {
+            queue_pop(cola_new);
+            queue_push(cola_ready,pcb_proceso);
+        } 
+
     }
     else{
         log_error(logger,"No existe ese archivo de Pseudocodigo");

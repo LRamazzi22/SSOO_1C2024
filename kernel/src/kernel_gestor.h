@@ -24,7 +24,7 @@ typedef struct
     int PID;
     int quantum_restante;
     t_registros_cpu* registros_cpu_en_pcb;
-    psw estado_proceso; // Agrego PCB para identificar el estado del proceso.
+    psw estado_proceso; // Agrego reg de estado, para identificar el estado del proceso.
 
 } pcb;
 
@@ -32,6 +32,7 @@ typedef struct
 
 //Variables Globales
 extern int pid_acumulado;
+extern int grado_multiprogramacion_variable;
 
 extern pthread_mutex_t mutex_para_creacion_proceso;
 
