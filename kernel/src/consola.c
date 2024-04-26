@@ -60,6 +60,7 @@ void crear_proceso(void* ruta_pseudocodigo){
         if (grado_multiprogramacion_variable > 0) {
             queue_pop(cola_new);
             queue_push(cola_ready,pcb_proceso);
+            pcb_proceso->psw = READY;
         } 
 
     }
