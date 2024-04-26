@@ -10,6 +10,7 @@
 //Variables Globales
 
 int pid_acumulado;
+int grado_multiprogramacion_variable;
 
 pthread_mutex_t mutex_para_creacion_proceso;
 

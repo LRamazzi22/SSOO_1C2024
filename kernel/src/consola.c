@@ -56,11 +56,15 @@ void crear_proceso(void* ruta_pseudocodigo){
     pthread_mutex_lock(&mutex_para_creacion_proceso);
     pcb* pcb_proceso = creacion_pcb((char*)ruta_pseudocodigo);
     if(pcb_proceso != NULL){
-        queue_push(cola_new,pcb_proceso)
+        queue_push(cola_new,pcb_proceso);
+        //SI EL GRADO DE MULTIPROG ACEPTA... CONTINUARÁ... a mandar a READY.
         if (grado_multiprogramacion_variable > 0) {
+             // TODO: Memoria me tiene que avisar que está tiene cargadas las instrucciones en memoria.
             queue_pop(cola_new);
+            // Cuando estén las instrucciones cargadas se actualizará el PCB con estado ready
+             // Se pasará a la cola de READY + Actualizar PCB. De lo contrario seguirá en NEW hasta que aplique.
             queue_push(cola_ready,pcb_proceso);
-            pcb_proceso->psw = READY;
+            pcb_proceso->estado_proceso = READY;
         } 
 
     }
@@ -71,9 +75,9 @@ void crear_proceso(void* ruta_pseudocodigo){
 
     pthread_mutex_unlock(&mutex_para_creacion_proceso);
    
-    //SI EL GRADO DE MULTIPROG ACEPTA... CONTINUARÁ... EN otra función que se ocupe de mandar a READY.
+    
 
-    // Memoria me tiene que avisar que está tiene cargadas las instrucciones en memoria.
-    // Cuando estén las instrucciones cargadas se actualizará el PCB con estado ready
-    // Se pasará a la cola de READY + Actualizar PCB. De lo contrario seguirá en NEW hasta que aplique.
+   
+ 
+   
 }

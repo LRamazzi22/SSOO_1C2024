@@ -42,13 +42,23 @@ void atender_cpu_dispatch(){
     while (1) {
 		log_info(logger, "Esperando mensajes de CPU Dispatch");
 		int cod_op = recibir_operacion(kernel_cliente_dispatch);
+		t_buffer* buffer;
 		switch (cod_op) {
 		case HANDSHAKE:
-			t_buffer* buffer = recibir_buffer(kernel_cliente_dispatch);
+			buffer = recibir_buffer(kernel_cliente_dispatch);
 			char* mensaje = extraer_string_buffer(buffer, logger);
 			printf("Recibi un handshake de: %s, como cliente",mensaje);
 			free(mensaje);
 			break;
+		case FINALIZAR_EXEC:
+			buffer = recibir_buffer(kernel_cliente_dispatch);
+			// DESERIALIZACION DE PCB (Redefinir estructura de PCB?)
+			// ENVIAR PCB DESERIALIZADO A EXIT.
+			pcb *pcb_proceso_finalizado = malloc(sizeof(pcb)); // SE COLOCA ESTO MOMENTANEAMENTE, IMPLEMENTAR LA DESERIALIZACION DEL PCB
+			queue_push(cola_exit,pcb_proceso_finalizado);
+			free (pcb_proceso_finalizado);
+			// LIBERAR LO QUE CORRESPONDA
+		break;
 		case -1:
 			log_error(logger, "El CPU Dispatch se desconecto");
 			exit(EXIT_FAILURE);
