@@ -152,7 +152,7 @@ void sub(char* nombre_registro_destino, char* nombre_registro_origen){
     if (tamano_destino == 8) {
         int8_t* registro_destino2 = registro_destino;
         *registro_destino2 -= contenido_origen;
-        // printf("%d\n", *registro_destino2);
+        //printf("%d\n", *registro_destino2);
     } else if (tamano_destino == 32) {
         int32_t* registro_destino2 = registro_destino;
         *registro_destino2 -= contenido_origen;

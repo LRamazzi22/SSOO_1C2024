@@ -37,14 +37,15 @@ int main(int argc, char* argv[]) {
 
     enviar_handshake("CPU", cpu_cliente_memoria);
 
+    /*
     printf("\nUna vez conectados todos los modulos en el orden establecido en el Instruciones.MD, presione ENTER para iniciar la prueba\n\n");
     char hola = getchar();
 
-    //prueba_de_protocolo();
+    prueba_de_protocolo();
 
-    //solicitar_instruccion(0);
     *los_registros_de_la_cpu -> PC = 0;
     ciclo();
+    */
 
     liberar_conexion(cpu_cliente_memoria);
     liberar_conexion(cpu_server_dispatch);
