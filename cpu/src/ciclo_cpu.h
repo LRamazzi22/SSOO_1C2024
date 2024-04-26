@@ -7,7 +7,11 @@
 void ciclo();
 void solicitar_instruccion(int);
 int decodificar_instruccion();
-int ejecutar_instruccion (int );
-void* apuntar_a_registro (char *, void*);
+void set(char*, int);
+void sum(char*, char*);
+void sub(char*, char*);
+int ejecutar_instruccion (int);
+void* apuntar_a_registro (char*, int*);
+
 
 #endif
