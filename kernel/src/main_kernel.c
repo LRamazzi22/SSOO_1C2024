@@ -36,9 +36,9 @@ int main(int argc, char* argv[]) {
 	//pthread_detach(hilo_memoria_kernel);
 
     //Atender mensajes de CPU Dispatch
-    pthread_t hilo_dispatch_kernel;
-	pthread_create(&hilo_dispatch_kernel,NULL,(void*)atender_cpu_dispatch, NULL);
-	pthread_detach(hilo_dispatch_kernel);
+    //pthread_t hilo_dispatch_kernel;
+	//pthread_create(&hilo_dispatch_kernel,NULL,(void*)atender_cpu_dispatch, NULL);
+	//pthread_detach(hilo_dispatch_kernel);
 
     //Atender mensajes de CPU Interrupt
     pthread_t hilo_Interrupt_Kernel;

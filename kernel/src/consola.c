@@ -7,7 +7,7 @@ void consola_kernel(){
     leido = readline(">");
 
     while(strcmp(leido,"EXIT")!=0){
-        char** comando_por_partes = string_split(leido, " "); //SE divide lo leido, separandolos por los espacios
+        char** comando_por_partes = string_split(leido, " "); //Se divide lo leido, separandolos por los espacios
         validar_y_ejecutar_comando(comando_por_partes);
         string_array_destroy(comando_por_partes);
         free(leido);
@@ -58,13 +58,12 @@ void crear_proceso(void* ruta_pseudocodigo){
     if(pcb_proceso != NULL){
         queue_push(cola_new,pcb_proceso);
         //SI EL GRADO DE MULTIPROG ACEPTA... CONTINUARÁ... a mandar a READY.
-        if (grado_multiprogramacion_variable > 0) {
+        if (cantidad_de_proceso_en_ejecucion < GRADO_MULTIPROGRAMACION) {
              // TODO: Memoria me tiene que avisar que está tiene cargadas las instrucciones en memoria.
             queue_pop(cola_new);
-            // Cuando estén las instrucciones cargadas se actualizará el PCB con estado ready
-             // Se pasará a la cola de READY + Actualizar PCB. De lo contrario seguirá en NEW hasta que aplique.
             queue_push(cola_ready,pcb_proceso);
             pcb_proceso->estado_proceso = READY;
+            cantidad_de_proceso_en_ejecucion++;
         } 
 
     }
@@ -74,10 +73,4 @@ void crear_proceso(void* ruta_pseudocodigo){
     free(ruta_pseudocodigo);
 
     pthread_mutex_unlock(&mutex_para_creacion_proceso);
-   
-    
-
-   
- 
-   
 }

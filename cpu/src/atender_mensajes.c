@@ -1,24 +1,68 @@
 #include <atender_mensajes.h>
 
+// Atender mensajes enviados por el Kernel
+
 void atender_kernel_dispatch(){
     while (1) {
         log_info(logger, "Esperando mensajes de Kernel");
 		int cod_op = recibir_operacion(kernel_cliente_dispatch);
+		t_buffer* buffer = NULL;
+
 		switch (cod_op) {
-		case HANDSHAKE:
-			t_buffer* buffer = recibir_buffer(kernel_cliente_dispatch);
-			char* mensaje = extraer_string_buffer(buffer, logger);
-			printf("Recibi un handshake de %s, como cliente", mensaje);
-			free(mensaje);
-			break;
-		case -1:
-			log_error(logger, "El Kernel Dispatch se desconecto");
-			exit(EXIT_FAILURE);
-		default:
-			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
-			break;
-		}
+			case HANDSHAKE:
+				char* mensaje;
+				buffer = recibir_buffer(kernel_cliente_dispatch);
+				mensaje = extraer_string_buffer(buffer, logger);
+				printf("Recibi un handshake de %s, como cliente", mensaje);
+				free(mensaje);
+				break;
+			case INICIAR_EXEC:
+				recibir_contexto_de_CPU(buffer);
+				break;
+			case -1:
+				log_error(logger, "El Kernel Dispatch se desconecto");
+				exit(EXIT_FAILURE);
+			default:
+				log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+				break;
+			}
 	}    
+}
+
+void recibir_contexto_de_CPU(t_buffer* buffer) {
+	buffer = recibir_buffer(kernel_cliente_dispatch);
+	*los_registros_de_la_cpu->PC = extraer_uint32_buffer(buffer, logger);
+	*los_registros_de_la_cpu->AX = extraer_uint8_buffer(buffer, logger);	
+	*los_registros_de_la_cpu->BX = extraer_uint8_buffer(buffer, logger);
+	*los_registros_de_la_cpu->CX = extraer_uint8_buffer(buffer, logger);
+	*los_registros_de_la_cpu->DX = extraer_uint8_buffer(buffer, logger);
+	*los_registros_de_la_cpu->EAX = extraer_uint32_buffer(buffer, logger);
+	*los_registros_de_la_cpu->EBX = extraer_uint32_buffer(buffer, logger);
+	*los_registros_de_la_cpu->ECX = extraer_uint32_buffer(buffer, logger);
+	*los_registros_de_la_cpu->EDX = extraer_uint32_buffer(buffer, logger);
+	*los_registros_de_la_cpu->SI = extraer_uint32_buffer(buffer, logger);
+	*los_registros_de_la_cpu->DI = extraer_uint32_buffer(buffer, logger);
+}
+
+
+
+void atender_kernel_dispatch_sin_while(){
+	log_info(logger, "Esperando mensajes de Kernel");
+	int cod_op = recibir_operacion(kernel_cliente_dispatch);
+	switch (cod_op) {
+	case HANDSHAKE:
+		t_buffer* buffer = recibir_buffer(kernel_cliente_dispatch);
+		char* mensaje = extraer_string_buffer(buffer, logger);
+		printf("Recibi un handshake de %s, como cliente", mensaje);
+		free(mensaje);
+		break;
+	case -1:
+		log_error(logger, "El Kernel Dispatch se desconecto");
+		exit(EXIT_FAILURE);
+	default:
+		log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+		break;
+	}
 }
 
 void atender_kernel_interrupt(){
@@ -90,5 +134,8 @@ void atender_memoria_cpu_sin_while(){
 			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
 			break;
 		}
-	}  
+	}
+
+
+	  
 

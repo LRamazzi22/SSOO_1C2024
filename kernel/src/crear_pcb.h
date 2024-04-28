@@ -7,6 +7,4 @@
 pcb* creacion_pcb(char*);
 
 
-
-
 #endif

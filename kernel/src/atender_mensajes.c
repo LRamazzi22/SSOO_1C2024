@@ -20,6 +20,7 @@ void atender_memoria(){
 		}
 	}
 }
+
 int recibir_PC_memoria(){
 	int cod_op = recibir_operacion(kernel_cliente_memoria);
 	switch (cod_op) {
@@ -39,7 +40,6 @@ int recibir_PC_memoria(){
 }
 
 void atender_cpu_dispatch(){
-    while (1) {
 		log_info(logger, "Esperando mensajes de CPU Dispatch");
 		int cod_op = recibir_operacion(kernel_cliente_dispatch);
 		t_buffer* buffer;
@@ -51,14 +51,14 @@ void atender_cpu_dispatch(){
 			free(mensaje);
 			break;
 		case FINALIZAR_EXEC:
-			buffer = recibir_buffer(kernel_cliente_dispatch);
-			// DESERIALIZACION DE PCB (Redefinir estructura de PCB?)
-			// ENVIAR PCB DESERIALIZADO A EXIT.
+			/* buffer = recibir_buffer(kernel_cliente_dispatch);
+			// DESERIALIZACION DE los registros del proc
+			// guardar en el PCB los registros deserializados y mandar el pcb A EXIT.
 			pcb *pcb_proceso_finalizado = malloc(sizeof(pcb)); // SE COLOCA ESTO MOMENTANEAMENTE, IMPLEMENTAR LA DESERIALIZACION DEL PCB
 			queue_push(cola_exit,pcb_proceso_finalizado);
 			free (pcb_proceso_finalizado);
-			// LIBERAR LO QUE CORRESPONDA
-		break;
+			// LIBERAR LO QUE CORRESPONDA */
+			break;
 		case -1:
 			log_error(logger, "El CPU Dispatch se desconecto");
 			exit(EXIT_FAILURE);
@@ -67,7 +67,6 @@ void atender_cpu_dispatch(){
 			break;
 		}
 	}  
-}
 
 void atender_cpu_interrupt(){
     while (1) {

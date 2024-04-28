@@ -25,8 +25,10 @@ typedef enum
 	PAQUETE,
 	PROTOCOLO,
 	PEDIR_INSTRUCCION,
-    CREAR_PROCESO
-
+    CREAR_PROCESO,
+    INICIAR_EXEC,
+    FINALIZAR_EXEC,
+    INTERRUMPIR_EXEC
 } op_code;
 
 
@@ -75,7 +77,8 @@ t_buffer* recibir_buffer(int);
 void* extraer_contenido_buffer(t_buffer*, t_log*);
 int extraer_int_buffer(t_buffer*, t_log*);
 char* extraer_string_buffer(t_buffer*, t_log*);
-
+uint32_t extraer_uint32_buffer(t_buffer*, t_log*);
+uint8_t extraer_uint8_buffer(t_buffer*, t_log*);
 
 //---------------------Estructuras para Ciclo de Instruccion--------------//
 

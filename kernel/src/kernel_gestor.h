@@ -32,7 +32,7 @@ typedef struct
 
 //Variables Globales
 extern int pid_acumulado;
-extern int grado_multiprogramacion_variable;
+extern int cantidad_de_proceso_en_ejecucion;
 
 extern pthread_mutex_t mutex_para_creacion_proceso;
 

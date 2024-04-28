@@ -2,7 +2,7 @@
 
 void inicializar_kernel(){
     pid_acumulado = 0;
-    grado_multiprogramacion_variable = GRADO_MULTIPROGRAMACION;
+    cantidad_de_proceso_en_ejecucion = GRADO_MULTIPROGRAMACION;
 
     logger = iniciar_logger("./kernel.log", "Kernel_Logger", LOG_LEVEL_INFO);
     cola_new = queue_create();

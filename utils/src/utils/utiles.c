@@ -291,9 +291,26 @@ int extraer_int_buffer(t_buffer* buffer, t_log* logger){
 }
 
 char* extraer_string_buffer(t_buffer* buffer, t_log* logger){
-	char* un_String = extraer_contenido_buffer(buffer, logger);
-	return un_String;
+	char* un_string = extraer_contenido_buffer(buffer, logger);
+	return un_string;
 }
+
+//No hacian falt
+
+uint32_t extraer_uint32_buffer(t_buffer* buffer, t_log* logger){
+	uint32_t* un_uint32 = extraer_contenido_buffer(buffer, logger);
+	uint32_t numero_a_retornar = *un_uint32;
+	free (un_uint32);
+	return numero_a_retornar;
+}
+
+uint8_t extraer_uint8_buffer(t_buffer* buffer, t_log* logger){
+	uint8_t* un_uint8 = extraer_contenido_buffer(buffer, logger);
+	uint8_t numero_a_retornar = *un_uint8;
+	free (un_uint8);
+	return numero_a_retornar;
+}
+
 
 
 
