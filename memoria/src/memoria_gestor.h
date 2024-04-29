@@ -20,7 +20,6 @@ extern pthread_mutex_t mutex_para_leer_pseudo;
 extern int memoria_server;
 extern int cpu_cliente;
 extern int kernel_cliente;
-extern int entradasalida_cliente;
 
 extern char* PUERTO_ESCUCHA;
 extern int TAM_MEMORIA;

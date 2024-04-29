@@ -28,6 +28,12 @@ typedef struct
 
 } pcb;
 
+typedef struct 
+{
+    char* tipo_de_interfaz;
+    int cliente;
+} nodo_de_diccionario_interfaz;
+
 
 
 //Variables Globales
@@ -44,6 +50,8 @@ extern int entradasalida_cliente;
 extern int kernel_cliente_dispatch;
 extern int kernel_cliente_interrupt;
 extern int kernel_cliente_memoria;
+
+extern t_dictionary* diccionario_entrada_salida;
 
 extern char* PUERTO_ESCUCHA;
 extern char* IP_MEMORIA;

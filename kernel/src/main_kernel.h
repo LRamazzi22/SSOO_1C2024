@@ -5,6 +5,7 @@
 #include <inicializar_kernel.h>
 #include <atender_mensajes.h>
 #include <consola.h>
+#include <atender_nuevas_interfaces.h>
 
 
 //Variables Globales
@@ -22,6 +23,8 @@ int entradasalida_cliente;
 int kernel_cliente_dispatch;
 int kernel_cliente_interrupt;
 int kernel_cliente_memoria;
+
+t_dictionary* diccionario_entrada_salida;
 
 
 char* PUERTO_ESCUCHA;

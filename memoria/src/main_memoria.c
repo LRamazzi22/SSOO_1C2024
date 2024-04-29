@@ -22,9 +22,11 @@ int main(int argc, char* argv[]) {
 	//Esperar la conexion del kernel
 	kernel_cliente = esperar_cliente(memoria_server,logger, "Kernel Conectado");
 
-	//Esperar la conexion de la Entrada/Salida
-	entradasalida_cliente = esperar_cliente(memoria_server, logger, "Entrada/Salida Conectado");
-	
+	//Se esperan las conexiones de las nuevas interfaces de Entrada/Salida
+	pthread_t hilo_entradasalida;
+	pthread_create(&hilo_entradasalida,NULL,(void*)atender_conexion_de_interfaces, NULL);
+	pthread_detach(hilo_entradasalida);
+
 	//Atender mensajes del cpu
 	pthread_t hilo_cpu;
 	pthread_create(&hilo_cpu,NULL,(void*)atender_cpu_memoria, NULL);
@@ -33,16 +35,12 @@ int main(int argc, char* argv[]) {
 	//Atender mensajes del kernel
 	pthread_t hilo_kernel;
 	pthread_create(&hilo_kernel,NULL,(void*)atender_kernel_memoria, NULL);
-	pthread_detach(hilo_kernel);
+	pthread_join(hilo_kernel,NULL);
 
-	//Atender mensajes de Entrada/Salida
-	pthread_t hilo_entradasalida;
-	pthread_create(&hilo_entradasalida,NULL,(void*)atender_entradasalida_memoria, NULL);
-	pthread_join(hilo_entradasalida, NULL);
+	
 
 	liberar_conexion(cpu_cliente);
 	liberar_conexion(kernel_cliente);
-	liberar_conexion(entradasalida_cliente);
 	liberar_conexion(memoria_server);
 	
 	terminar_programa(logger, config);

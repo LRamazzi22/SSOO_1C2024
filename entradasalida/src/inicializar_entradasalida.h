@@ -3,8 +3,8 @@
 
 #include <entradasalida_gestor.h>
 
-void inicializar_entradasalida();
-void inicializar_config_entradasalida();
+void inicializar_entradasalida(char*);
+void inicializar_config_entradasalida(char*);
 
 
 #endif

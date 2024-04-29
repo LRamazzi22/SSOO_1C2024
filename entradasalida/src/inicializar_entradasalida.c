@@ -1,13 +1,15 @@
 #include <inicializar_entradasalida.h>
 
-void inicializar_entradasalida(){
+void inicializar_entradasalida(char* path_config){
     logger = iniciar_logger("./entradasalida.log", "EntradaSalida_Logger", LOG_LEVEL_INFO);
-    inicializar_config_entradasalida();
+    inicializar_config_entradasalida(path_config);
 }
 
-void inicializar_config_entradasalida(){
+void inicializar_config_entradasalida(char* path_config){
+    char** string_sin_contra_barra = string_split(path_config,"\n");
 
-    config = iniciar_config("./entradasalida_config.config");
+    config = iniciar_config(string_sin_contra_barra[0]);
+    string_array_destroy(string_sin_contra_barra);
     
     TIPO_INTERFAZ = config_get_string_value(config, "TIPO_INTERFAZ");
     TIEMPO_UNIDAD_TRABAJO = config_get_int_value(config, "TIEMPO_UNIDAD_TRABAJO");

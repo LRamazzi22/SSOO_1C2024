@@ -5,6 +5,7 @@
 #include <inicializar_memoria.h>
 #include <atender_mensajes.h>
 #include <leer_pseudocodigo.h>
+#include <atender_nuevas_interfaces.h>
 
 t_log* logger;
 t_config* config;
@@ -14,7 +15,6 @@ pthread_mutex_t mutex_para_leer_pseudo;
 int memoria_server;
 int cpu_cliente;
 int kernel_cliente;
-int entradasalida_cliente;
 
 char* PUERTO_ESCUCHA;
 int TAM_MEMORIA;

@@ -14,7 +14,7 @@ int algoritmo_fifo(){
      
     // Enviar PCB a CPU por socket dispatch.
     enviar_paquete(paquete_pcb_a_enviar, kernel_cliente_dispatch);
-    free(paquete_pcb_a_enviar);
+    eliminar_paquete(paquete_pcb_a_enviar);
 
     // Esperar a que termine de ejecutar y recibir el PCB actualizado.
 

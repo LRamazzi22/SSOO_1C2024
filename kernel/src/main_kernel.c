@@ -3,6 +3,7 @@
 int main(int argc, char* argv[]) {
 
     inicializar_kernel();
+    diccionario_entrada_salida = dictionary_create();
     
     //Se inicia al kernel como servidor
     kernel_server = iniciar_servidor(PUERTO_ESCUCHA, logger);
@@ -17,8 +18,12 @@ int main(int argc, char* argv[]) {
     kernel_cliente_interrupt = crear_conexion(IP_CPU, PUERTO_CPU_INTERRUPT);
 
     //Esperar conexion de Entrada Salida
-    entradasalida_cliente = esperar_cliente(kernel_server, logger, "Entrada Salida Conectado");
+    //entradasalida_cliente = esperar_cliente(kernel_server, logger, "Entrada Salida Conectado");
     
+    
+    pthread_t hilo_entradasalida_kernel;
+	pthread_create(&hilo_entradasalida_kernel,NULL,(void*)atender_las_nuevas_interfaces, NULL);
+	pthread_detach(hilo_entradasalida_kernel);
 
     enviar_handshake("Kernel",kernel_cliente_memoria);
     enviar_handshake("Kernel Dispatch", kernel_cliente_dispatch);
@@ -26,9 +31,9 @@ int main(int argc, char* argv[]) {
     
     //Atender mensajes del Entrada Salida
     
-    pthread_t hilo_entradasalida_kernel;
-	pthread_create(&hilo_entradasalida_kernel,NULL,(void*)atender_entradasalida_kernel, NULL);
-	pthread_detach(hilo_entradasalida_kernel);
+    
+
+
     
     //Atender mensajes de Memoria
     //pthread_t hilo_memoria_kernel;
@@ -52,7 +57,7 @@ int main(int argc, char* argv[]) {
 
     liberar_conexion(kernel_cliente_dispatch);
     liberar_conexion(kernel_cliente_interrupt);
-    liberar_conexion(entradasalida_cliente);
+    //liberar_conexion(entradasalida_cliente);
     liberar_conexion(kernel_server);
     terminar_programa(logger, config);
     return 0;

@@ -78,20 +78,23 @@ void enviar_program_counter(int pc){
 	eliminar_paquete(paquete);
 }
 
-void atender_entradasalida_memoria(){
-    while (1) {
+void atender_entradasalida_memoria(void* cliente){
+	int* cliente_entrada_salida = cliente;
+	bool continuar_while = true;
+    while (continuar_while) {
         log_info(logger, "Esperando mensajes de Entrada/Salida");
-		int cod_op = recibir_operacion(entradasalida_cliente);
+		int cod_op = recibir_operacion(*cliente_entrada_salida);
 		switch (cod_op) {
 		case HANDSHAKE:
-			t_buffer* buffer = recibir_buffer(entradasalida_cliente);
+			t_buffer* buffer = recibir_buffer(*cliente_entrada_salida);
 			char* mensaje = extraer_string_buffer(buffer, logger);
 			printf("Recibi un handshake de: %s, como cliente",mensaje);
 			free(mensaje);
 			break;
 		case -1:
-			log_error(logger, "La Entrada/Salida se desconecto");
-			exit(EXIT_FAILURE);
+			log_info(logger, "La Entrada/Salida se desconecto");
+			continuar_while = false;
+			break;
 		default:
 			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
 			break;
