@@ -8,6 +8,7 @@ int algoritmo_fifo(){
     // Seleccionar proceso y acutualizar estado
     pcb* proximo_proceso_a_ejecutar = queue_pop(cola_ready);
     proximo_proceso_a_ejecutar->estado_proceso = EXEC;
+    proceso_en_ejecucion = proximo_proceso_a_ejecutar;
 
     t_paquete* paquete_pcb_a_enviar = crear_paquete(INICIAR_EXEC);
     serializar_registros_procesador(paquete_pcb_a_enviar, proximo_proceso_a_ejecutar->registros_cpu_en_pcb);

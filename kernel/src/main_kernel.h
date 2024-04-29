@@ -25,6 +25,7 @@ int kernel_cliente_interrupt;
 int kernel_cliente_memoria;
 
 t_dictionary* diccionario_entrada_salida;
+pcb* proceso_en_ejecucion = NULL;
 
 
 char* PUERTO_ESCUCHA;

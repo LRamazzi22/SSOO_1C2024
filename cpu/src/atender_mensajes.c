@@ -16,9 +16,6 @@ void atender_kernel_dispatch(){
 				printf("Recibi un handshake de %s, como cliente", mensaje);
 				free(mensaje);
 				break;
-			case INICIAR_EXEC:
-				recibir_contexto_de_CPU(buffer);
-				break;
 			case -1:
 				log_error(logger, "El Kernel Dispatch se desconecto");
 				exit(EXIT_FAILURE);
@@ -48,13 +45,17 @@ void recibir_contexto_de_CPU(t_buffer* buffer) {
 
 void atender_kernel_dispatch_sin_while(){
 	log_info(logger, "Esperando mensajes de Kernel");
+	t_buffer* buffer = NULL;
 	int cod_op = recibir_operacion(kernel_cliente_dispatch);
 	switch (cod_op) {
 	case HANDSHAKE:
-		t_buffer* buffer = recibir_buffer(kernel_cliente_dispatch);
+		buffer = recibir_buffer(kernel_cliente_dispatch);
 		char* mensaje = extraer_string_buffer(buffer, logger);
 		printf("Recibi un handshake de %s, como cliente", mensaje);
 		free(mensaje);
+		break;
+	case INICIAR_EXEC:
+		recibir_contexto_de_CPU(buffer);
 		break;
 	case -1:
 		log_error(logger, "El Kernel Dispatch se desconecto");

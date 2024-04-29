@@ -14,6 +14,7 @@ void sub(char*, char*);
 void jnz(char*, int);
 int ejecutar_instruccion (int);
 void* apuntar_a_registro (char*, int*);
+void cargar_registros_a_paquete(t_paquete* );
 
 
 #endif

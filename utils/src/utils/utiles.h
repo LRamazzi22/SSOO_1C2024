@@ -29,7 +29,9 @@ typedef enum
     INICIAR_EXEC,
     FINALIZAR_EXEC,
     INTERRUMPIR_EXEC,
-    PRIMERA_CONEXION_IO
+    PRIMERA_CONEXION_IO,
+    ESPERAR_GEN,
+    EXITO_IO
 } op_code;
 
 

@@ -13,11 +13,11 @@ modulos del kernel pueden utilizarlas. Las variables deben ser previamente decla
 #include <readline/readline.h>
 
 typedef enum {
-    NEW = 0,
-    READY = 1,
-    EXEC = 2,
-    BLOCKED = 3,
-    EXIT_PROCESS = 4
+    NEW,
+    READY,
+    EXEC,
+    BLOCKED,
+    EXIT_PROCESS
 } psw;
 typedef struct 
 {
@@ -33,6 +33,7 @@ typedef struct
     char* tipo_de_interfaz;
     int cliente;
 } nodo_de_diccionario_interfaz;
+
 
 
 
@@ -52,6 +53,7 @@ extern int kernel_cliente_interrupt;
 extern int kernel_cliente_memoria;
 
 extern t_dictionary* diccionario_entrada_salida;
+extern pcb* proceso_en_ejecucion;
 
 extern char* PUERTO_ESCUCHA;
 extern char* IP_MEMORIA;

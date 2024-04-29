@@ -10,6 +10,12 @@ modulos del CPU pueden utilizarlas. Las variables deben ser previamente declarad
 #include <stdio.h>
 #include <utils/utiles.h>
 
+typedef enum{
+    FINALIZAR,
+    SEGUIR_EJECUTANDO,
+    SLEEP_GEN
+} salidas_cpu;
+
 //Variables Globales
 
 extern int cpu_server_dispatch;
@@ -29,6 +35,7 @@ extern int CANTIDAD_ENTRADAS_TLB;
 extern char* ALGORITMO_TLB;
 
 extern char* instruccion_a_decodificar;
+extern char** instruccion_separada;
 
 extern t_registros_cpu* los_registros_de_la_cpu;
 

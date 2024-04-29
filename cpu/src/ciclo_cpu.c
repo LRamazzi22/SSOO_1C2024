@@ -2,25 +2,51 @@
 #include <atender_mensajes.h>
 
 void ciclo(){
-    //Iniciar CPU como Server
     
 
     
 
     
-    while(1) {
-        atender_kernel_dispatch_sin_while();
-    }
-
-    int terminar = 1;
-    while(terminar){
+    //atender_kernel_dispatch_sin_while();
+    bool correr_ciclo = true;
+    int resultado_ejecucion;
+    while(correr_ciclo){
         solicitar_instruccion(*los_registros_de_la_cpu -> PC);
         int cod_instruccion = decodificar_instruccion();
-        terminar = ejecutar_instruccion(cod_instruccion);
+        resultado_ejecucion = ejecutar_instruccion(cod_instruccion);
         uint32_t programCounter = *los_registros_de_la_cpu -> PC;
         programCounter++;
         *los_registros_de_la_cpu -> PC = programCounter;
+        if(resultado_ejecucion != SEGUIR_EJECUTANDO){
+            correr_ciclo = false;
+        }
+        else{
+            string_array_destroy(instruccion_separada);
+        }
     }
+    switch (resultado_ejecucion){
+    case FINALIZAR:
+        t_paquete* paquete = crear_paquete(FINALIZAR_EXEC);
+        cargar_registros_a_paquete(paquete);
+        enviar_paquete(paquete,kernel_cliente_dispatch);
+        eliminar_paquete(paquete);
+
+        break;
+    case SLEEP_GEN:
+        t_paquete* paquete2 = crear_paquete(ESPERAR_GEN);
+        cargar_registros_a_paquete(paquete2);
+        agregar_string_a_paquete(paquete2,instruccion_separada[1]);
+        int tiempo_espera = atoi(instruccion_separada[2]);
+        agregar_int_a_paquete(paquete2,tiempo_espera);
+        enviar_paquete(paquete2,kernel_cliente_dispatch);
+        eliminar_paquete(paquete2);
+
+        break;
+    
+    default:
+        break;
+    }
+    string_array_destroy(instruccion_separada);
 }
 
 void solicitar_instruccion(int programCounter){
@@ -34,7 +60,7 @@ void solicitar_instruccion(int programCounter){
 
 int decodificar_instruccion(){
     // instruccion_a_decodificar
-    char** instruccion_separada = string_split(instruccion_a_decodificar, " ");
+    instruccion_separada = string_split(instruccion_a_decodificar, " ");
 
     if (!strcmp(instruccion_separada[0],"SET")) {
         return SET;
@@ -191,28 +217,26 @@ void jnz(char* nombre_registro, int nuevo_pc){
 
 
 int ejecutar_instruccion (int codigo_instruccion) {
-    char** instruccion_separada = string_split(instruccion_a_decodificar, " ");
     switch (codigo_instruccion)
     {
     case SET: // SET (Registro, Valor)
         int numero = atoi(instruccion_separada[2]);
         set(instruccion_separada[1], numero);
-        return 1;
+        return SEGUIR_EJECUTANDO;
     case SUM: // SUM (Registro Destino, Registro Origen)
         sum(instruccion_separada[1], instruccion_separada[2]);
-        return 1;
+        return SEGUIR_EJECUTANDO;
     case SUB: // SUB (Registro Destino, Registro Origen)
         sub(instruccion_separada[1], instruccion_separada[2]);
-        return 1;
+        return SEGUIR_EJECUTANDO;
     case JNZ: // JNZ (Registro, Instrucción)
         int nuevo_pc = atoi(instruccion_separada[2]);
         jnz(instruccion_separada[1], nuevo_pc);
-        return 1;
+        return SEGUIR_EJECUTANDO;
     case IO_GEN_SLEEP: // IO_GEN_SLEEP (Interfaz, Unidades de trabajo)
-        printf("DORMITE");
-        return 1;
+        return SLEEP_GEN;
     case EXIT:
-        return 0;
+        return FINALIZAR;
     default:
         printf("Execute: Comando no reconocido");
         return 1;
@@ -262,4 +286,18 @@ void* apuntar_a_registro (char* regist, int* puntero_a_tamano) {
     }
 
     return NULL;
+}
+
+void cargar_registros_a_paquete(t_paquete* paquete){
+    agregar_a_paquete(paquete,los_registros_de_la_cpu->PC,sizeof(uint32_t));
+    agregar_a_paquete(paquete,los_registros_de_la_cpu->AX,sizeof(uint8_t));
+    agregar_a_paquete(paquete,los_registros_de_la_cpu->BX,sizeof(uint8_t));
+    agregar_a_paquete(paquete,los_registros_de_la_cpu->CX,sizeof(uint8_t));
+    agregar_a_paquete(paquete,los_registros_de_la_cpu->DX,sizeof(uint8_t));
+    agregar_a_paquete(paquete,los_registros_de_la_cpu->EAX,sizeof(uint32_t));
+    agregar_a_paquete(paquete,los_registros_de_la_cpu->EBX,sizeof(uint32_t)); 
+    agregar_a_paquete(paquete,los_registros_de_la_cpu->ECX,sizeof(uint32_t));
+    agregar_a_paquete(paquete,los_registros_de_la_cpu->EDX,sizeof(uint32_t));
+    agregar_a_paquete(paquete,los_registros_de_la_cpu->SI,sizeof(uint32_t)); 
+    agregar_a_paquete(paquete,los_registros_de_la_cpu->DI,sizeof(uint32_t));
 }
