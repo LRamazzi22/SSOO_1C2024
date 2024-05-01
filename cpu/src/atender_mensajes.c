@@ -28,6 +28,7 @@ void atender_kernel_dispatch(){
 
 void recibir_contexto_de_CPU(t_buffer* buffer) {
 	buffer = recibir_buffer(kernel_cliente_dispatch);
+	pid_en_ejecucion = extraer_int_buffer(buffer,logger);
 	*los_registros_de_la_cpu->PC = extraer_uint32_buffer(buffer, logger);
 	*los_registros_de_la_cpu->AX = extraer_uint8_buffer(buffer, logger);	
 	*los_registros_de_la_cpu->BX = extraer_uint8_buffer(buffer, logger);
@@ -39,6 +40,8 @@ void recibir_contexto_de_CPU(t_buffer* buffer) {
 	*los_registros_de_la_cpu->EDX = extraer_uint32_buffer(buffer, logger);
 	*los_registros_de_la_cpu->SI = extraer_uint32_buffer(buffer, logger);
 	*los_registros_de_la_cpu->DI = extraer_uint32_buffer(buffer, logger);
+
+	
 }
 
 

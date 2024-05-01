@@ -36,6 +36,7 @@ extern char* ALGORITMO_TLB;
 
 extern char* instruccion_a_decodificar;
 extern char** instruccion_separada;
+extern int pid_en_ejecucion;
 
 extern t_registros_cpu* los_registros_de_la_cpu;
 

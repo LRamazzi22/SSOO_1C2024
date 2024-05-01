@@ -4,6 +4,7 @@
 #include <kernel_gestor.h>
 #include <inicializar_kernel.h>
 #include <crear_pcb.h>
+#include <planificador_corto_plazo.h>
 
 
 void consola_kernel();

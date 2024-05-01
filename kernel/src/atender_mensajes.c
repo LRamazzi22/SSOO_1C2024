@@ -154,7 +154,7 @@ void atender_entradasalida_kernel(void* pcb_cliente){
 			if(pid == pcb_y_cliente->pcb_proceso->PID){
 				pcb_y_cliente->pcb_proceso->estado_proceso = READY;
 				eliminar_pcb_cola(cola_blocked,pcb_y_cliente->pcb_proceso);
-				queue_push(cola_ready,pcb_y_cliente->pcb_proceso);
+				queue_push(cola_blocked_ready,pcb_y_cliente->pcb_proceso);
 				continuar_while = false;
 			}
 

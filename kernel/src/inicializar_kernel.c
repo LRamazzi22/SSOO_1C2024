@@ -8,7 +8,14 @@ void inicializar_kernel(){
     cola_new = queue_create();
     cola_ready = queue_create();
     cola_blocked = queue_create();
+    cola_blocked_ready = queue_create();
     cola_exit = queue_create();
+
+    //Semaforos
+    sem_init(&hay_proceso_en_ready,0,0);
+    sem_init(&hay_un_proceso_en_la_cpu,0,0);
+    
+    
     inicializar_config_kernel();
 }
 
@@ -27,11 +34,3 @@ void inicializar_config_kernel(){
     INSTANCIAS_RECURSOS = config_get_array_value(config,"INSTANCIAS_RECURSOS");
     GRADO_MULTIPROGRAMACION = config_get_int_value(config, "GRADO_MULTIPROGRAMACION");
 }
-// Hay otra def en inicializar kernel?
-//typedef struct{
-//	int pid;
-//	int pc;
-//	//time_t quantum; creo q es asi
-//	t_registros_cpu registros;
-	
-//} t_pcb;

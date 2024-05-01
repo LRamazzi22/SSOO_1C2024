@@ -41,7 +41,6 @@ typedef struct
 extern int pid_acumulado;
 extern int cantidad_de_proceso_en_ejecucion;
 
-extern pthread_mutex_t mutex_para_creacion_proceso;
 
 extern t_log* logger;
 extern t_config* config;
@@ -70,7 +69,14 @@ extern int GRADO_MULTIPROGRAMACION;
 extern t_queue* cola_new;
 extern t_queue* cola_ready;
 extern t_queue* cola_blocked;
+extern t_queue* cola_blocked_ready;
 extern t_queue* cola_exit;
+
+extern sem_t hay_proceso_en_ready;
+extern sem_t hay_un_proceso_en_la_cpu;
+
+extern pthread_mutex_t mutex_cola_ready;
+extern pthread_mutex_t mutex_para_creacion_proceso;
 
 
 

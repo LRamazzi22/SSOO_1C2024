@@ -1,5 +1,5 @@
-#ifndef ATENDER_MENSAJES_H
-#define ATENDER_MENSAJES_H
+#ifndef ATENDER_MENSAJES_H_
+#define ATENDER_MENSAJES_H_
 
 #include <kernel_gestor.h>
 #include <eliminar_elemento_de_cola.h>
