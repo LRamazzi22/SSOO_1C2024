@@ -46,6 +46,7 @@ int main(int argc, char* argv[]) {
     *los_registros_de_la_cpu -> PC = 0;
     ciclo();
     */
+    
     while(true){
         ciclo();
     }

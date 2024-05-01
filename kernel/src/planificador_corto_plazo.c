@@ -64,6 +64,7 @@ void serializar_registros_procesador (t_paquete* paquete, t_registros_cpu* proce
 
 
  void algoritmo_round_robin() {
+  /*
   int quantum = QUANTUM;
   int remaining_time = 0; // Rastrear el tiempo restante para el proceso actual
 
@@ -95,14 +96,6 @@ void serializar_registros_procesador (t_paquete* paquete, t_registros_cpu* proce
     }
 
 
-    //HILO FIFO
-
-    //HILO LANZAR INTERRUPCION
-    /*
-      SLEEP(QUANTUM){
-        LANZAR INTERRUPCION;
-        
-      } 
-    */
   }
+  */
 } 

@@ -8,6 +8,7 @@ pcb* creacion_pcb(char* ruta_pseudocodigo){
     printf("%d",el_pcb -> PID);
     el_pcb ->quantum_restante = QUANTUM;
     t_paquete* paquete_codeop_ruta = crear_paquete(CREAR_PROCESO);
+    agregar_int_a_paquete(paquete_codeop_ruta,el_pcb->PID);
     agregar_string_a_paquete(paquete_codeop_ruta,ruta_pseudocodigo);
     enviar_paquete(paquete_codeop_ruta,kernel_cliente_memoria);
     eliminar_paquete(paquete_codeop_ruta);

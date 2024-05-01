@@ -23,6 +23,6 @@ char* PATH_INSTRUCCIONES;
 int RETARDO_RESPUESTA;
 
 t_dictionary* diccionario_de_instrucciones;
-int cantidad_instrucciones;
+
 
 #endif

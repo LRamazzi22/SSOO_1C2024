@@ -9,7 +9,6 @@ int main(int argc, char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 	void* reserva_memoria = malloc(TAM_MEMORIA);
-	cantidad_instrucciones = 0;
 	diccionario_de_instrucciones = dictionary_create();
 		
 	//Se inicia la memoria como servidor

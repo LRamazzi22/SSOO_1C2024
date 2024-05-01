@@ -21,8 +21,9 @@ void atender_cpu_memoria(){
 			free(mensaje);
 			break;
 		case PEDIR_INSTRUCCION:
+			int pid = extraer_int_buffer(buffer,logger);
 			int pc = extraer_int_buffer(buffer,logger);
-			enviar_instruccion(pc);
+			enviar_instruccion(pc,pid);
 			break;
 		case -1:
 			log_error(logger, "El CPU se desconecto");
@@ -33,11 +34,11 @@ void atender_cpu_memoria(){
 		}
 	}
 }
-void enviar_instruccion(int pc){
+void enviar_instruccion(int pc,int pid){
 	t_paquete* paquete = crear_paquete(PEDIR_INSTRUCCION);
-	char pcDictionary [2];
-    sprintf(pcDictionary,"%d",pc);
-	char * instruccion = dictionary_get(diccionario_de_instrucciones,pcDictionary);
+	char* pid_clave = string_itoa(pid);
+	t_list* lista_instrucciones = dictionary_get(diccionario_de_instrucciones,pid_clave);
+	char * instruccion = list_get(lista_instrucciones,pc);
 	agregar_string_a_paquete(paquete, instruccion);
 	enviar_paquete(paquete, cpu_cliente);
     eliminar_paquete(paquete);
@@ -57,8 +58,9 @@ void atender_kernel_memoria(){
 			break;
 		case CREAR_PROCESO:
 			buffer = recibir_buffer(kernel_cliente);
+			int pid = extraer_int_buffer(buffer,logger);
 			char* ruta_pseudocodigo = extraer_string_buffer(buffer,logger);
-			int programCounter = leer_archivo(ruta_pseudocodigo,diccionario_de_instrucciones);
+			int programCounter = leer_archivo(ruta_pseudocodigo,diccionario_de_instrucciones,pid);
 			enviar_program_counter(programCounter);
 			break;
 		case -1:

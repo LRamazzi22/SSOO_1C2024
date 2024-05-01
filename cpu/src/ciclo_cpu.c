@@ -47,6 +47,7 @@ void ciclo(){
 
 void solicitar_instruccion(int programCounter){
     t_paquete* paquete = crear_paquete(PEDIR_INSTRUCCION);
+    agregar_int_a_paquete(paquete,pid_en_ejecucion);
     agregar_int_a_paquete(paquete, programCounter);
     enviar_paquete(paquete, cpu_cliente_memoria);
     eliminar_paquete(paquete);

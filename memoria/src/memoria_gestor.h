@@ -29,7 +29,7 @@ extern int RETARDO_RESPUESTA;
 
 
 extern t_dictionary* diccionario_de_instrucciones;
-extern int cantidad_instrucciones;
+
 
 
 
