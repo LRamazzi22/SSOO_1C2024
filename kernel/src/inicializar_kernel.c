@@ -1,22 +1,25 @@
 #include <inicializar_kernel.h>
 
 void inicializar_kernel(){
+    inicializar_config_kernel();
+
     pid_acumulado = 0;
     cantidad_de_proceso_en_ejecucion = GRADO_MULTIPROGRAMACION;
+    permitir_planificacion = false;
 
     logger = iniciar_logger("./kernel.log", "Kernel_Logger", LOG_LEVEL_INFO);
     cola_new = queue_create();
     cola_ready = queue_create();
-    cola_blocked = queue_create();
-    cola_blocked_ready = queue_create();
+    diccionario_blocked = dictionary_create();
+    
     cola_exit = queue_create();
 
     //Semaforos
     sem_init(&hay_proceso_en_ready,0,0);
-    sem_init(&hay_un_proceso_en_la_cpu,0,0);
+    sem_init(&hay_proceso_en_new,0,0);
+    sem_init(&hay_proceso_en_exit,0,0);
+    sem_init(&multiprogramacion_permite_proceso_en_ready,0,GRADO_MULTIPROGRAMACION);
     
-    
-    inicializar_config_kernel();
 }
 
 void inicializar_config_kernel(){

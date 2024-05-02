@@ -34,16 +34,40 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
         
     }
     else if(strcmp(comando_por_partes[0],"DETENER_PLANIFICACION")==0){
-        printf("Hola, soy detener planificacion\n");
+        permitir_planificacion = false;
     }
     else if(strcmp(comando_por_partes[0],"INICIAR_PLANIFICACION")==0){
-        printf("Hola, soy iniciar planificacion\n");
+        permitir_planificacion = true;
     }
     else if(strcmp(comando_por_partes[0],"MULTIPROGRAMACION")==0){
         printf("Hola, soy multiprogramacion\n");
     }
     else if(strcmp(comando_por_partes[0],"PROCESO_ESTADO")==0){
         printf("Hola, soy proceso estado\n");
+        pcb* pcb_revisar;
+        printf("COLA NEW: \n");
+        for(int i = 0; i< queue_size(cola_new); i++){
+            pcb_revisar = list_get(cola_new->elements,i);
+            printf("%d\n",pcb_revisar ->PID);
+        }
+        printf("COLA READY: \n");
+        for(int i = 0; i< queue_size(cola_ready); i++){
+            pcb_revisar = list_get(cola_ready->elements,i);
+            printf("%d\n",pcb_revisar ->PID);
+        }
+        printf("COLA EXEC: \n");
+        if(proceso_en_ejecucion != NULL){
+            printf("%d\n",proceso_en_ejecucion ->PID);
+        }
+        else{
+            printf("\n");
+        }
+        printf("COLA EXIT: \n");
+        for(int i = 0; i< queue_size(cola_exit); i++){
+            pcb_revisar = list_get(cola_exit->elements,i);
+            printf("%d\n",pcb_revisar ->PID);
+        }
+        
     }
     else{
         log_error(logger, "ERROR. COMANDO NO RECONOCIDO O SINTAXIS ERRONEA");
@@ -57,16 +81,10 @@ void crear_proceso(void* ruta_pseudocodigo){
     pthread_mutex_lock(&mutex_para_creacion_proceso);
     pcb* pcb_proceso = creacion_pcb((char*)ruta_pseudocodigo);
     if(pcb_proceso != NULL){
+        pthread_mutex_lock(&mutex_cola_new);
         queue_push(cola_new,pcb_proceso);
-        //SI EL GRADO DE MULTIPROG ACEPTA... CONTINUARA... a mandar a READY.
-        /*
-        if (cantidad_de_proceso_en_ejecucion < GRADO_MULTIPROGRAMACION) {
-             // TODO: Memoria me tiene que avisar que esta tiene cargadas las instrucciones en memoria.
-            queue_pop(cola_new);
-            queue_push(cola_ready,pcb_proceso);
-            pcb_proceso->estado_proceso = READY;
-            cantidad_de_proceso_en_ejecucion++;
-        } */
+        pthread_mutex_unlock(&mutex_cola_new);
+        sem_post(&hay_proceso_en_new);
 
     }
     else{

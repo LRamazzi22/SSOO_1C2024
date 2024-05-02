@@ -26,7 +26,9 @@ void algoritmo_fifo(){
     pthread_mutex_unlock(&mutex_cola_ready);
     
     proximo_proceso_a_ejecutar->estado_proceso = EXEC;
+    pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
     proceso_en_ejecucion = proximo_proceso_a_ejecutar;
+    pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
 
     t_paquete* paquete_pcb_a_enviar = crear_paquete(INICIAR_EXEC);
     agregar_int_a_paquete(paquete_pcb_a_enviar,proximo_proceso_a_ejecutar->PID);
@@ -39,7 +41,9 @@ void algoritmo_fifo(){
     // Esperar a que termine de ejecutar y recibir el PCB actualizado.
 
     atender_cpu_dispatch();
+    pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
     proceso_en_ejecucion = NULL;
+    pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
     
   }
   

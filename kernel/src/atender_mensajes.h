@@ -4,10 +4,6 @@
 #include <kernel_gestor.h>
 #include <eliminar_elemento_de_cola.h>
 
-typedef struct{
-    pcb* pcb_proceso;
-    int cliente;
-} estructura_para_atender_IO;
 
 void atender_memoria();
 int recibir_PC_memoria();

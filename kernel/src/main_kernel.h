@@ -7,6 +7,7 @@
 #include <consola.h>
 #include <atender_nuevas_interfaces.h>
 #include <planificador_corto_plazo.h>
+#include <planificador_largo_plazo.h>
 
 
 //Variables Globales
@@ -41,16 +42,25 @@ int GRADO_MULTIPROGRAMACION;
 
 t_queue* cola_new;
 t_queue* cola_ready;
-t_queue* cola_blocked;
-t_queue* cola_blocked_ready;
+t_dictionary* diccionario_blocked;
 t_queue* cola_exit;
+
+bool permitir_planificacion;
 
 //Semaforos
 sem_t hay_proceso_en_ready;
-sem_t hay_un_proceso_en_la_cpu;
+sem_t hay_proceso_en_new;
+sem_t hay_proceso_en_exit;
+sem_t multiprogramacion_permite_proceso_en_ready;
 
+pthread_mutex_t mutex_cola_new;
 pthread_mutex_t mutex_cola_ready;
+pthread_mutex_t mutex_cola_exit;
+pthread_mutex_t mutex_para_proceso_en_ejecucion;
 pthread_mutex_t mutex_para_creacion_proceso;
+pthread_mutex_t mutex_para_diccionario_entradasalida;
+pthread_mutex_t mutex_para_diccionario_blocked;
+pthread_mutex_t mutex_para_eliminar_entradasalida;
 
 
 #endif

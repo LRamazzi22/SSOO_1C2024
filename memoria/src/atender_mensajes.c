@@ -21,6 +21,7 @@ void atender_cpu_memoria(){
 			free(mensaje);
 			break;
 		case PEDIR_INSTRUCCION:
+			usleep(RETARDO_RESPUESTA * 1000);
 			int pid = extraer_int_buffer(buffer,logger);
 			int pc = extraer_int_buffer(buffer,logger);
 			enviar_instruccion(pc,pid);
@@ -37,7 +38,11 @@ void atender_cpu_memoria(){
 void enviar_instruccion(int pc,int pid){
 	t_paquete* paquete = crear_paquete(PEDIR_INSTRUCCION);
 	char* pid_clave = string_itoa(pid);
+
+	pthread_mutex_lock(&mutex_para_diccionario_instrucciones);
 	t_list* lista_instrucciones = dictionary_get(diccionario_de_instrucciones,pid_clave);
+	pthread_mutex_unlock(&mutex_para_diccionario_instrucciones);
+
 	char * instruccion = list_get(lista_instrucciones,pc);
 	agregar_string_a_paquete(paquete, instruccion);
 	enviar_paquete(paquete, cpu_cliente);
@@ -63,6 +68,20 @@ void atender_kernel_memoria(){
 			int programCounter = leer_archivo(ruta_pseudocodigo,diccionario_de_instrucciones,pid);
 			enviar_program_counter(programCounter);
 			break;
+		case ELIMINAR_PROCESO_MEMORIA:
+			buffer = recibir_buffer(kernel_cliente);
+			int pid2 = extraer_int_buffer(buffer,logger);
+			char* pid_clave = string_itoa(pid2);
+
+			pthread_mutex_lock(&mutex_para_diccionario_instrucciones);
+			t_list* lista_instrucciones = dictionary_remove(diccionario_de_instrucciones,pid_clave);
+			pthread_mutex_unlock(&mutex_para_diccionario_instrucciones);
+
+			for(int i = 0; i<list_size(lista_instrucciones); i++){
+				char* instruccion = list_get(lista_instrucciones,i);
+				free(instruccion);
+			}
+			list_destroy(lista_instrucciones);
 		case -1:
 			log_error(logger, "El Kernel se desconecto");
 			exit(EXIT_FAILURE);

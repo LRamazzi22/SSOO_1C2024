@@ -16,6 +16,7 @@ extern t_log* logger;
 extern t_config* config;
 
 extern pthread_mutex_t mutex_para_leer_pseudo;
+extern pthread_mutex_t mutex_para_diccionario_instrucciones;
 
 extern int memoria_server;
 extern int cpu_cliente;

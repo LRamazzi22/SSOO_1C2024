@@ -23,7 +23,11 @@ int leer_archivo(char *nombArch, t_dictionary* diccionario,int pid){
         
         }
         char* clave_pid = string_itoa(pid);
+
+        pthread_mutex_lock(&mutex_para_diccionario_instrucciones);
         dictionary_put(diccionario_de_instrucciones,clave_pid,lista_de_intrucciones);
+        pthread_mutex_unlock(&mutex_para_diccionario_instrucciones);
+
         fclose(archivo_pseudo);
         pthread_mutex_unlock(&mutex_para_leer_pseudo);
         return programCounter;

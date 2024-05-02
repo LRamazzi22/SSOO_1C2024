@@ -34,6 +34,13 @@ typedef struct
     int cliente;
 } nodo_de_diccionario_interfaz;
 
+typedef struct 
+{
+    t_queue* cola_bloqueados;
+    pthread_mutex_t mutex_para_cola;
+} nodo_de_diccionario_blocked;
+
+
 
 
 
@@ -68,15 +75,24 @@ extern int GRADO_MULTIPROGRAMACION;
 
 extern t_queue* cola_new;
 extern t_queue* cola_ready;
-extern t_queue* cola_blocked;
-extern t_queue* cola_blocked_ready;
+extern t_dictionary* diccionario_blocked;
 extern t_queue* cola_exit;
 
-extern sem_t hay_proceso_en_ready;
-extern sem_t hay_un_proceso_en_la_cpu;
+extern bool permitir_planificacion;
 
+extern sem_t hay_proceso_en_ready;
+extern sem_t hay_proceso_en_new;
+extern sem_t hay_proceso_en_exit;
+extern sem_t multiprogramacion_permite_proceso_en_ready;
+
+extern pthread_mutex_t mutex_cola_new;
 extern pthread_mutex_t mutex_cola_ready;
+extern pthread_mutex_t mutex_cola_exit;
+extern pthread_mutex_t mutex_para_proceso_en_ejecucion;
 extern pthread_mutex_t mutex_para_creacion_proceso;
+extern pthread_mutex_t mutex_para_diccionario_entradasalida;
+extern pthread_mutex_t mutex_para_diccionario_blocked;
+extern pthread_mutex_t mutex_para_eliminar_entradasalida;
 
 
 

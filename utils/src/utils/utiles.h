@@ -32,7 +32,8 @@ typedef enum
     INTERRUMPIR_EXEC,
     PRIMERA_CONEXION_IO,
     ESPERAR_GEN,
-    EXITO_IO
+    EXITO_IO,
+    ELIMINAR_PROCESO_MEMORIA
 } op_code;
 
 

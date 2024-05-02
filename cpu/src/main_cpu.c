@@ -18,11 +18,6 @@ int main(int argc, char* argv[]) {
     kernel_cliente_interrupt = esperar_cliente(cpu_server_interrupt, logger, "Kernel interrupt conectado");
 
 
-    //Atender mensajes del Kernel Dispatch
-    pthread_t hilo_kernel_dispatch;
-	pthread_create(&hilo_kernel_dispatch,NULL,(void*)atender_kernel_dispatch, NULL);
-	pthread_detach(hilo_kernel_dispatch);
-
     //Atender mensajes del Kernel Interrupt
     pthread_t hilo_kernel_interrupt;
 	pthread_create(&hilo_kernel_interrupt,NULL,(void*)atender_kernel_interrupt, NULL);

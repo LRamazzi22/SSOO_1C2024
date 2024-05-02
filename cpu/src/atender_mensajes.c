@@ -2,29 +2,7 @@
 
 // Atender mensajes enviados por el Kernel
 
-void atender_kernel_dispatch(){
-    while (1) {
-        log_info(logger, "Esperando mensajes de Kernel");
-		int cod_op = recibir_operacion(kernel_cliente_dispatch);
-		t_buffer* buffer = NULL;
 
-		switch (cod_op) {
-			case HANDSHAKE:
-				char* mensaje;
-				buffer = recibir_buffer(kernel_cliente_dispatch);
-				mensaje = extraer_string_buffer(buffer, logger);
-				printf("Recibi un handshake de %s, como cliente", mensaje);
-				free(mensaje);
-				break;
-			case -1:
-				log_error(logger, "El Kernel Dispatch se desconecto");
-				exit(EXIT_FAILURE);
-			default:
-				log_warning(logger,"Operacion desconocida. No quieras meter la pata");
-				break;
-			}
-	}    
-}
 
 void recibir_contexto_de_CPU(t_buffer* buffer) {
 	buffer = recibir_buffer(kernel_cliente_dispatch);

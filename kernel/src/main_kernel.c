@@ -26,8 +26,10 @@ int main(int argc, char* argv[]) {
 	pthread_detach(hilo_entradasalida_kernel);
 
     enviar_handshake("Kernel",kernel_cliente_memoria);
-    enviar_handshake("Kernel Dispatch", kernel_cliente_dispatch);
     enviar_handshake("Kernel Interrupt", kernel_cliente_interrupt);
+
+    iniciar_planificacion_largo_plazo();
+    iniciar_planificacion_corto_plazo();
     
     //Atender mensajes del Entrada Salida
     
@@ -44,11 +46,6 @@ int main(int argc, char* argv[]) {
     //pthread_t hilo_dispatch_kernel;
 	//pthread_create(&hilo_dispatch_kernel,NULL,(void*)atender_cpu_dispatch, NULL);
 	//pthread_detach(hilo_dispatch_kernel);
-
-    //Atender mensajes de CPU Interrupt
-    pthread_t hilo_Interrupt_Kernel;
-	pthread_create(&hilo_Interrupt_Kernel,NULL,(void*)atender_cpu_interrupt, NULL);
-	pthread_detach(hilo_Interrupt_Kernel);
 
     sleep(1);
 

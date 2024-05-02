@@ -11,6 +11,7 @@ t_log* logger;
 t_config* config;
 
 pthread_mutex_t mutex_para_leer_pseudo;
+pthread_mutex_t mutex_para_diccionario_instrucciones;
 
 int memoria_server;
 int cpu_cliente;
