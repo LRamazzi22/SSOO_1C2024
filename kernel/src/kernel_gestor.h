@@ -31,7 +31,7 @@ typedef struct
 typedef struct 
 {
     char* tipo_de_interfaz;
-    int cliente;
+    int* cliente;
 } nodo_de_diccionario_interfaz;
 
 typedef struct 

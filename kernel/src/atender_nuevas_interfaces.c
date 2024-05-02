@@ -11,7 +11,7 @@ void atender_nueva_interfaz(void* cliente_entradasalida){
         char* tipo_interfaz = extraer_string_buffer(buffer,logger);
         nodo_de_diccionario_interfaz* nodo = malloc(sizeof(nodo_de_diccionario_interfaz));
         nodo ->tipo_de_interfaz = tipo_interfaz;
-        nodo ->cliente = *cliente;
+        nodo ->cliente = cliente;
 
         pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
         dictionary_put(diccionario_entrada_salida,nombre_interfaz,nodo);
@@ -26,7 +26,7 @@ void atender_nueva_interfaz(void* cliente_entradasalida){
         pthread_mutex_unlock(&mutex_para_diccionario_blocked);
 
         nombre_y_cliente* nombre_cliente= malloc(sizeof(nombre_y_cliente));
-        nombre_cliente ->cliente = *cliente;
+        nombre_cliente ->cliente = cliente;
         nombre_cliente ->nombre = nombre_interfaz;
         pthread_t hilo_entradasalida_desconexion;
         pthread_create(&hilo_entradasalida_desconexion,NULL, (void*)atender_mensajes_interfaz,(void*)nombre_cliente);
@@ -42,17 +42,23 @@ void atender_nueva_interfaz(void* cliente_entradasalida){
 
 void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
     nombre_y_cliente* nombre_cliente = nombre_interfaz_y_cliente;
-    bool liberar_while = false;
-    while(!liberar_while){
+    bool continuar_while = true;
+    t_buffer* buffer;
+    while(continuar_while){
 
-        int cod_op = recibir_operacion(nombre_cliente ->cliente);
+        int cod_op = recibir_operacion(*nombre_cliente ->cliente);
         switch (cod_op)
         {
+        case HANDSHAKE:
+            buffer = recibir_buffer(*nombre_cliente ->cliente);
+			char* mensaje = extraer_string_buffer(buffer, logger);
+			log_info(logger,mensaje);
+			free(mensaje);
+			break;  
         case PRIMERA_CONEXION_IO:
             break;
         case EXITO_IO:
-        
-            t_buffer* buffer = recibir_buffer(nombre_cliente ->cliente);
+            buffer = recibir_buffer(*nombre_cliente ->cliente);
 			int pid = extraer_int_buffer(buffer,logger);
 
 
@@ -84,7 +90,8 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
             nodo_de_diccionario_interfaz* nodo = dictionary_remove(diccionario_entrada_salida,nombre_cliente ->nombre);
             pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
             free(nodo ->tipo_de_interfaz);
-            liberar_conexion(nodo ->cliente);
+            liberar_conexion(*nodo ->cliente);
+            free(nodo ->cliente);
             free(nodo);
 
             pcb* el_pcb;
@@ -109,14 +116,16 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
                 pthread_mutex_lock(&mutex_cola_exit);
                 queue_push(cola_exit,el_pcb);
                 pthread_mutex_unlock(&mutex_cola_exit);
+                sem_post(&hay_proceso_en_exit);
             }
             queue_destroy(nodo_de_bloqueados ->cola_bloqueados);
-            liberar_while = true;
+            continuar_while = false;
 
             pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
             break;
     
         default:
+            log_info(logger,"Nada paso");
             break;
         }
     }
@@ -142,12 +151,11 @@ pcb* buscar_proceso_en_cola(int pid, nodo_de_diccionario_blocked* nodo){
 }
 
 void atender_las_nuevas_interfaces(){
-    int* cliente;
+
     while(1){
-        cliente = malloc(sizeof(int));
-        *cliente = esperar_cliente(kernel_server, logger, "Entrada Salida Conectado");
+        int cliente = esperar_cliente(kernel_server, logger, "Entrada Salida Conectado");
         pthread_t hilo_atender_entradasalida;
-        pthread_create(&hilo_atender_entradasalida,NULL, (void*)atender_nueva_interfaz,(void*)cliente);
+        pthread_create(&hilo_atender_entradasalida,NULL, (void*)atender_nueva_interfaz,(void*)&cliente);
         pthread_detach(hilo_atender_entradasalida);
     }
     

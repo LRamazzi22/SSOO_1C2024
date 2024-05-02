@@ -3,7 +3,6 @@
 int main(int argc, char* argv[]) {
 
     inicializar_kernel();
-    diccionario_entrada_salida = dictionary_create();
     
     //Se inicia al kernel como servidor
     kernel_server = iniciar_servidor(PUERTO_ESCUCHA, logger);

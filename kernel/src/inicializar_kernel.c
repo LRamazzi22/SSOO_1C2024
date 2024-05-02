@@ -11,8 +11,9 @@ void inicializar_kernel(){
     cola_new = queue_create();
     cola_ready = queue_create();
     diccionario_blocked = dictionary_create();
-    
     cola_exit = queue_create();
+
+    diccionario_entrada_salida = dictionary_create();
 
     //Semaforos
     sem_init(&hay_proceso_en_ready,0,0);

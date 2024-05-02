@@ -6,7 +6,7 @@
 
 typedef struct {
     char* nombre;
-    int cliente;
+    int* cliente;
 } nombre_y_cliente;
 
 

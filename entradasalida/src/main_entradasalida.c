@@ -33,11 +33,6 @@ int main(int argc, char* argv[]) {
     
     enviar_handshake("Entrada/Salida", entradasalida_cliente_kernel);
 
-    //Atender mensajes del Kernel
-    pthread_t hilo_kernel_entradasalida;
-	pthread_create(&hilo_kernel_entradasalida,NULL,(void*)atender_kernel_entradasalida, NULL);
-	pthread_join(hilo_kernel_entradasalida,NULL);
-
 
     switch (tipo_de_interfaz){
         case GENERICO:

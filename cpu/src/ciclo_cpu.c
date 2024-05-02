@@ -31,6 +31,7 @@ void ciclo(){
     case SLEEP_GEN:
         t_paquete* paquete2 = crear_paquete(ESPERAR_GEN);
         cargar_registros_a_paquete(paquete2);
+        string_append(&instruccion_separada[1],"\n");
         agregar_string_a_paquete(paquete2,instruccion_separada[1]);
         int tiempo_espera = atoi(instruccion_separada[2]);
         agregar_int_a_paquete(paquete2,tiempo_espera);

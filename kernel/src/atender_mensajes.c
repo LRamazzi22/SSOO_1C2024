@@ -86,7 +86,7 @@ void atender_cpu_dispatch(){
 				t_paquete* paquete = crear_paquete(ESPERAR_GEN);
 				agregar_int_a_paquete(paquete,pcb_del_proceso->PID);
 				agregar_int_a_paquete(paquete,tiempo_espera);
-				enviar_paquete(paquete,nodo_de_interfaz->cliente);
+				enviar_paquete(paquete,*nodo_de_interfaz->cliente);
 				eliminar_paquete(paquete);
 
 			}
@@ -134,6 +134,7 @@ nodo_de_diccionario_interfaz* comprobrar_existencia_de_interfaz(pcb* el_pcb, cha
 	pthread_mutex_lock(&mutex_cola_exit);
 	queue_push(cola_exit,el_pcb);
 	pthread_mutex_unlock(&mutex_cola_exit);
+	sem_post(&hay_proceso_en_exit);
 	return NULL;
 }
 
