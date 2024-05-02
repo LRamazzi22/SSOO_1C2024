@@ -76,12 +76,13 @@ void atender_kernel_memoria(){
 			pthread_mutex_lock(&mutex_para_diccionario_instrucciones);
 			t_list* lista_instrucciones = dictionary_remove(diccionario_de_instrucciones,pid_clave);
 			pthread_mutex_unlock(&mutex_para_diccionario_instrucciones);
-
+			
 			for(int i = 0; i<list_size(lista_instrucciones); i++){
 				char* instruccion = list_get(lista_instrucciones,i);
 				free(instruccion);
 			}
 			list_destroy(lista_instrucciones);
+			break;
 		case -1:
 			log_error(logger, "El Kernel se desconecto");
 			exit(EXIT_FAILURE);

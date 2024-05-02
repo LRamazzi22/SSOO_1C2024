@@ -63,7 +63,7 @@ void atender_cpu_dispatch(){
 			pthread_mutex_lock(&mutex_cola_exit);
 			queue_push(cola_exit,pcb_a_finalizar);
 			pthread_mutex_unlock(&mutex_cola_exit);
-			//sem_post(&hay_proceso_en_exit);
+			sem_post(&hay_proceso_en_exit);
 
 			break;
 		case ESPERAR_GEN:
