@@ -37,7 +37,6 @@ void atender_nueva_interfaz(void* cliente_entradasalida){
         log_error(logger,"Se envio el mensaje equivocado");
         liberar_conexion(*cliente);
     }
-    free(cliente);
 }
 
 void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
@@ -91,7 +90,6 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
             pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
             free(nodo ->tipo_de_interfaz);
             liberar_conexion(*nodo ->cliente);
-            free(nodo ->cliente);
             free(nodo);
 
             pcb* el_pcb;
