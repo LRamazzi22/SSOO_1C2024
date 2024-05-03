@@ -83,11 +83,13 @@ void atender_cpu_dispatch(){
 			nodo_de_diccionario_interfaz* nodo_de_interfaz = comprobrar_existencia_de_interfaz(pcb_del_proceso,interfaz,tipo_interfaz);
 
 			if(nodo_de_interfaz != NULL){
-				t_paquete* paquete = crear_paquete(ESPERAR_GEN);
-				agregar_int_a_paquete(paquete,pcb_del_proceso->PID);
-				agregar_int_a_paquete(paquete,tiempo_espera);
-				enviar_paquete(paquete,*nodo_de_interfaz->cliente);
-				eliminar_paquete(paquete);
+				estructura_esperar_gen* estructura_a_enviar = malloc(sizeof(estructura_esperar_gen));
+				estructura_a_enviar ->nodo = nodo_de_interfaz;
+				estructura_a_enviar ->pid = pcb_del_proceso ->PID;
+				estructura_a_enviar ->tiempo_espera = tiempo_espera;
+				pthread_t hilo_enviar_instruccion_esperar_gen;
+				pthread_create(&hilo_enviar_instruccion_esperar_gen,NULL,(void*)enviar_intruccion_esperar_gen,(void*)estructura_a_enviar);
+				pthread_detach(hilo_enviar_instruccion_esperar_gen);
 
 			}
 			else{
@@ -103,7 +105,20 @@ void atender_cpu_dispatch(){
 			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
 			break;
 		}
-	}  
+	} 
+
+void enviar_intruccion_esperar_gen(void* estructura_a_enviar){
+	estructura_esperar_gen* nodo_pid_tiempo = estructura_a_enviar;
+
+	pthread_mutex_lock(&(nodo_pid_tiempo ->nodo ->mutex_interfaz_siendo_usada));
+	t_paquete* paquete = crear_paquete(ESPERAR_GEN);
+	agregar_int_a_paquete(paquete,nodo_pid_tiempo ->pid);
+	agregar_int_a_paquete(paquete,nodo_pid_tiempo ->tiempo_espera);
+	enviar_paquete(paquete,*nodo_pid_tiempo ->nodo ->cliente);
+	eliminar_paquete(paquete);
+	pthread_mutex_unlock(&(nodo_pid_tiempo ->nodo ->mutex_interfaz_siendo_usada));
+}
+
 nodo_de_diccionario_interfaz* comprobrar_existencia_de_interfaz(pcb* el_pcb, char* interfaz,char* tipo_interfaz){
 	bool tiene_la_interfaz;
 
@@ -137,6 +152,8 @@ nodo_de_diccionario_interfaz* comprobrar_existencia_de_interfaz(pcb* el_pcb, cha
 	sem_post(&hay_proceso_en_exit);
 	return NULL;
 }
+
+
 
 void recibir_contexto_de_ejecucion(t_buffer* buffer,pcb* el_pcb) {
 	*el_pcb->registros_cpu_en_pcb->PC = extraer_uint32_buffer(buffer, logger);

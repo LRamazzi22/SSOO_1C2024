@@ -32,6 +32,7 @@ typedef struct
 {
     char* tipo_de_interfaz;
     int* cliente;
+    pthread_mutex_t mutex_interfaz_siendo_usada;
 } nodo_de_diccionario_interfaz;
 
 typedef struct 
