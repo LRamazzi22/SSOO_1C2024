@@ -35,9 +35,11 @@ void planificador_exit(){
    while(true){
     sem_wait(&hay_proceso_en_exit);
     pcb* un_pcb;
+    
     pthread_mutex_lock(&mutex_cola_exit);
     un_pcb = queue_pop(cola_exit);
     pthread_mutex_unlock(&mutex_cola_exit);
+
     t_paquete* paquete = crear_paquete(ELIMINAR_PROCESO_MEMORIA);
     agregar_int_a_paquete(paquete,un_pcb ->PID);
     enviar_paquete(paquete,kernel_cliente_memoria);

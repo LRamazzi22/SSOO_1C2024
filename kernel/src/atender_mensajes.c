@@ -57,6 +57,11 @@ void atender_cpu_dispatch(){
 			pcb* pcb_a_finalizar = proceso_en_ejecucion;
 			pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
 
+			if(strcmp(ALGORITMO_PLANIFICACION,"rr")==0){
+				pthread_cancel(pcb_a_finalizar ->hilo_quantum);
+			}
+			
+
 			recibir_contexto_de_ejecucion(buffer,pcb_a_finalizar);
 			pcb_a_finalizar->estado_proceso = EXIT_PROCESS;
 
@@ -72,6 +77,10 @@ void atender_cpu_dispatch(){
 			pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
 			pcb* pcb_del_proceso = proceso_en_ejecucion;
 			pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
+
+			if(strcmp(ALGORITMO_PLANIFICACION,"rr")==0){
+				pthread_cancel(pcb_del_proceso ->hilo_quantum);
+			}
 
 			recibir_contexto_de_ejecucion(buffer,pcb_del_proceso);
 
@@ -97,6 +106,25 @@ void atender_cpu_dispatch(){
 			}
 			pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
 			free(interfaz);
+			break;
+
+		case INTERRUPCION_FIN_QUANTUM:
+			buffer = recibir_buffer(kernel_cliente_dispatch);
+
+			pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
+			pcb* pcb_a_guardar = proceso_en_ejecucion;
+			pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
+
+
+			recibir_contexto_de_ejecucion(buffer,pcb_a_guardar);
+			pcb_a_guardar->estado_proceso = READY;
+
+			pthread_mutex_lock(&mutex_cola_ready);
+			queue_push(cola_ready,pcb_a_guardar);
+			pthread_mutex_unlock(&mutex_cola_ready);
+
+			sem_post(&hay_proceso_en_ready);
+
 			break;
 		case -1:
 			log_error(logger, "El CPU Dispatch se desconecto");

@@ -2,6 +2,9 @@
 
 void inicializar_cpu(){
     logger = iniciar_logger("./cpu.log", "Cpu_Logger", LOG_LEVEL_INFO);
+    pid_en_ejecucion = 0;
+    interrupcion_recibida = NO_INTERRUPCION;
+    pid_de_interrupcion = 0;
     inicializar_config_cpu();
 }
 

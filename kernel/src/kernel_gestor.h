@@ -25,6 +25,7 @@ typedef struct
     int quantum_restante;
     t_registros_cpu* registros_cpu_en_pcb;
     psw estado_proceso; // Agrego reg de estado, para identificar el estado del proceso.
+    pthread_t hilo_quantum;
 
 } pcb;
 

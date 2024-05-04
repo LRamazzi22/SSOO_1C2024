@@ -51,12 +51,26 @@ void atender_kernel_interrupt(){
     while (1) {
         log_info(logger, "Esperando mensajes de de Kernel cliente interrupt");
 		int cod_op = recibir_operacion(kernel_cliente_interrupt);
+		t_buffer* buffer = NULL;
 		switch (cod_op) {
 		case HANDSHAKE:
-			t_buffer* buffer = recibir_buffer(kernel_cliente_interrupt);
+			buffer = recibir_buffer(kernel_cliente_interrupt);
 			char* mensaje = extraer_string_buffer(buffer, logger);
 			printf("Recibi un handshake de: %s, como cliente",mensaje);
 			free(mensaje);
+			break;
+		case INTERRUPCION_FIN_QUANTUM:
+			buffer = recibir_buffer(kernel_cliente_interrupt);
+			int pid = extraer_int_buffer(buffer,logger);
+
+			pthread_mutex_lock(&mutex_para_pid_interrupcion);
+			pid_de_interrupcion = pid;
+			pthread_mutex_unlock(&mutex_para_pid_interrupcion);
+
+			pthread_mutex_lock(&mutex_para_interrupcion);
+			interrupcion_recibida = FIN_QUANTUM;
+			pthread_mutex_unlock(&mutex_para_interrupcion);
+			
 			break;
 		case -1:
 			log_error(logger, "El Kernel Interrupt se desconecto");

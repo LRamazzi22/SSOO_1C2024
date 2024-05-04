@@ -15,34 +15,62 @@ void ciclo(){
         *los_registros_de_la_cpu -> PC = programCounter;
         if(resultado_ejecucion != SEGUIR_EJECUTANDO){
             correr_ciclo = false;
+
+            pthread_mutex_lock(&mutex_para_interrupcion);
+            interrupcion_recibida = NO_INTERRUPCION;
+            pthread_mutex_unlock(&mutex_para_interrupcion);
+        }
+        else if(interrupcion_recibida != NO_INTERRUPCION && pid_en_ejecucion == pid_de_interrupcion){
+            correr_ciclo = false;
         }
         else{
             string_array_destroy(instruccion_separada);
         }
     }
-    switch (resultado_ejecucion){
-    case FINALIZAR:
-        t_paquete* paquete = crear_paquete(FINALIZAR_EXEC);
-        cargar_registros_a_paquete(paquete);
-        enviar_paquete(paquete,kernel_cliente_dispatch);
-        eliminar_paquete(paquete);
+    if(resultado_ejecucion != SEGUIR_EJECUTANDO){
+        switch (resultado_ejecucion){
+            case FINALIZAR:
+                t_paquete* paquete = crear_paquete(FINALIZAR_EXEC);
+                cargar_registros_a_paquete(paquete);
+                enviar_paquete(paquete,kernel_cliente_dispatch);
+                eliminar_paquete(paquete);
 
-        break;
-    case SLEEP_GEN:
-        t_paquete* paquete2 = crear_paquete(ESPERAR_GEN);
-        cargar_registros_a_paquete(paquete2);
-        string_append(&instruccion_separada[1],"\n");
-        agregar_string_a_paquete(paquete2,instruccion_separada[1]);
-        int tiempo_espera = atoi(instruccion_separada[2]);
-        agregar_int_a_paquete(paquete2,tiempo_espera);
-        enviar_paquete(paquete2,kernel_cliente_dispatch);
-        eliminar_paquete(paquete2);
+                break;
+        case SLEEP_GEN:
+                t_paquete* paquete2 = crear_paquete(ESPERAR_GEN);
+                cargar_registros_a_paquete(paquete2);
+                string_append(&instruccion_separada[1],"\n");
+                agregar_string_a_paquete(paquete2,instruccion_separada[1]);
+                int tiempo_espera = atoi(instruccion_separada[2]);
+                agregar_int_a_paquete(paquete2,tiempo_espera);
+                enviar_paquete(paquete2,kernel_cliente_dispatch);
+                eliminar_paquete(paquete2);
 
-        break;
+                break;
     
-    default:
-        break;
+        default:
+                break;
+        }
     }
+    else{
+        switch (interrupcion_recibida){
+        case FIN_QUANTUM:
+            t_paquete* paquete = crear_paquete(INTERRUPCION_FIN_QUANTUM);
+            cargar_registros_a_paquete(paquete);
+            enviar_paquete(paquete,kernel_cliente_dispatch);
+            eliminar_paquete(paquete);
+            
+            pthread_mutex_lock(&mutex_para_interrupcion);
+            interrupcion_recibida = NO_INTERRUPCION;
+            pthread_mutex_unlock(&mutex_para_interrupcion);
+            break;
+        case FINALIZACION:
+            break;
+        default:
+            break;
+        }
+    }
+    
     string_array_destroy(instruccion_separada);
 }
 

@@ -16,6 +16,12 @@ typedef enum{
     SLEEP_GEN
 } salidas_cpu;
 
+typedef enum{
+    NO_INTERRUPCION,
+    FIN_QUANTUM,
+    FINALIZACION
+} interrupciones;
+
 //Variables Globales
 
 extern int cpu_server_dispatch;
@@ -37,7 +43,13 @@ extern char* ALGORITMO_TLB;
 extern char* instruccion_a_decodificar;
 extern char** instruccion_separada;
 extern int pid_en_ejecucion;
+extern int interrupcion_recibida;
+extern int pid_de_interrupcion;
 
 extern t_registros_cpu* los_registros_de_la_cpu;
+
+//Semaforos
+extern pthread_mutex_t mutex_para_interrupcion;
+extern pthread_mutex_t mutex_para_pid_interrupcion;
 
 #endif
