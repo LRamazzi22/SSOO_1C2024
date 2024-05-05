@@ -107,7 +107,7 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
                 for(int p = 0; p<largo_cola; p++){
 
                     pthread_mutex_lock(&(nodo ->mutex_para_cola));
-                    pcb_revisar = list_get(nodo ->cola_bloqueados ->elements,i);
+                    pcb_revisar = list_get(nodo ->cola_bloqueados ->elements,p);
                     pthread_mutex_unlock(&(nodo ->mutex_para_cola));
 
                     printf("%d\n",pcb_revisar ->PID);
