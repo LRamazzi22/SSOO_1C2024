@@ -34,7 +34,7 @@ typedef enum
     ESPERAR_GEN,
     EXITO_IO,
     ELIMINAR_PROCESO_MEMORIA,
-    INTERRUPCION_FIN_QUANTUM,
+    INTERRUPCION,
 } op_code;
 
 

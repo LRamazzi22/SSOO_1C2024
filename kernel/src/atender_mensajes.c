@@ -63,13 +63,8 @@ void atender_cpu_dispatch(){
 			
 
 			recibir_contexto_de_ejecucion(buffer,pcb_a_finalizar);
-			pcb_a_finalizar->estado_proceso = EXIT_PROCESS;
-
-			pthread_mutex_lock(&mutex_cola_exit);
-			queue_push(cola_exit,pcb_a_finalizar);
-			pthread_mutex_unlock(&mutex_cola_exit);
-			sem_post(&hay_proceso_en_exit);
-
+			
+			eliminar_el_proceso(pcb_a_finalizar);
 			break;
 		case ESPERAR_GEN:
 			buffer = recibir_buffer(kernel_cliente_dispatch);
@@ -84,9 +79,16 @@ void atender_cpu_dispatch(){
 
 			recibir_contexto_de_ejecucion(buffer,pcb_del_proceso);
 
+
 			char* interfaz = extraer_string_buffer(buffer,logger);
 			char* tipo_interfaz = "Generica";
 			int tiempo_espera = extraer_int_buffer(buffer,logger);
+
+			if(pcb_del_proceso ->PID == pid_a_eliminar){ //Si el proceso que salio del cpu es al que se le mando la interrupcion de eliminarlo
+				eliminar_el_proceso(pcb_del_proceso);
+				pid_a_eliminar = -1;
+				break;
+			}
 
 			pthread_mutex_lock(&mutex_para_eliminar_entradasalida);
 			nodo_de_diccionario_interfaz* nodo_de_interfaz = comprobrar_existencia_de_interfaz(pcb_del_proceso,interfaz,tipo_interfaz);
@@ -108,7 +110,7 @@ void atender_cpu_dispatch(){
 			free(interfaz);
 			break;
 
-		case INTERRUPCION_FIN_QUANTUM:
+		case INTERRUPCION:
 			buffer = recibir_buffer(kernel_cliente_dispatch);
 
 			pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
@@ -117,6 +119,13 @@ void atender_cpu_dispatch(){
 
 
 			recibir_contexto_de_ejecucion(buffer,pcb_a_guardar);
+
+			if(pcb_a_guardar ->PID == pid_a_eliminar){ //Si el proceso que salio del cpu es al que se le mando la interrupcion de eliminarlo
+				eliminar_el_proceso(pcb_a_guardar);
+				pid_a_eliminar = -1;
+				break;
+			}
+
 			pcb_a_guardar->estado_proceso = READY;
 
 			pthread_mutex_lock(&mutex_cola_ready);

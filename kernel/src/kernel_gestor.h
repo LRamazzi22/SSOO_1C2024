@@ -49,6 +49,7 @@ typedef struct
 //Variables Globales
 extern int pid_acumulado;
 extern int cantidad_de_proceso_en_ejecucion;
+extern int pid_a_eliminar;
 
 
 extern t_log* logger;

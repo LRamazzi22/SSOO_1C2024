@@ -4,6 +4,7 @@ void inicializar_kernel(){
     inicializar_config_kernel();
 
     pid_acumulado = 0;
+    pid_a_eliminar = -1;
     cantidad_de_proceso_en_ejecucion = GRADO_MULTIPROGRAMACION;
     permitir_planificacion = false;
 

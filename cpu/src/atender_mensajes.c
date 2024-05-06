@@ -59,7 +59,7 @@ void atender_kernel_interrupt(){
 			printf("Recibi un handshake de: %s, como cliente",mensaje);
 			free(mensaje);
 			break;
-		case INTERRUPCION_FIN_QUANTUM:
+		case INTERRUPCION:
 			buffer = recibir_buffer(kernel_cliente_interrupt);
 			int pid = extraer_int_buffer(buffer,logger);
 
@@ -68,7 +68,7 @@ void atender_kernel_interrupt(){
 			pthread_mutex_unlock(&mutex_para_pid_interrupcion);
 
 			pthread_mutex_lock(&mutex_para_interrupcion);
-			interrupcion_recibida = FIN_QUANTUM;
+			interrupcion_recibida = HUBO_INTERRUPCION;
 			pthread_mutex_unlock(&mutex_para_interrupcion);
 			
 			break;

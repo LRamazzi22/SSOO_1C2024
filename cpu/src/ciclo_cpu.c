@@ -53,22 +53,16 @@ void ciclo(){
         }
     }
     else{
-        switch (interrupcion_recibida){
-        case FIN_QUANTUM:
-            t_paquete* paquete = crear_paquete(INTERRUPCION_FIN_QUANTUM);
-            cargar_registros_a_paquete(paquete);
-            enviar_paquete(paquete,kernel_cliente_dispatch);
-            eliminar_paquete(paquete);
+        t_paquete* paquete = crear_paquete(INTERRUPCION);
+        cargar_registros_a_paquete(paquete);
+        enviar_paquete(paquete,kernel_cliente_dispatch);
+        eliminar_paquete(paquete);
             
-            pthread_mutex_lock(&mutex_para_interrupcion);
-            interrupcion_recibida = NO_INTERRUPCION;
-            pthread_mutex_unlock(&mutex_para_interrupcion);
-            break;
-        case FINALIZACION:
-            break;
-        default:
-            break;
-        }
+        pthread_mutex_lock(&mutex_para_interrupcion);
+        interrupcion_recibida = NO_INTERRUPCION;
+        pthread_mutex_unlock(&mutex_para_interrupcion);
+        
+        
     }
     
     string_array_destroy(instruccion_separada);

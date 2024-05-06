@@ -18,8 +18,7 @@ typedef enum{
 
 typedef enum{
     NO_INTERRUPCION,
-    FIN_QUANTUM,
-    FINALIZACION
+    HUBO_INTERRUPCION
 } interrupciones;
 
 //Variables Globales

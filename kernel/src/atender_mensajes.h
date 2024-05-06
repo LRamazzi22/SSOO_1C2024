@@ -3,6 +3,7 @@
 
 #include <kernel_gestor.h>
 #include <eliminar_elemento_de_cola.h>
+#include <eliminar_proceso.h>
 
 typedef struct 
 {
