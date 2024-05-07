@@ -34,12 +34,16 @@ typedef struct
     char* tipo_de_interfaz;
     int* cliente;
     pthread_mutex_t mutex_interfaz_siendo_usada;
+    sem_t hay_proceso_en_bloqueados;
+    sem_t se_puede_enviar_proceso;
 } nodo_de_diccionario_interfaz;
 
 typedef struct 
 {
     t_queue* cola_bloqueados;
-    pthread_mutex_t mutex_para_cola;
+    pthread_mutex_t mutex_para_cola_bloqueados;
+    t_queue* cola_Variables;
+    pthread_mutex_t mutex_para_cola_variables;
 } nodo_de_diccionario_blocked;
 
 

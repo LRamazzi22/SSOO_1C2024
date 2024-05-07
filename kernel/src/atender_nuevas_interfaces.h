@@ -12,6 +12,7 @@ typedef struct {
 
 void atender_nueva_interfaz(void*);
 void atender_mensajes_interfaz(void*);
+void enviar_proceso_interfaz(void* );
 pcb* buscar_proceso_en_cola(int , nodo_de_diccionario_blocked*);
 void atender_las_nuevas_interfaces();
 

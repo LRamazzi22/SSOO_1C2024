@@ -100,15 +100,15 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
 
                 printf("COLA BLOCKED DE %s",interfaz_o_recurso);
 
-                pthread_mutex_lock(&(nodo ->mutex_para_cola));
+                pthread_mutex_lock(&(nodo ->mutex_para_cola_bloqueados));
                 largo_cola = queue_size(nodo ->cola_bloqueados);
-                pthread_mutex_unlock(&(nodo ->mutex_para_cola));
+                pthread_mutex_unlock(&(nodo ->mutex_para_cola_bloqueados));
 
                 for(int p = 0; p<largo_cola; p++){
 
-                    pthread_mutex_lock(&(nodo ->mutex_para_cola));
+                    pthread_mutex_lock(&(nodo ->mutex_para_cola_bloqueados));
                     pcb_revisar = list_get(nodo ->cola_bloqueados ->elements,p);
-                    pthread_mutex_unlock(&(nodo ->mutex_para_cola));
+                    pthread_mutex_unlock(&(nodo ->mutex_para_cola_bloqueados));
 
                     printf("%d\n",pcb_revisar ->PID);
                 }

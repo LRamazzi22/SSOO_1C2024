@@ -82,7 +82,8 @@ void atender_cpu_dispatch(){
 
 			char* interfaz = extraer_string_buffer(buffer,logger);
 			char* tipo_interfaz = "Generica";
-			int tiempo_espera = extraer_int_buffer(buffer,logger);
+			int* tiempo_espera = malloc(sizeof(int));
+			*tiempo_espera = extraer_int_buffer(buffer,logger);
 
 			if(pcb_del_proceso ->PID == pid_a_eliminar){ //Si el proceso que salio del cpu es al que se le mando la interrupcion de eliminarlo
 				eliminar_el_proceso(pcb_del_proceso);
@@ -94,13 +95,15 @@ void atender_cpu_dispatch(){
 			nodo_de_diccionario_interfaz* nodo_de_interfaz = comprobrar_existencia_de_interfaz(pcb_del_proceso,interfaz,tipo_interfaz);
 
 			if(nodo_de_interfaz != NULL){
-				estructura_esperar_gen* estructura_a_enviar = malloc(sizeof(estructura_esperar_gen));
-				estructura_a_enviar ->nodo = nodo_de_interfaz;
-				estructura_a_enviar ->pid = pcb_del_proceso ->PID;
-				estructura_a_enviar ->tiempo_espera = tiempo_espera;
-				pthread_t hilo_enviar_instruccion_esperar_gen;
-				pthread_create(&hilo_enviar_instruccion_esperar_gen,NULL,(void*)enviar_intruccion_esperar_gen,(void*)estructura_a_enviar);
-				pthread_detach(hilo_enviar_instruccion_esperar_gen);
+				pthread_mutex_lock(&mutex_para_diccionario_blocked);
+				nodo_de_diccionario_blocked* nodo_bloqueados = dictionary_get(diccionario_blocked,interfaz);
+				pthread_mutex_unlock(&mutex_para_diccionario_blocked);
+
+				pthread_mutex_lock(&(nodo_bloqueados ->mutex_para_cola_variables));
+				queue_push(nodo_bloqueados ->cola_Variables,tiempo_espera);
+				pthread_mutex_unlock(&(nodo_bloqueados ->mutex_para_cola_variables));
+
+				sem_post(&(nodo_de_interfaz ->hay_proceso_en_bloqueados));
 
 			}
 			else{
@@ -144,18 +147,6 @@ void atender_cpu_dispatch(){
 		}
 	} 
 
-void enviar_intruccion_esperar_gen(void* estructura_a_enviar){
-	estructura_esperar_gen* nodo_pid_tiempo = estructura_a_enviar;
-
-	pthread_mutex_lock(&(nodo_pid_tiempo ->nodo ->mutex_interfaz_siendo_usada));
-	t_paquete* paquete = crear_paquete(ESPERAR_GEN);
-	agregar_int_a_paquete(paquete,nodo_pid_tiempo ->pid);
-	agregar_int_a_paquete(paquete,nodo_pid_tiempo ->tiempo_espera);
-	enviar_paquete(paquete,*nodo_pid_tiempo ->nodo ->cliente);
-	eliminar_paquete(paquete);
-	pthread_mutex_unlock(&(nodo_pid_tiempo ->nodo ->mutex_interfaz_siendo_usada));
-}
-
 nodo_de_diccionario_interfaz* comprobrar_existencia_de_interfaz(pcb* el_pcb, char* interfaz,char* tipo_interfaz){
 	bool tiene_la_interfaz;
 
@@ -176,16 +167,18 @@ nodo_de_diccionario_interfaz* comprobrar_existencia_de_interfaz(pcb* el_pcb, cha
 			nodo_de_diccionario_blocked* nodo_bloqueados = dictionary_get(diccionario_blocked,interfaz);
 			pthread_mutex_unlock(&mutex_para_diccionario_blocked);
 
-			pthread_mutex_lock(&(nodo_bloqueados ->mutex_para_cola));
+			pthread_mutex_lock(&(nodo_bloqueados ->mutex_para_cola_bloqueados));
 			queue_push(nodo_bloqueados ->cola_bloqueados,el_pcb);
-			pthread_mutex_unlock(&(nodo_bloqueados ->mutex_para_cola));
+			pthread_mutex_unlock(&(nodo_bloqueados ->mutex_para_cola_bloqueados));
 			return nodo_de_interfaz;
 		}
 	}
 	el_pcb ->estado_proceso = EXIT_PROCESS;
+
 	pthread_mutex_lock(&mutex_cola_exit);
 	queue_push(cola_exit,el_pcb);
 	pthread_mutex_unlock(&mutex_cola_exit);
+
 	sem_post(&hay_proceso_en_exit);
 	return NULL;
 }

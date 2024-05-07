@@ -3,7 +3,9 @@
 
 
 void atender_nueva_interfaz(void* cliente_entradasalida){
-    int* cliente = cliente_entradasalida;
+    int* cliente_momentaneo = cliente_entradasalida;
+    int* cliente = malloc(sizeof(int));
+    * cliente = *cliente_momentaneo;
     int cod_op = recibir_operacion(*cliente);
     if(cod_op == PRIMERA_CONEXION_IO){
         t_buffer* buffer = recibir_buffer(*cliente);
@@ -12,6 +14,8 @@ void atender_nueva_interfaz(void* cliente_entradasalida){
         nodo_de_diccionario_interfaz* nodo = malloc(sizeof(nodo_de_diccionario_interfaz));
         nodo ->tipo_de_interfaz = tipo_interfaz;
         nodo ->cliente = cliente;
+        sem_init(&(nodo ->se_puede_enviar_proceso),0,1);
+        sem_init(&(nodo ->hay_proceso_en_bloqueados),0,0);
 
         pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
         dictionary_put(diccionario_entrada_salida,nombre_interfaz,nodo);
@@ -20,6 +24,7 @@ void atender_nueva_interfaz(void* cliente_entradasalida){
         nodo_de_diccionario_blocked* nuevo_nodo_blocked = malloc(sizeof(nodo_de_diccionario_blocked));
 
         nuevo_nodo_blocked ->cola_bloqueados = queue_create();
+        nuevo_nodo_blocked ->cola_Variables = queue_create();
 
         pthread_mutex_lock(&mutex_para_diccionario_blocked);
         dictionary_put(diccionario_blocked,nombre_interfaz,nuevo_nodo_blocked);
@@ -28,9 +33,12 @@ void atender_nueva_interfaz(void* cliente_entradasalida){
         nombre_y_cliente* nombre_cliente= malloc(sizeof(nombre_y_cliente));
         nombre_cliente ->cliente = cliente;
         nombre_cliente ->nombre = nombre_interfaz;
-        pthread_t hilo_entradasalida_desconexion;
-        pthread_create(&hilo_entradasalida_desconexion,NULL, (void*)atender_mensajes_interfaz,(void*)nombre_cliente);
-        pthread_join(hilo_entradasalida_desconexion,NULL);
+        pthread_t hilo_entradasalida_atender_mensajes;
+        pthread_t hilo_entradasalida_enviar_proceso;
+        pthread_create(&hilo_entradasalida_enviar_proceso,NULL, (void*)enviar_proceso_interfaz,(void*)nombre_cliente);
+        pthread_detach(hilo_entradasalida_enviar_proceso);
+        pthread_create(&hilo_entradasalida_atender_mensajes,NULL, (void*)atender_mensajes_interfaz,(void*)nombre_cliente);
+        pthread_join(hilo_entradasalida_atender_mensajes,NULL);
 
     }
     else{
@@ -68,18 +76,24 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
             pcb* un_pcb = buscar_proceso_en_cola(pid,nodo_bloqueados);
 
             if(un_pcb != NULL){
-                pthread_mutex_lock(&(nodo_bloqueados ->mutex_para_cola));
+                pthread_mutex_lock(&(nodo_bloqueados ->mutex_para_cola_bloqueados));
                 eliminar_pcb_cola(nodo_bloqueados -> cola_bloqueados, un_pcb);
-                pthread_mutex_unlock(&(nodo_bloqueados ->mutex_para_cola));
+                pthread_mutex_unlock(&(nodo_bloqueados ->mutex_para_cola_bloqueados));
 
                 un_pcb ->estado_proceso = READY;
 
 			    pthread_mutex_lock(&mutex_cola_ready);
 			    queue_push(cola_ready,un_pcb);
 			    pthread_mutex_unlock(&mutex_cola_ready);
+
                 sem_post(&hay_proceso_en_ready);
             }
-				
+			
+            pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
+            nodo_de_diccionario_interfaz* nodo_interfaz = dictionary_get(diccionario_entrada_salida,nombre_cliente ->nombre);
+            pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
+
+            sem_post(&(nodo_interfaz ->se_puede_enviar_proceso));
             break;
 
         case -1:
@@ -100,14 +114,14 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
 
             int cantidad_procesos_bloqueados;
 
-            pthread_mutex_lock(&(nodo_de_bloqueados->mutex_para_cola));
+            pthread_mutex_lock(&(nodo_de_bloqueados->mutex_para_cola_bloqueados));
             cantidad_procesos_bloqueados = queue_size(nodo_de_bloqueados -> cola_bloqueados);
-            pthread_mutex_unlock(&(nodo_de_bloqueados->mutex_para_cola));
+            pthread_mutex_unlock(&(nodo_de_bloqueados->mutex_para_cola_bloqueados));
 
             for(int i = 0; i<cantidad_procesos_bloqueados; i++){
-                pthread_mutex_lock(&(nodo_de_bloqueados->mutex_para_cola));
+                pthread_mutex_lock(&(nodo_de_bloqueados->mutex_para_cola_bloqueados));
                 el_pcb = queue_pop(nodo_de_bloqueados -> cola_bloqueados);
-                pthread_mutex_unlock(&(nodo_de_bloqueados->mutex_para_cola));
+                pthread_mutex_unlock(&(nodo_de_bloqueados->mutex_para_cola_bloqueados));
 
                 el_pcb ->estado_proceso = EXIT;
 
@@ -130,16 +144,70 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
 
 }
 
+void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
+    
+    nombre_y_cliente* nombre_cliente = nombre_interfaz_y_cliente;
+    bool continuar_while = true;
+
+    pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
+    nodo_de_diccionario_interfaz* nodo_interfaz = dictionary_get(diccionario_entrada_salida,nombre_cliente ->nombre);
+    pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
+   
+
+    pthread_mutex_lock(&mutex_para_diccionario_blocked);
+    nodo_de_diccionario_blocked* nodo_blocked = dictionary_get(diccionario_blocked,nombre_cliente->nombre);
+    pthread_mutex_unlock(&mutex_para_diccionario_blocked);
+    
+    
+    while(continuar_while){
+        
+        sem_wait(&(nodo_interfaz ->hay_proceso_en_bloqueados));
+        sem_wait(&(nodo_interfaz ->se_puede_enviar_proceso));
+        
+
+        pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_bloqueados));
+        pcb* pcb_a_enviar = queue_peek(nodo_blocked ->cola_bloqueados);
+        pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_bloqueados));
+
+
+        if(strcmp(nodo_interfaz ->tipo_de_interfaz, "Generica")==0){
+            pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
+            int* tiempo_espera = queue_pop(nodo_blocked ->cola_Variables);
+            pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
+            printf("%d",*tiempo_espera);
+
+            t_paquete* paquete = crear_paquete(ESPERAR_GEN);
+	        agregar_int_a_paquete(paquete,pcb_a_enviar ->PID);
+	        agregar_int_a_paquete(paquete,*tiempo_espera);
+	        enviar_paquete(paquete,*nodo_interfaz ->cliente);
+	        eliminar_paquete(paquete);
+            free(tiempo_espera);
+            log_info(logger,"ENVIADO");
+        }
+        else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "stdin")==0){
+            
+        }
+        else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "stdout")==0){
+            
+        }
+        else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "dialfs")==0){
+            
+        }
+
+        
+    }
+}
+
 pcb* buscar_proceso_en_cola(int pid, nodo_de_diccionario_blocked* nodo){
     int cantidad_procesos;
-    pthread_mutex_lock(&(nodo ->mutex_para_cola));
+    pthread_mutex_lock(&(nodo ->mutex_para_cola_bloqueados));
     cantidad_procesos = queue_size(nodo ->cola_bloqueados);
-    pthread_mutex_unlock(&(nodo ->mutex_para_cola));
+    pthread_mutex_unlock(&(nodo ->mutex_para_cola_bloqueados));
     pcb* pcb_revisar;
     for(int i = 0; i<cantidad_procesos; i++){
-        pthread_mutex_lock(&(nodo ->mutex_para_cola));
+        pthread_mutex_lock(&(nodo ->mutex_para_cola_bloqueados));
         pcb_revisar = list_get(nodo -> cola_bloqueados -> elements,i);
-        pthread_mutex_unlock(&(nodo ->mutex_para_cola));
+        pthread_mutex_unlock(&(nodo ->mutex_para_cola_bloqueados));
         if(pcb_revisar->PID == pid){
             return pcb_revisar;
         }

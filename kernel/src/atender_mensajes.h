@@ -17,7 +17,6 @@ typedef struct
 void atender_memoria();
 int recibir_PC_memoria();
 void atender_cpu_dispatch();
-void enviar_intruccion_esperar_gen(void*);
 nodo_de_diccionario_interfaz* comprobrar_existencia_de_interfaz(pcb*, char* ,char* );
 void recibir_contexto_de_ejecucion(t_buffer* ,pcb*); 
 void atender_cpu_interrupt();
