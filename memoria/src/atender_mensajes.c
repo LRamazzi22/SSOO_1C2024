@@ -79,11 +79,9 @@ void atender_kernel_memoria(){
 			pthread_mutex_unlock(&mutex_para_diccionario_instrucciones);
 			
 			for(int i = 0; i<list_size(lista_instrucciones); i++){
-				char* instruccion = list_get(lista_instrucciones,i);
-				printf("%s",instruccion);
+				void* instruccion = list_get(lista_instrucciones,i);
 				free(instruccion);
 			}
-			//list_clean_and_destroy_elements(lista_instrucciones,(void*)free);
 			list_destroy(lista_instrucciones);
 			break;
 		case -1:

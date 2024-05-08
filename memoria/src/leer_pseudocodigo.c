@@ -7,18 +7,20 @@ int leer_archivo(char *nombArch, t_dictionary* diccionario,int pid){
     FILE* archivo_pseudo = fopen(archivo, "r");
     if(archivo_pseudo != NULL){
         int programCounter = 0;
-        char* instruccion = string_new();
         t_list* lista_de_intrucciones = list_create();
         while (!feof(archivo_pseudo))
         {
         
+            char instruccion[256];
+
             fgets(instruccion,256,archivo_pseudo);
-            char* a_guardar = strdup(instruccion);
+            int i = strlen(instruccion);
+
+            char* a_guardar = malloc(sizeof(char)*i + 1);
+            strcpy(a_guardar,instruccion);
 
             list_add(lista_de_intrucciones,a_guardar);
 
-            free(instruccion);
-            instruccion = string_new();
 
         
         }
