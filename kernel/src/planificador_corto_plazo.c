@@ -26,6 +26,7 @@ void algoritmo_fifo(){
     pthread_mutex_unlock(&mutex_cola_ready);
     
     proximo_proceso_a_ejecutar->estado_proceso = EXEC;
+    log_info(logger_obligatorio, "PID: %d - Estado Anterior: READY - Estado Actual: EXECUTE", proximo_proceso_a_ejecutar->PID);
     pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
     proceso_en_ejecucion = proximo_proceso_a_ejecutar;
     pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
@@ -77,6 +78,8 @@ void serializar_registros_procesador (t_paquete* paquete, t_registros_cpu* proce
     pthread_mutex_unlock(&mutex_cola_ready);
     
     proximo_proceso_a_ejecutar->estado_proceso = EXEC;
+    log_info(logger_obligatorio, "PID: %d - Estado Anterior: READY - Estado Actual: EXECUTE", proximo_proceso_a_ejecutar->PID);
+
     pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
     proceso_en_ejecucion = proximo_proceso_a_ejecutar;
     pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);

@@ -7,6 +7,7 @@
 #include <interfaz_generica.h>
 
 t_log* logger;
+t_log* logger_obligatorio;
 t_config* config;
 
 int entradasalida_cliente_memoria;

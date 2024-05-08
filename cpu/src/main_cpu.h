@@ -7,6 +7,7 @@
 #include <ciclo_cpu.h>
 
 t_log* logger;
+t_log* logger_obligatorio;
 t_config* config;
 
 int cpu_server_dispatch;

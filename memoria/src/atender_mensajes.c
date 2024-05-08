@@ -4,7 +4,7 @@ void atender_cpu_memoria(){
 	t_buffer* buffer;
 	char* mensaje;
     while (1) {
-		log_info(logger, "Esperando mensajes de CPU");
+		//log_info(logger, "Esperando mensajes de CPU");
 		int cod_op = recibir_operacion(cpu_cliente);
 		buffer = recibir_buffer(cpu_cliente);
 		switch (cod_op) {
@@ -35,6 +35,7 @@ void atender_cpu_memoria(){
 		}
 	}
 }
+
 void enviar_instruccion(int pc,int pid){
 	t_paquete* paquete = crear_paquete(PEDIR_INSTRUCCION);
 	char* pid_clave = string_itoa(pid);
@@ -79,8 +80,10 @@ void atender_kernel_memoria(){
 			
 			for(int i = 0; i<list_size(lista_instrucciones); i++){
 				char* instruccion = list_get(lista_instrucciones,i);
+				printf("%s",instruccion);
 				free(instruccion);
 			}
+			//list_clean_and_destroy_elements(lista_instrucciones,(void*)free);
 			list_destroy(lista_instrucciones);
 			break;
 		case -1:

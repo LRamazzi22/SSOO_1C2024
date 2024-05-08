@@ -22,6 +22,7 @@ void planificador_new_to_ready(){
         pthread_mutex_unlock(&mutex_cola_new);
 
         un_pcb ->estado_proceso = READY;
+        log_info(logger_obligatorio, "PID: %d - Estado Anterior: NEW - Estado Actual: READY", un_pcb->PID);
 
         pthread_mutex_lock(&mutex_cola_ready);
         queue_push(cola_ready,un_pcb);

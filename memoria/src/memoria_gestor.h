@@ -13,6 +13,7 @@ modulos de la Memoria pueden utilizarlas. Las variables deben ser previamente de
 //Variables Globales
 
 extern t_log* logger;
+extern t_log* logger_obligatorio;
 extern t_config* config;
 
 extern pthread_mutex_t mutex_para_leer_pseudo;

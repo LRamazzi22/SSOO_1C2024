@@ -17,6 +17,7 @@ int cantidad_de_proceso_en_ejecucion;
 int pid_a_eliminar;
 
 t_log* logger;
+t_log* logger_obligatorio;
 t_config* config;
 
 int kernel_server;

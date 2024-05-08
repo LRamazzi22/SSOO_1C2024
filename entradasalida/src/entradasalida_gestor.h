@@ -21,6 +21,7 @@ typedef enum{
 //Variables Globales
 
 extern t_log* logger;
+extern t_log* logger_obligatorio;
 extern t_config* config;
 
 extern int entradasalida_cliente_memoria;

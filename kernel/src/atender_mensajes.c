@@ -63,8 +63,9 @@ void atender_cpu_dispatch(){
 			
 
 			recibir_contexto_de_ejecucion(buffer,pcb_a_finalizar);
-			
+			log_info(logger_obligatorio, "Finaliza el proceso %d - Motivo: SUCCESS",pcb_a_finalizar->PID); //TODO HACERLO COMO PIDE LA CONSIGNA
 			eliminar_el_proceso(pcb_a_finalizar);
+			 
 			break;
 		case ESPERAR_GEN:
 			buffer = recibir_buffer(kernel_cliente_dispatch);
@@ -130,6 +131,8 @@ void atender_cpu_dispatch(){
 			}
 
 			pcb_a_guardar->estado_proceso = READY;
+			log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: READY", pcb_a_guardar->PID);
+
 
 			pthread_mutex_lock(&mutex_cola_ready);
 			queue_push(cola_ready,pcb_a_guardar);

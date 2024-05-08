@@ -57,6 +57,7 @@ extern int pid_a_eliminar;
 
 
 extern t_log* logger;
+extern t_log* logger_obligatorio;
 extern t_config* config;
 
 extern int kernel_server;

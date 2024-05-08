@@ -30,6 +30,7 @@ extern int kernel_cliente_dispatch;
 extern int kernel_cliente_interrupt;
 
 extern t_log* logger;
+extern t_log* logger_obligatorio;
 extern t_config* config;
 
 extern char* IP_MEMORIA;

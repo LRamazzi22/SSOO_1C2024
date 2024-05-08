@@ -8,6 +8,7 @@
 #include <atender_nuevas_interfaces.h>
 
 t_log* logger;
+t_log* logger_obligatorio;
 t_config* config;
 
 pthread_mutex_t mutex_para_leer_pseudo;

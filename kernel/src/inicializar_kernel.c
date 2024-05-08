@@ -9,6 +9,7 @@ void inicializar_kernel(){
     permitir_planificacion = false;
 
     logger = iniciar_logger("./kernel.log", "Kernel_Logger", LOG_LEVEL_INFO);
+    logger_obligatorio = iniciar_logger("./kernelObligatorio.log", "Kernel_Logger_Obligatorio", LOG_LEVEL_INFO);
     cola_new = queue_create();
     cola_ready = queue_create();
     diccionario_blocked = dictionary_create();

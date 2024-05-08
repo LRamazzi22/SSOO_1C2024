@@ -124,6 +124,7 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
                 pthread_mutex_unlock(&(nodo_de_bloqueados->mutex_para_cola_bloqueados));
 
                 el_pcb ->estado_proceso = EXIT;
+                log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", el_pcb->PID);
 
                 pthread_mutex_lock(&mutex_cola_exit);
                 queue_push(cola_exit,el_pcb);
@@ -174,7 +175,6 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
             pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
             int* tiempo_espera = queue_pop(nodo_blocked ->cola_Variables);
             pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
-            printf("%d",*tiempo_espera);
 
             t_paquete* paquete = crear_paquete(ESPERAR_GEN);
 	        agregar_int_a_paquete(paquete,pcb_a_enviar ->PID);
@@ -182,7 +182,6 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
 	        enviar_paquete(paquete,*nodo_interfaz ->cliente);
 	        eliminar_paquete(paquete);
             free(tiempo_espera);
-            log_info(logger,"ENVIADO");
         }
         else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "stdin")==0){
             

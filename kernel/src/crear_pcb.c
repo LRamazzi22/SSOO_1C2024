@@ -29,6 +29,7 @@ pcb* creacion_pcb(char* ruta_pseudocodigo){
     el_pcb ->registros_cpu_en_pcb->DI = calloc(1,sizeof(uint32_t));
     el_pcb ->registros_cpu_en_pcb->SI = calloc(1,sizeof(uint32_t));
 
+    log_info(logger_obligatorio, "Se crea el proceso %d en NEW", el_pcb->PID);
     return el_pcb;
 
 }
