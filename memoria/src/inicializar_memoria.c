@@ -7,7 +7,7 @@ void inicializar_memoria(){
 }
 
 void inicializar_config_memoria(){
-    config = iniciar_config("/home/utnso/Desktop/hj/tp-2024-1c-Grupo-451/memoria/memoria_config.config");
+    config = iniciar_config("./memoria_config.config");
     
 
     PUERTO_ESCUCHA = config_get_string_value(config, "PUERTO_ESCUCHA");

@@ -7,6 +7,7 @@ void consola_kernel(){
     leido = readline(">");
 
     while(strcmp(leido,"EXIT")!=0){
+        add_history(leido);
         char** comando_por_partes = string_split(leido, " "); //Se divide lo leido, separandolos por los espacios
         validar_y_ejecutar_comando(comando_por_partes);
         string_array_destroy(comando_por_partes);

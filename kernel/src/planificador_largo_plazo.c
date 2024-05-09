@@ -39,6 +39,7 @@ void planificador_exit(){
     
     pthread_mutex_lock(&mutex_cola_exit);
     un_pcb = queue_pop(cola_exit);
+    log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", un_pcb->PID);
     pthread_mutex_unlock(&mutex_cola_exit);
 
     t_paquete* paquete = crear_paquete(ELIMINAR_PROCESO_MEMORIA);

@@ -73,6 +73,7 @@ void solicitar_instruccion(int programCounter){
     agregar_int_a_paquete(paquete,pid_en_ejecucion);
     agregar_int_a_paquete(paquete, programCounter);
     enviar_paquete(paquete, cpu_cliente_memoria);
+    log_info(logger_obligatorio, "PID: %d - FETCH Program Counter: %d", pid_en_ejecucion, programCounter);
     eliminar_paquete(paquete);
     atender_memoria_cpu_sin_while();
     printf("%s",instruccion_a_decodificar);
