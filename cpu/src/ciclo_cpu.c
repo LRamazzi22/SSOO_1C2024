@@ -238,6 +238,10 @@ void jnz(char* nombre_registro, int nuevo_pc){
 
 
 int ejecutar_instruccion (int codigo_instruccion) {
+    
+    log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
+                instruccion_separada[2]); //Que pasara cuando hay mas parametros y no los usa: Rompera ya lo veremos
+
     switch (codigo_instruccion)
     {
     case SET: // SET (Registro, Valor)
