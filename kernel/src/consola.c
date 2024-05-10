@@ -38,10 +38,21 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
         permitir_planificacion = false;
     }
     else if(strcmp(comando_por_partes[0],"INICIAR_PLANIFICACION")==0){
-        permitir_planificacion = true;
+        
+        iniciar_planificacion();
     }
     else if(strcmp(comando_por_partes[0],"MULTIPROGRAMACION")==0){
-        printf("Hola, soy multiprogramacion\n");
+        int nuevo_grado_multi = atoi(comando_por_partes[1]);
+        int diferencia = nuevo_grado_multi - GRADO_MULTIPROGRAMACION;
+        if(diferencia > 0){
+            for(int i = 0; i< diferencia; i++){
+                sem_post(&(multiprogramacion_permite_proceso_en_ready));
+            }
+        }
+        else if(diferencia <0){
+            espera_grado_multi = (-1)*diferencia;
+        }
+        GRADO_MULTIPROGRAMACION = nuevo_grado_multi;
     }
     else if(strcmp(comando_por_partes[0],"PROCESO_ESTADO")==0){
         printf("Hola, soy proceso estado\n");
@@ -91,7 +102,11 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
 
         if(!diccionario_vacio){
             nodo_de_diccionario_blocked* nodo;
+
+            pthread_mutex_lock(&mutex_para_diccionario_blocked);
             t_list* lista_keys = dictionary_keys(diccionario_blocked);
+            pthread_mutex_unlock(&mutex_para_diccionario_blocked);
+
             for(int i = 0; i<list_size(lista_keys); i++){
                 char* interfaz_o_recurso = list_get(lista_keys,i);
 
@@ -156,4 +171,39 @@ void crear_proceso(void* ruta_pseudocodigo){
     free(ruta_pseudocodigo);
 
     pthread_mutex_unlock(&mutex_para_creacion_proceso);
+}
+
+void iniciar_planificacion(){
+    if(!permitir_planificacion){
+        sem_post(&detener_planificacion_corto_plazo);
+        sem_post(&detener_planificacion_exit);
+        sem_post(&detener_planificacion_salida_cpu);
+        sem_post(&detener_planificacion_to_ready);
+        bool diccionario_vacio;
+
+        pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
+        diccionario_vacio = dictionary_is_empty(diccionario_entrada_salida);
+        pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
+
+        if(!diccionario_vacio){
+            nodo_de_diccionario_interfaz* nodo;
+
+            pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
+            t_list* lista_keys = dictionary_keys(diccionario_entrada_salida);
+            pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
+
+            for(int i = 0; i<list_size(lista_keys); i++){
+                char* interfaz_o_recurso = list_get(lista_keys,i);
+
+                pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
+                nodo = dictionary_get(diccionario_entrada_salida,interfaz_o_recurso);
+                pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
+
+                sem_post(&(nodo ->detener_planificacion_enviar_peticion_IO));
+                sem_post(&(nodo ->detener_planificacion_recibir_respuestas_IO));
+
+            }
+        }
+        permitir_planificacion = true;
+    }
 }

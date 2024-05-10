@@ -49,11 +49,18 @@ t_queue* cola_exit;
 
 bool permitir_planificacion;
 
+int espera_grado_multi;
+
 //Semaforos
 sem_t hay_proceso_en_ready;
 sem_t hay_proceso_en_new;
 sem_t hay_proceso_en_exit;
 sem_t multiprogramacion_permite_proceso_en_ready;
+
+sem_t detener_planificacion_exit;
+sem_t detener_planificacion_to_ready;
+sem_t detener_planificacion_corto_plazo;
+sem_t detener_planificacion_salida_cpu;
 
 pthread_mutex_t mutex_cola_new;
 pthread_mutex_t mutex_cola_ready;

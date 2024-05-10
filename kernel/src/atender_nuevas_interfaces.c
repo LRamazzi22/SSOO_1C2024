@@ -16,6 +16,8 @@ void atender_nueva_interfaz(void* cliente_entradasalida){
         nodo ->cliente = cliente;
         sem_init(&(nodo ->se_puede_enviar_proceso),0,1);
         sem_init(&(nodo ->hay_proceso_en_bloqueados),0,0);
+        sem_init(&(nodo ->detener_planificacion_enviar_peticion_IO),0,0);
+        sem_init(&(nodo ->detener_planificacion_recibir_respuestas_IO),0,0);
 
         pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
         dictionary_put(diccionario_entrada_salida,nombre_interfaz,nodo);
@@ -54,6 +56,16 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
     while(continuar_while){
 
         int cod_op = recibir_operacion(*nombre_cliente ->cliente);
+
+        if(!permitir_planificacion){
+            pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
+            nodo_de_diccionario_interfaz* nodo_para_detener = dictionary_get(diccionario_entrada_salida,nombre_cliente ->nombre);
+            pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
+
+
+            sem_wait(&(nodo_para_detener ->detener_planificacion_recibir_respuestas_IO));
+        }
+
         switch (cod_op)
         {
         case HANDSHAKE:
@@ -104,6 +116,10 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
             pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
             free(nodo ->tipo_de_interfaz);
             liberar_conexion(*nodo ->cliente);
+            free(nodo ->cliente);
+            sem_destroy(&(nodo ->hay_proceso_en_bloqueados));
+            sem_destroy(&(nodo ->se_puede_enviar_proceso));
+            pthread_mutex_destroy(&(nodo ->mutex_interfaz_siendo_usada));
             free(nodo);
 
             pcb* el_pcb;
@@ -123,6 +139,11 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
                 el_pcb = queue_pop(nodo_de_bloqueados -> cola_bloqueados);
                 pthread_mutex_unlock(&(nodo_de_bloqueados->mutex_para_cola_bloqueados));
 
+                pthread_mutex_lock(&(nodo_de_bloqueados ->mutex_para_cola_variables));
+                void* variable_a_borrar = queue_pop(nodo_de_bloqueados ->cola_Variables);
+                free(variable_a_borrar);
+                pthread_mutex_unlock(&(nodo_de_bloqueados ->mutex_para_cola_variables));
+
                 el_pcb ->estado_proceso = EXIT;
                 log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", el_pcb->PID);
 
@@ -132,6 +153,10 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
                 sem_post(&hay_proceso_en_exit);
             }
             queue_destroy(nodo_de_bloqueados ->cola_bloqueados);
+            queue_destroy(nodo_de_bloqueados ->cola_Variables);
+            pthread_mutex_destroy(&(nodo_de_bloqueados ->mutex_para_cola_bloqueados));
+            pthread_mutex_destroy(&(nodo_de_bloqueados ->mutex_para_cola_variables));
+            free(nodo_de_bloqueados);
             continuar_while = false;
 
             pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
@@ -164,6 +189,11 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
         
         sem_wait(&(nodo_interfaz ->hay_proceso_en_bloqueados));
         sem_wait(&(nodo_interfaz ->se_puede_enviar_proceso));
+
+        if(!permitir_planificacion){
+            
+            sem_wait(&(nodo_interfaz ->detener_planificacion_enviar_peticion_IO));
+        }
         
 
         pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_bloqueados));

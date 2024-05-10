@@ -42,6 +42,11 @@ int recibir_PC_memoria(){
 void atender_cpu_dispatch(){
 		log_info(logger, "Esperando mensajes de CPU Dispatch");
 		int cod_op = recibir_operacion(kernel_cliente_dispatch);
+
+		if(!permitir_planificacion){
+            sem_wait(&detener_planificacion_salida_cpu);
+        }
+
 		t_buffer* buffer;
 		switch (cod_op) {
 		case HANDSHAKE:

@@ -21,6 +21,10 @@ void algoritmo_fifo(){
     // Seleccionar proceso y acutualizar estado
     sem_wait(&hay_proceso_en_ready);
 
+    if(!permitir_planificacion){
+        sem_wait(&detener_planificacion_corto_plazo);
+    }
+
     pthread_mutex_lock(&mutex_cola_ready);
     pcb* proximo_proceso_a_ejecutar = queue_pop(cola_ready);
     pthread_mutex_unlock(&mutex_cola_ready);

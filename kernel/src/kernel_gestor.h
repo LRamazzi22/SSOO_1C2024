@@ -37,6 +37,8 @@ typedef struct
     pthread_mutex_t mutex_interfaz_siendo_usada;
     sem_t hay_proceso_en_bloqueados;
     sem_t se_puede_enviar_proceso;
+    sem_t detener_planificacion_recibir_respuestas_IO;
+    sem_t detener_planificacion_enviar_peticion_IO;
 } nodo_de_diccionario_interfaz;
 
 typedef struct 
@@ -89,10 +91,17 @@ extern t_queue* cola_exit;
 
 extern bool permitir_planificacion;
 
+extern int espera_grado_multi;
+
 extern sem_t hay_proceso_en_ready;
 extern sem_t hay_proceso_en_new;
 extern sem_t hay_proceso_en_exit;
 extern sem_t multiprogramacion_permite_proceso_en_ready;
+
+extern sem_t detener_planificacion_exit;
+extern sem_t detener_planificacion_to_ready;
+extern sem_t detener_planificacion_corto_plazo;
+extern sem_t detener_planificacion_salida_cpu;
 
 extern pthread_mutex_t mutex_cola_new;
 extern pthread_mutex_t mutex_cola_ready;

@@ -15,7 +15,9 @@ void planificador_new_to_ready(){
         sem_wait(&multiprogramacion_permite_proceso_en_ready);
         sem_wait(&hay_proceso_en_new);
 
-
+        if(!permitir_planificacion){
+            sem_wait(&detener_planificacion_to_ready);
+        }
         pcb* un_pcb;
         pthread_mutex_lock(&mutex_cola_new);
         un_pcb = queue_pop(cola_new);
@@ -35,6 +37,9 @@ void planificador_new_to_ready(){
 void planificador_exit(){
    while(true){
     sem_wait(&hay_proceso_en_exit);
+    if(!permitir_planificacion){
+        sem_wait(&detener_planificacion_exit);
+    }
     pcb* un_pcb;
     
     pthread_mutex_lock(&mutex_cola_exit);
@@ -48,7 +53,13 @@ void planificador_exit(){
     eliminar_paquete(paquete);
     borrar_registros_pcb(un_pcb);
     free(un_pcb);
-    sem_post(&multiprogramacion_permite_proceso_en_ready);
+    if(espera_grado_multi > 0){
+        espera_grado_multi--;
+    }
+    else{
+        sem_post(&multiprogramacion_permite_proceso_en_ready);
+    }
+    
    }
 }
 

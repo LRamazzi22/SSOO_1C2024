@@ -10,6 +10,7 @@
 void consola_kernel();
 void validar_y_ejecutar_comando(char**);
 void crear_proceso(void*);
+void iniciar_planificacion();
 
 
 
