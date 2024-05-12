@@ -27,6 +27,7 @@ int kernel_cliente_interrupt;
 int kernel_cliente_memoria;
 
 t_dictionary* diccionario_entrada_salida;
+t_dictionary* diccionario_recursos;
 pcb* proceso_en_ejecucion;
 
 
@@ -68,6 +69,7 @@ pthread_mutex_t mutex_cola_exit;
 pthread_mutex_t mutex_para_proceso_en_ejecucion;
 pthread_mutex_t mutex_para_creacion_proceso;
 pthread_mutex_t mutex_para_diccionario_entradasalida;
+pthread_mutex_t mutex_para_diccionario_recursos;
 pthread_mutex_t mutex_para_diccionario_blocked;
 pthread_mutex_t mutex_para_eliminar_entradasalida;
 

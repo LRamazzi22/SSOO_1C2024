@@ -17,6 +17,7 @@ void inicializar_kernel(){
     cola_exit = queue_create();
 
     diccionario_entrada_salida = dictionary_create();
+    diccionario_recursos = dictionary_create();
 
     //Semaforos
     sem_init(&hay_proceso_en_ready,0,0);
@@ -28,6 +29,8 @@ void inicializar_kernel(){
     sem_init(&detener_planificacion_exit,0,0);
     sem_init(&detener_planificacion_salida_cpu,0,0);
     sem_init(&detener_planificacion_to_ready,0,0);
+
+    inicializar_recursos();
     
 }
 
@@ -45,4 +48,19 @@ void inicializar_config_kernel(){
     RECURSOS = config_get_array_value(config,"RECURSOS");
     INSTANCIAS_RECURSOS = config_get_array_value(config,"INSTANCIAS_RECURSOS");
     GRADO_MULTIPROGRAMACION = config_get_int_value(config, "GRADO_MULTIPROGRAMACION");
+}
+
+void inicializar_recursos(){
+    if(!string_array_is_empty(RECURSOS)){
+        for(int i = 0; i< string_array_size(RECURSOS); i++){
+            nodo_recursos* nodo = malloc(sizeof(nodo_recursos));
+            nodo ->cola_bloqueados_recurso = queue_create();
+            nodo ->instancias = atoi(INSTANCIAS_RECURSOS[i]);
+
+            pthread_mutex_lock(&mutex_para_diccionario_recursos);
+            dictionary_put(diccionario_recursos,RECURSOS[i], nodo);
+            pthread_mutex_unlock(&mutex_para_diccionario_recursos);
+            
+        }
+    }
 }

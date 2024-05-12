@@ -93,9 +93,24 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
                 pthread_mutex_unlock(&(nodo_bloqueados ->mutex_para_cola_bloqueados));
 
                 un_pcb ->estado_proceso = READY;
+                log_info(logger_obligatorio,"PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", un_pcb ->PID);
 
 			    pthread_mutex_lock(&mutex_cola_ready);
 			    queue_push(cola_ready,un_pcb);
+                char* lista = malloc(1);
+                strcpy(lista,"[");
+                for(int i = 0; i < queue_size(cola_ready); i++){
+                    pcb* un_pcb = list_get(cola_ready ->elements,i);
+                    char* pid = string_itoa(un_pcb ->PID);
+                    string_append(&lista, pid);
+                    if(i != (queue_size(cola_ready)-1)){
+                        string_append(&lista, ", ");
+                    }
+            
+                }
+                string_append(&lista, "]");
+                log_info(logger_obligatorio, "Cola Ready %s", lista);
+                free(lista);    
 			    pthread_mutex_unlock(&mutex_cola_ready);
 
                 sem_post(&hay_proceso_en_ready);
@@ -144,13 +159,11 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
                 free(variable_a_borrar);
                 pthread_mutex_unlock(&(nodo_de_bloqueados ->mutex_para_cola_variables));
 
-                el_pcb ->estado_proceso = EXIT;
-                log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", el_pcb->PID);
+                el_pcb ->razon_salida = INTERFAZ_INVALIDA;
 
-                pthread_mutex_lock(&mutex_cola_exit);
-                queue_push(cola_exit,el_pcb);
-                pthread_mutex_unlock(&mutex_cola_exit);
-                sem_post(&hay_proceso_en_exit);
+                mandar_a_exit(el_pcb);
+                log_info(logger_obligatorio, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: EXIT", el_pcb->PID);
+
             }
             queue_destroy(nodo_de_bloqueados ->cola_bloqueados);
             queue_destroy(nodo_de_bloqueados ->cola_Variables);

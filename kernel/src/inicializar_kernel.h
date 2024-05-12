@@ -5,5 +5,6 @@
 
 void inicializar_kernel();
 void inicializar_config_kernel();
+void inicializar_recursos();
 
 #endif

@@ -28,6 +28,20 @@ void planificador_new_to_ready(){
 
         pthread_mutex_lock(&mutex_cola_ready);
         queue_push(cola_ready,un_pcb);
+        char* lista = malloc(1);
+        strcpy(lista,"[");
+        for(int i = 0; i < queue_size(cola_ready); i++){
+            pcb* un_pcb = list_get(cola_ready ->elements,i);
+            char* pid = string_itoa(un_pcb ->PID);
+            string_append(&lista, pid);
+            if(i != (queue_size(cola_ready)-1)){
+                string_append(&lista, ", ");
+            }
+            
+        }
+        string_append(&lista, "]");
+        log_info(logger_obligatorio, "Cola Ready %s", lista);
+        free(lista);
         pthread_mutex_unlock(&mutex_cola_ready);
 
         sem_post(&hay_proceso_en_ready);
@@ -44,35 +58,8 @@ void planificador_exit(){
     
     pthread_mutex_lock(&mutex_cola_exit);
     un_pcb = queue_pop(cola_exit);
-    log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", un_pcb->PID);
     pthread_mutex_unlock(&mutex_cola_exit);
 
-    t_paquete* paquete = crear_paquete(ELIMINAR_PROCESO_MEMORIA);
-    agregar_int_a_paquete(paquete,un_pcb ->PID);
-    enviar_paquete(paquete,kernel_cliente_memoria);
-    eliminar_paquete(paquete);
-    borrar_registros_pcb(un_pcb);
-    free(un_pcb);
-    if(espera_grado_multi > 0){
-        espera_grado_multi--;
-    }
-    else{
-        sem_post(&multiprogramacion_permite_proceso_en_ready);
-    }
-    
+    eliminar_el_proceso(un_pcb);
    }
-}
-
-void borrar_registros_pcb(pcb* un_pcb){
-    free(un_pcb->registros_cpu_en_pcb->AX);
-    free(un_pcb->registros_cpu_en_pcb->BX);
-    free(un_pcb->registros_cpu_en_pcb->CX);
-    free(un_pcb->registros_cpu_en_pcb->DX);
-    free(un_pcb->registros_cpu_en_pcb->EAX);
-    free(un_pcb->registros_cpu_en_pcb->EBX);
-    free(un_pcb->registros_cpu_en_pcb->ECX);
-    free(un_pcb->registros_cpu_en_pcb->EDX);
-    free(un_pcb->registros_cpu_en_pcb->SI);
-    free(un_pcb->registros_cpu_en_pcb->DI);
-    free(un_pcb->registros_cpu_en_pcb->PC);
 }

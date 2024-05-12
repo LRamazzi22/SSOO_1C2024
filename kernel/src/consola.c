@@ -162,6 +162,7 @@ void crear_proceso(void* ruta_pseudocodigo){
         pthread_mutex_lock(&mutex_cola_new);
         queue_push(cola_new,pcb_proceso);
         pthread_mutex_unlock(&mutex_cola_new);
+        
         sem_post(&hay_proceso_en_new);
 
     }

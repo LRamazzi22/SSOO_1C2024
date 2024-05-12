@@ -6,6 +6,7 @@ pcb* creacion_pcb(char* ruta_pseudocodigo){
     el_pcb ->PID = pid_acumulado;
     pid_acumulado++;
     el_pcb ->quantum_restante = QUANTUM;
+    el_pcb ->lista_recursos_tomados = list_create();
     t_paquete* paquete_codeop_ruta = crear_paquete(CREAR_PROCESO);
     agregar_int_a_paquete(paquete_codeop_ruta,el_pcb->PID);
     agregar_string_a_paquete(paquete_codeop_ruta,ruta_pseudocodigo);

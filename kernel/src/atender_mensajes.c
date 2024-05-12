@@ -68,8 +68,18 @@ void atender_cpu_dispatch(){
 			
 
 			recibir_contexto_de_ejecucion(buffer,pcb_a_finalizar);
-			log_info(logger_obligatorio, "Finaliza el proceso %d - Motivo: SUCCESS",pcb_a_finalizar->PID); //TODO HACERLO COMO PIDE LA CONSIGNA
-			eliminar_el_proceso(pcb_a_finalizar);
+
+			if(pcb_a_finalizar ->PID == pid_a_eliminar){ //Si el proceso que salio del cpu es al que se le mando la interrupcion de eliminarlo
+				pcb_a_finalizar ->razon_salida = FINALIZADO_POR_USUARIO;
+				mandar_a_exit(pcb_a_finalizar);
+				log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", pcb_a_finalizar ->PID);
+				pid_a_eliminar = -1;
+				break;
+			}
+
+			pcb_a_finalizar ->razon_salida = EXITO;
+			mandar_a_exit(pcb_a_finalizar);
+			log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", pcb_a_finalizar ->PID);
 			 
 			break;
 		case ESPERAR_GEN:
@@ -92,7 +102,8 @@ void atender_cpu_dispatch(){
 			*tiempo_espera = extraer_int_buffer(buffer,logger);
 
 			if(pcb_del_proceso ->PID == pid_a_eliminar){ //Si el proceso que salio del cpu es al que se le mando la interrupcion de eliminarlo
-				eliminar_el_proceso(pcb_del_proceso);
+				pcb_del_proceso ->razon_salida = FINALIZADO_POR_USUARIO;
+				mandar_a_exit(pcb_del_proceso);
 				pid_a_eliminar = -1;
 				break;
 			}
@@ -130,17 +141,33 @@ void atender_cpu_dispatch(){
 			recibir_contexto_de_ejecucion(buffer,pcb_a_guardar);
 
 			if(pcb_a_guardar ->PID == pid_a_eliminar){ //Si el proceso que salio del cpu es al que se le mando la interrupcion de eliminarlo
-				eliminar_el_proceso(pcb_a_guardar);
+				pcb_a_guardar ->razon_salida = FINALIZADO_POR_USUARIO;
+				mandar_a_exit(pcb_a_guardar);
+				log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", pcb_a_guardar ->PID);
 				pid_a_eliminar = -1;
 				break;
 			}
-
+			log_info(logger_obligatorio,"PID: %d - Desalojado por fin de Quantum",pcb_a_guardar ->PID);
 			pcb_a_guardar->estado_proceso = READY;
 			log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: READY", pcb_a_guardar->PID);
 
 
 			pthread_mutex_lock(&mutex_cola_ready);
 			queue_push(cola_ready,pcb_a_guardar);
+			char* lista = malloc(1);
+        	strcpy(lista,"[");
+        	for(int i = 0; i < queue_size(cola_ready); i++){
+            	pcb* un_pcb = list_get(cola_ready ->elements,i);
+            	char* pid = string_itoa(un_pcb ->PID);
+            	string_append(&lista, pid);
+            	if(i != (queue_size(cola_ready)-1)){
+                	string_append(&lista, ", ");
+            	}
+            
+        	}
+        	string_append(&lista, "]");
+        	log_info(logger_obligatorio, "Cola Ready %s", lista);
+        	free(lista);
 			pthread_mutex_unlock(&mutex_cola_ready);
 
 			sem_post(&hay_proceso_en_ready);
@@ -170,6 +197,8 @@ nodo_de_diccionario_interfaz* comprobrar_existencia_de_interfaz(pcb* el_pcb, cha
 
 		if(nodo_de_interfaz != NULL && strcmp(nodo_de_interfaz->tipo_de_interfaz,tipo_interfaz)==0){
 			el_pcb->estado_proceso = BLOCKED;
+			log_info(logger_obligatorio,"PID: %d - Estado Anterior: EXECUTE - Estado Actual: BLOCKED", el_pcb->PID);
+			log_info(logger_obligatorio, "PID: %d - Bloqueado por: %s",el_pcb ->PID, interfaz);
 
 			pthread_mutex_lock(&mutex_para_diccionario_blocked);
 			nodo_de_diccionario_blocked* nodo_bloqueados = dictionary_get(diccionario_blocked,interfaz);
@@ -181,13 +210,11 @@ nodo_de_diccionario_interfaz* comprobrar_existencia_de_interfaz(pcb* el_pcb, cha
 			return nodo_de_interfaz;
 		}
 	}
-	el_pcb ->estado_proceso = EXIT_PROCESS;
+	el_pcb ->razon_salida = INTERFAZ_INVALIDA;
 
-	pthread_mutex_lock(&mutex_cola_exit);
-	queue_push(cola_exit,el_pcb);
-	pthread_mutex_unlock(&mutex_cola_exit);
+	mandar_a_exit(el_pcb);
+	log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", el_pcb ->PID);
 
-	sem_post(&hay_proceso_en_exit);
 	return NULL;
 }
 

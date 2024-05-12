@@ -20,6 +20,15 @@ typedef enum {
     BLOCKED,
     EXIT_PROCESS
 } psw;
+
+typedef enum{
+    EXITO,
+    RECURSO_INVALIDO,
+    INTERFAZ_INVALIDA,
+    FUERA_DE_MEMORIA,
+    FINALIZADO_POR_USUARIO
+
+} razones_exit;
 typedef struct 
 {
     int PID;
@@ -27,6 +36,8 @@ typedef struct
     t_registros_cpu* registros_cpu_en_pcb;
     psw estado_proceso; // Agrego reg de estado, para identificar el estado del proceso.
     pthread_t hilo_quantum;
+    t_list* lista_recursos_tomados;
+    razones_exit razon_salida;
 
 } pcb;
 
@@ -49,6 +60,14 @@ typedef struct
     pthread_mutex_t mutex_para_cola_variables;
 } nodo_de_diccionario_blocked;
 
+typedef struct 
+{
+    t_queue* cola_bloqueados_recurso;
+    int instancias;
+    pthread_mutex_t mutex_cola_bloqueados_recurso;
+} nodo_recursos;
+
+
 
 
 
@@ -70,6 +89,7 @@ extern int kernel_cliente_interrupt;
 extern int kernel_cliente_memoria;
 
 extern t_dictionary* diccionario_entrada_salida;
+extern t_dictionary* diccionario_recursos;
 extern pcb* proceso_en_ejecucion;
 
 extern char* PUERTO_ESCUCHA;
@@ -109,6 +129,7 @@ extern pthread_mutex_t mutex_cola_exit;
 extern pthread_mutex_t mutex_para_proceso_en_ejecucion;
 extern pthread_mutex_t mutex_para_creacion_proceso;
 extern pthread_mutex_t mutex_para_diccionario_entradasalida;
+extern pthread_mutex_t mutex_para_diccionario_recursos;
 extern pthread_mutex_t mutex_para_diccionario_blocked;
 extern pthread_mutex_t mutex_para_eliminar_entradasalida;
 
