@@ -129,7 +129,12 @@ void atender_cpu_dispatch(){
 			pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
 			free(interfaz);
 			break;
-
+		case WAIT_CODE:
+			//HACER EL CODIGO DE RECIBIR EL CONTEXTO Y DEL WAIT
+			break;
+		case SIGNAL_CODE:
+			//HACER EL CODIGO DE RECIBIR EL CONTEXTO Y EL SIGNAL
+			break;
 		case INTERRUPCION:
 			buffer = recibir_buffer(kernel_cliente_dispatch);
 

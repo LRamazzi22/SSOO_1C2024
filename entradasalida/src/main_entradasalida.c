@@ -6,7 +6,7 @@ int main(int argc, char* argv[]) {
     char* path_config = malloc(256);
     printf("Ingrese el nombre de la interfaz\n");
     fgets(nombre_interfaz,50,stdin);
-    printf("Ingrese el path del config con el que desea inicializar la interfaz\n");
+    printf("Ingrese el config con el que desea inicializar la interfaz\n");
     fgets(path_config,256,stdin);
     inicializar_entradasalida(path_config);
     free(path_config);

@@ -8,9 +8,12 @@ void inicializar_entradasalida(char* path_config){
 
 void inicializar_config_entradasalida(char* path_config){
     char** string_sin_contra_barra = string_split(path_config,"\n");
+    char* path_configs = strdup("./Configs/");
+    string_append(&path_configs,string_sin_contra_barra[0]);
 
-    config = iniciar_config(string_sin_contra_barra[0]);
+    config = iniciar_config(path_configs);
     string_array_destroy(string_sin_contra_barra);
+    free(path_configs);
     
     TIPO_INTERFAZ = config_get_string_value(config, "TIPO_INTERFAZ");
     TIEMPO_UNIDAD_TRABAJO = config_get_int_value(config, "TIEMPO_UNIDAD_TRABAJO");

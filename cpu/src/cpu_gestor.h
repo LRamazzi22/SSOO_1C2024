@@ -13,7 +13,9 @@ modulos del CPU pueden utilizarlas. Las variables deben ser previamente declarad
 typedef enum{
     FINALIZAR,
     SEGUIR_EJECUTANDO,
-    SLEEP_GEN
+    SLEEP_GEN,
+    WAIT_RECURSO,
+    SIGNAL_RECURSO
 } salidas_cpu;
 
 typedef enum{

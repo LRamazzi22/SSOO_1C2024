@@ -47,9 +47,23 @@ void ciclo(){
                 eliminar_paquete(paquete2);
 
                 break;
+        case WAIT_RECURSO:
+            t_paquete* paquete3 = crear_paquete(WAIT_CODE);
+            cargar_registros_a_paquete(paquete3);
+            agregar_string_a_paquete(paquete3,instruccion_separada[1]);
+            enviar_paquete(paquete3,kernel_cliente_dispatch);
+            eliminar_paquete(paquete3);
+            break;
+        case SIGNAL_RECURSO:
+            t_paquete* paquete4 = crear_paquete(SIGNAL_CODE);
+            cargar_registros_a_paquete(paquete4);
+            agregar_string_a_paquete(paquete4,instruccion_separada[1]);
+            enviar_paquete(paquete4,kernel_cliente_dispatch);
+            eliminar_paquete(paquete4);
+            break;
     
         default:
-                break;
+            break;
         }
     }
     else{
@@ -260,6 +274,10 @@ int ejecutar_instruccion (int codigo_instruccion) {
         return SEGUIR_EJECUTANDO;
     case IO_GEN_SLEEP: // IO_GEN_SLEEP (Interfaz, Unidades de trabajo)
         return SLEEP_GEN;
+    case WAIT:
+        return WAIT_RECURSO;
+    case SIGNAL:
+        return SIGNAL_RECURSO;
     case EXIT:
         return FINALIZAR;
     default:

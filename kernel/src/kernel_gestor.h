@@ -65,6 +65,7 @@ typedef struct
     t_queue* cola_bloqueados_recurso;
     int instancias;
     pthread_mutex_t mutex_cola_bloqueados_recurso;
+    pthread_mutex_t mutex_del_recurso;
 } nodo_recursos;
 
 
