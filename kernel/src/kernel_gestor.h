@@ -38,6 +38,7 @@ typedef struct
     pthread_t hilo_quantum;
     t_list* lista_recursos_tomados;
     razones_exit razon_salida;
+    t_temporal* tiempo_en_ejecucion;
 
 } pcb;
 
@@ -64,7 +65,6 @@ typedef struct
 {
     t_queue* cola_bloqueados_recurso;
     int instancias;
-    pthread_mutex_t mutex_cola_bloqueados_recurso;
     pthread_mutex_t mutex_del_recurso;
 } nodo_recursos;
 

@@ -16,7 +16,46 @@ void eliminar_el_proceso(pcb* un_pcb){
     enviar_paquete(paquete,kernel_cliente_memoria);
     eliminar_paquete(paquete);
     borrar_registros_pcb(un_pcb);
-    //HAY QUE HACER QUE LE DEVUELVA LAS INSTANCIAS A LOS RECURSOS ANTES DE ELIMINAR LA LISTA
+    for(int i = 0; i<list_size(un_pcb ->lista_recursos_tomados); i++){
+        char* un_recurso = list_remove(un_pcb ->lista_recursos_tomados, i);
+        printf("%s",un_recurso);
+
+        pthread_mutex_lock(&mutex_para_diccionario_recursos);
+        nodo_recursos* nodo_del_recurso = dictionary_get(diccionario_recursos,un_recurso);
+        pthread_mutex_unlock(&mutex_para_diccionario_recursos);
+
+        pthread_mutex_lock(&(nodo_del_recurso ->mutex_del_recurso));
+		nodo_del_recurso ->instancias ++;
+
+	    if(nodo_del_recurso ->instancias <= 0){
+			pcb* pcb_a_desbloquear = queue_pop(nodo_del_recurso ->cola_bloqueados_recurso);
+			pcb_a_desbloquear->estado_proceso = READY;
+			log_info(logger_obligatorio, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", pcb_a_desbloquear->PID);
+			pcb_a_desbloquear ->quantum_restante = QUANTUM;
+
+
+			pthread_mutex_lock(&mutex_cola_ready);
+			queue_push(cola_ready,pcb_a_desbloquear);
+			char* lista = malloc(1);
+        	strcpy(lista,"[");
+        	for(int i = 0; i < queue_size(cola_ready); i++){
+            	pcb* un_pcb = list_get(cola_ready ->elements,i);
+            	char* pid = string_itoa(un_pcb ->PID);
+            	string_append(&lista, pid);
+            	if(i != (queue_size(cola_ready)-1)){
+                	string_append(&lista, ", ");
+            	}
+            
+            }
+        	string_append(&lista, "]");
+        	log_info(logger_obligatorio, "Cola Ready %s", lista);
+        	free(lista);
+			pthread_mutex_unlock(&mutex_cola_ready);
+
+			sem_post(&hay_proceso_en_ready);
+		}
+        pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
+    }
     list_destroy(un_pcb ->lista_recursos_tomados);
     switch(un_pcb ->razon_salida){
         case EXITO:

@@ -97,6 +97,7 @@ void serializar_registros_procesador (t_paquete* paquete, t_registros_cpu* proce
     eliminar_paquete(paquete_pcb_a_enviar);
     pthread_create(&(proximo_proceso_a_ejecutar ->hilo_quantum),NULL,(void*)esperar_quantum,(void*)proximo_proceso_a_ejecutar);
     pthread_detach(proximo_proceso_a_ejecutar ->hilo_quantum);
+    proceso_en_ejecucion -> tiempo_en_ejecucion = temporal_create();
 
   
     // Esperar a que termine de ejecutar y recibir el PCB actualizado.

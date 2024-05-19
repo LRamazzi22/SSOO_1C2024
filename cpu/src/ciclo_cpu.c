@@ -39,7 +39,6 @@ void ciclo(){
         case SLEEP_GEN:
                 t_paquete* paquete2 = crear_paquete(ESPERAR_GEN);
                 cargar_registros_a_paquete(paquete2);
-                string_append(&instruccion_separada[1],"\n");
                 agregar_string_a_paquete(paquete2,instruccion_separada[1]);
                 int tiempo_espera = atoi(instruccion_separada[2]);
                 agregar_int_a_paquete(paquete2,tiempo_espera);
@@ -253,32 +252,43 @@ void jnz(char* nombre_registro, int nuevo_pc){
 
 int ejecutar_instruccion (int codigo_instruccion) {
     
-    log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
-                instruccion_separada[2]); //Que pasara cuando hay mas parametros y no los usa: Rompera ya lo veremos
 
     switch (codigo_instruccion)
     {
     case SET: // SET (Registro, Valor)
         int numero = atoi(instruccion_separada[2]);
         set(instruccion_separada[1], numero);
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
+        instruccion_separada[2]);
         return SEGUIR_EJECUTANDO;
     case SUM: // SUM (Registro Destino, Registro Origen)
         sum(instruccion_separada[1], instruccion_separada[2]);
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
+        instruccion_separada[2]);
         return SEGUIR_EJECUTANDO;
     case SUB: // SUB (Registro Destino, Registro Origen)
         sub(instruccion_separada[1], instruccion_separada[2]);
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
+        instruccion_separada[2]);
         return SEGUIR_EJECUTANDO;
     case JNZ: // JNZ (Registro, Instrucción)
         int nuevo_pc = atoi(instruccion_separada[2]);
         jnz(instruccion_separada[1], nuevo_pc);
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
+        instruccion_separada[2]);
         return SEGUIR_EJECUTANDO;
     case IO_GEN_SLEEP: // IO_GEN_SLEEP (Interfaz, Unidades de trabajo)
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
+        instruccion_separada[2]);
         return SLEEP_GEN;
-    case WAIT:
+    case WAIT: // WAIT (RECURSO)
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
         return WAIT_RECURSO;
-    case SIGNAL:
+    case SIGNAL: //SIGNAL (RECURSO)
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
         return SIGNAL_RECURSO;
     case EXIT:
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - ",pid_en_ejecucion, instruccion_separada[0]);
         return FINALIZAR;
     default:
         printf("Execute: Comando no reconocido");
