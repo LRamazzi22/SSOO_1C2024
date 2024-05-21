@@ -28,7 +28,7 @@ void planificador_new_to_ready(){
 
         pthread_mutex_lock(&mutex_cola_ready);
         queue_push(cola_ready,un_pcb);
-        char* lista = malloc(1);
+        char* lista = malloc(3);
         strcpy(lista,"[");
         for(int i = 0; i < queue_size(cola_ready); i++){
             pcb* un_pcb = list_get(cola_ready ->elements,i);
