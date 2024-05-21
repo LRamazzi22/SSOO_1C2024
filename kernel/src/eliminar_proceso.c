@@ -16,6 +16,7 @@ void eliminar_el_proceso(pcb* un_pcb){
     enviar_paquete(paquete,kernel_cliente_memoria);
     eliminar_paquete(paquete);
     borrar_registros_pcb(un_pcb);
+    /*
     for(int i = 0; i<list_size(un_pcb ->lista_recursos_tomados); i++){
         char* un_recurso = list_remove(un_pcb ->lista_recursos_tomados, i);
         printf("%s",un_recurso);
@@ -56,6 +57,7 @@ void eliminar_el_proceso(pcb* un_pcb){
 		}
         pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
     }
+    */
     list_destroy(un_pcb ->lista_recursos_tomados);
     switch(un_pcb ->razon_salida){
         case EXITO:

@@ -130,7 +130,43 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
                 }
 
             }
+            list_destroy(lista_keys);
         }
+
+        pthread_mutex_lock(&mutex_para_diccionario_recursos);
+        diccionario_vacio = dictionary_is_empty(diccionario_recursos);
+        pthread_mutex_unlock(&mutex_para_diccionario_recursos);
+
+        if(!diccionario_vacio){
+            nodo_recursos* nodo_del_recurso;
+
+            pthread_mutex_lock(&mutex_para_diccionario_recursos);
+            t_list* lista_keys_recurso = dictionary_keys(diccionario_recursos);
+            pthread_mutex_unlock(&mutex_para_diccionario_recursos);
+
+            for(int i = 0; i<list_size(lista_keys_recurso); i++){
+                char* recurso = list_get(lista_keys_recurso,i);
+
+                pthread_mutex_lock(&mutex_para_diccionario_recursos);
+                nodo_del_recurso = dictionary_get(diccionario_recursos,recurso);
+                pthread_mutex_unlock(&mutex_para_diccionario_recursos);
+
+                printf("COLA BLOCKED DE %s",recurso);
+
+                pthread_mutex_lock(&(nodo_del_recurso ->mutex_del_recurso));
+                largo_cola = queue_size(nodo_del_recurso ->cola_bloqueados_recurso);
+                
+
+                for(int p = 0; p<largo_cola; p++){
+                    pcb_revisar = list_get(nodo_del_recurso ->cola_bloqueados_recurso ->elements,p);
+
+                    printf("%d\n",pcb_revisar ->PID);
+                }
+                pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
+            }
+            list_destroy(lista_keys_recurso);
+        }
+
         printf("COLA EXIT: \n");
 
         pthread_mutex_lock(&mutex_cola_exit);
