@@ -4,6 +4,7 @@ pcb* creacion_pcb(char* ruta_pseudocodigo){
     pcb* el_pcb = malloc(sizeof(pcb));
     el_pcb ->estado_proceso = NEW;
     el_pcb ->PID = pid_acumulado;
+    // Agregar mutex? 
     pid_acumulado++;
     el_pcb ->quantum_restante = QUANTUM;
     el_pcb ->lista_recursos_tomados = list_create();

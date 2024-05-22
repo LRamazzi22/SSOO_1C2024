@@ -15,16 +15,18 @@ void inicializar_kernel(){
     cola_ready = queue_create();
     diccionario_blocked = dictionary_create();
     cola_exit = queue_create();
+    cola_auxiliar = queue_create();
 
     diccionario_entrada_salida = dictionary_create();
     diccionario_recursos = dictionary_create();
 
     //Semaforos
+    sem_init(&hay_proceso_en_auxiliar, 0, 0);
     sem_init(&hay_proceso_en_ready,0,0);
     sem_init(&hay_proceso_en_new,0,0);
     sem_init(&hay_proceso_en_exit,0,0);
     sem_init(&multiprogramacion_permite_proceso_en_ready,0,GRADO_MULTIPROGRAMACION);
-
+    
     sem_init(&detener_planificacion_corto_plazo,0,0);
     sem_init(&detener_planificacion_exit,0,0);
     sem_init(&detener_planificacion_salida_cpu,0,0);

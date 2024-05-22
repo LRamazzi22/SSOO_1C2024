@@ -47,12 +47,14 @@ t_queue* cola_new;
 t_queue* cola_ready;
 t_dictionary* diccionario_blocked;
 t_queue* cola_exit;
+t_queue * cola_auxiliar;
 
 bool permitir_planificacion;
 
 int espera_grado_multi;
 
 //Semaforos
+sem_t hay_proceso_en_auxiliar;
 sem_t hay_proceso_en_ready;
 sem_t hay_proceso_en_new;
 sem_t hay_proceso_en_exit;
@@ -66,6 +68,7 @@ sem_t detener_planificacion_salida_cpu;
 pthread_mutex_t mutex_cola_new;
 pthread_mutex_t mutex_cola_ready;
 pthread_mutex_t mutex_cola_exit;
+pthread_mutex_t mutex_cola_auxiliar;
 pthread_mutex_t mutex_para_proceso_en_ejecucion;
 pthread_mutex_t mutex_para_creacion_proceso;
 pthread_mutex_t mutex_para_diccionario_entradasalida;

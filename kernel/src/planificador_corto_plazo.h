@@ -9,6 +9,7 @@ void algoritmo_fifo();
 void serializar_registros_procesador (t_paquete* , t_registros_cpu* );
 void algoritmo_round_robin();
 void esperar_quantum(void*);
-//void algoritmo_round_robin();
+void esperar_quantum_vrr(void*);
+void algoritmo_round_robin();
 
 #endif

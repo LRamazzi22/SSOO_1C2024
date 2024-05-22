@@ -399,6 +399,22 @@ void atender_cpu_dispatch(){
 
 
 			pthread_mutex_lock(&mutex_cola_ready);
+
+			int quantum_restante_actual = QUANTUM - temporal_gettime(pcb_a_guardar->tiempo_en_ejecucion);
+			
+			if (ALGORITMO_PLANIFICACION = "vrr" && quantum_restante_actual > 0){
+			// Mover el proceso a la cola auxiliar, SOLO PARA VRR
+			pcb_a_guardar->quantum_restante = quantum_restante_actual;
+        	pthread_mutex_lock(&mutex_cola_auxiliar);
+        	queue_push(cola_auxiliar, pcb_a_guardar);
+        	pthread_mutex_unlock(&mutex_cola_auxiliar);
+        	sem_post(&hay_proceso_en_auxiliar);
+			
+			//Loggear la cola de listos contemplando los que están en Auxiliar
+			
+			} else 
+			{
+
 			queue_push(cola_ready,pcb_a_guardar);
 			char* lista = malloc(3);
         	strcpy(lista,"[");
@@ -417,6 +433,7 @@ void atender_cpu_dispatch(){
 			pthread_mutex_unlock(&mutex_cola_ready);
 
 			sem_post(&hay_proceso_en_ready);
+			}
 
 			break;
 		case -1:
