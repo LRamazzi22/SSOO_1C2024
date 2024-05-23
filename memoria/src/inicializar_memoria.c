@@ -1,8 +1,8 @@
 #include <inicializar_memoria.h>
 
 void inicializar_memoria(){
-    logger = iniciar_logger("./memoria.log", "Memoria_Logger", LOG_LEVEL_DEBUG);
-    logger_obligatorio = iniciar_logger("./memoriaObligatorio.log", "Memoria_Logger_Obligatorio", LOG_LEVEL_INFO);
+    logger = iniciar_logger("./memoria.log", "Memoria_Logger", LOG_LEVEL_DEBUG, 1);
+    logger_obligatorio = iniciar_logger("./memoriaObligatorio.log", "Memoria_Logger_Obligatorio", LOG_LEVEL_INFO,1);
     inicializar_config_memoria();
 }
 

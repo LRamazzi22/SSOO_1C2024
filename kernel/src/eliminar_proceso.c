@@ -19,7 +19,6 @@ void eliminar_el_proceso(pcb* un_pcb){
     
     for(int i = 0; i<list_size(un_pcb ->lista_recursos_tomados); i++){
         char* un_recurso = list_remove(un_pcb ->lista_recursos_tomados, i);
-        printf("%s",un_recurso);
 
         pthread_mutex_lock(&mutex_para_diccionario_recursos);
         nodo_recursos* nodo_del_recurso = dictionary_get(diccionario_recursos,un_recurso);

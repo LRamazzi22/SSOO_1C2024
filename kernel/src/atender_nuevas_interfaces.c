@@ -95,23 +95,59 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
                 un_pcb ->estado_proceso = READY;
                 log_info(logger_obligatorio,"PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", un_pcb ->PID);
 
-			    pthread_mutex_lock(&mutex_cola_ready);
-			    queue_push(cola_ready,un_pcb);
-                char* lista = malloc(3);
-                strcpy(lista,"[");
-                for(int i = 0; i < queue_size(cola_ready); i++){
-                    pcb* un_pcb = list_get(cola_ready ->elements,i);
-                    char* pid = string_itoa(un_pcb ->PID);
-                    string_append(&lista, pid);
-                    if(i != (queue_size(cola_ready)-1)){
-                        string_append(&lista, ", ");
+                if(strcmp(ALGORITMO_PLANIFICACION, "vrr")==0){
+                    int64_t tiempo_ejecutado = temporal_gettime(un_pcb ->tiempo_en_ejecucion);
+					temporal_destroy(un_pcb ->tiempo_en_ejecucion);
+                    if(tiempo_ejecutado < un_pcb -> quantum_restante){
+                        un_pcb ->quantum_restante = un_pcb ->quantum_restante - tiempo_ejecutado;
+
+                        pthread_mutex_lock(&mutex_cola_prioritaria);
+                        queue_push(cola_ready_prioritaria,un_pcb);
+                        pthread_mutex_unlock(&mutex_cola_prioritaria);
                     }
+                    else{
+                        un_pcb ->quantum_restante = QUANTUM;
+                        log_info(logger_obligatorio,"PID: %d - Desalojado por fin de Quantum",un_pcb ->PID);
+
+                        pthread_mutex_lock(&mutex_cola_ready);
+                        queue_push(cola_ready,un_pcb);
+                        char* lista = malloc(3);
+                        strcpy(lista,"[");
+                        for(int i = 0; i < queue_size(cola_ready); i++){
+                            pcb* un_pcb = list_get(cola_ready ->elements,i);
+                            char* pid = string_itoa(un_pcb ->PID);
+                            string_append(&lista, pid);
+                            if(i != (queue_size(cola_ready)-1)){
+                                string_append(&lista, ", ");
+                            }
             
+                        }
+                        string_append(&lista, "]");
+                        log_info(logger_obligatorio, "Cola Ready %s", lista);
+                        free(lista);    
+                        pthread_mutex_unlock(&mutex_cola_ready);
+                    }
                 }
-                string_append(&lista, "]");
-                log_info(logger_obligatorio, "Cola Ready %s", lista);
-                free(lista);    
-			    pthread_mutex_unlock(&mutex_cola_ready);
+                else{
+                    pthread_mutex_lock(&mutex_cola_ready);
+			        queue_push(cola_ready,un_pcb);
+                    char* lista = malloc(3);
+                    strcpy(lista,"[");
+                    for(int i = 0; i < queue_size(cola_ready); i++){
+                        pcb* un_pcb = list_get(cola_ready ->elements,i);
+                        char* pid = string_itoa(un_pcb ->PID);
+                        string_append(&lista, pid);
+                        if(i != (queue_size(cola_ready)-1)){
+                            string_append(&lista, ", ");
+                        }
+            
+                    }
+                    string_append(&lista, "]");
+                    log_info(logger_obligatorio, "Cola Ready %s", lista);
+                    free(lista);    
+			        pthread_mutex_unlock(&mutex_cola_ready);
+                }
+			    
 
                 sem_post(&hay_proceso_en_ready);
             }

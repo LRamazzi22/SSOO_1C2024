@@ -56,7 +56,7 @@ typedef struct
 
 void decir_hola(char*);
 t_config* iniciar_config(char*);
-t_log* iniciar_logger(char*, char*, int);
+t_log* iniciar_logger(char*, char*, int, int);
 void terminar_programa(t_log*, t_config*);
 
 //Funciones de Cliente

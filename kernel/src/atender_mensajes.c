@@ -2,7 +2,6 @@
 
 void atender_memoria(){
     while (1) {
-		log_info(logger, "Esperando mensajes de Memoria");
 		int cod_op = recibir_operacion(kernel_cliente_memoria);
 		switch (cod_op) {
 		case HANDSHAKE:
@@ -40,7 +39,6 @@ int recibir_PC_memoria(){
 }
 
 void atender_cpu_dispatch(){
-		log_info(logger, "Esperando mensajes de CPU Dispatch");
 		int cod_op = recibir_operacion(kernel_cliente_dispatch);
 
 		if(strcmp(ALGORITMO_PLANIFICACION,"rr")==0 || strcmp(ALGORITMO_PLANIFICACION,"vrr")==0){
@@ -125,9 +123,6 @@ void atender_cpu_dispatch(){
 				sem_post(&(nodo_de_interfaz ->hay_proceso_en_bloqueados));
 
 			}
-			else{
-				log_info(logger,"Interfaz Inexistente, proceso mandado a la cola de EXIT");
-			}
 			pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
 			free(interfaz);
 			break;
@@ -141,11 +136,6 @@ void atender_cpu_dispatch(){
 			recibir_contexto_de_ejecucion(buffer,pcb_a_esperar);
 
 			char* recurso = extraer_string_buffer(buffer,logger);
-			printf("%s h",recurso);
-
-			if(strcmp(recurso, RECURSOS[0])){
-				printf("Si");
-			}
 
 			if(pcb_a_esperar ->PID == pid_a_eliminar){ //Si el proceso que salio del cpu es al que se le mando la interrupcion de eliminarlo
 				pcb_a_esperar ->razon_salida = FINALIZADO_POR_USUARIO;
@@ -396,25 +386,9 @@ void atender_cpu_dispatch(){
 			log_info(logger_obligatorio,"PID: %d - Desalojado por fin de Quantum",pcb_a_guardar ->PID);
 			pcb_a_guardar->estado_proceso = READY;
 			log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: READY", pcb_a_guardar->PID);
-
+			pcb_a_guardar -> quantum_restante = QUANTUM;
 
 			pthread_mutex_lock(&mutex_cola_ready);
-
-			int quantum_restante_actual = QUANTUM - temporal_gettime(pcb_a_guardar->tiempo_en_ejecucion);
-			
-			if (ALGORITMO_PLANIFICACION = "vrr" && quantum_restante_actual > 0){
-			// Mover el proceso a la cola auxiliar, SOLO PARA VRR
-			pcb_a_guardar->quantum_restante = quantum_restante_actual;
-        	pthread_mutex_lock(&mutex_cola_auxiliar);
-        	queue_push(cola_auxiliar, pcb_a_guardar);
-        	pthread_mutex_unlock(&mutex_cola_auxiliar);
-        	sem_post(&hay_proceso_en_auxiliar);
-			
-			//Loggear la cola de listos contemplando los que están en Auxiliar
-			
-			} else 
-			{
-
 			queue_push(cola_ready,pcb_a_guardar);
 			char* lista = malloc(3);
         	strcpy(lista,"[");
@@ -433,8 +407,6 @@ void atender_cpu_dispatch(){
 			pthread_mutex_unlock(&mutex_cola_ready);
 
 			sem_post(&hay_proceso_en_ready);
-			}
-
 			break;
 		case -1:
 			log_error(logger, "El CPU Dispatch se desconecto");

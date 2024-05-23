@@ -9,19 +9,18 @@ void inicializar_kernel(){
     cantidad_de_proceso_en_ejecucion = GRADO_MULTIPROGRAMACION;
     permitir_planificacion = true;
 
-    logger = iniciar_logger("./kernel.log", "Kernel_Logger", LOG_LEVEL_INFO);
-    logger_obligatorio = iniciar_logger("./kernelObligatorio.log", "Kernel_Logger_Obligatorio", LOG_LEVEL_INFO);
+    logger = iniciar_logger("./kernel.log", "Kernel_Logger", LOG_LEVEL_INFO, 1);
+    logger_obligatorio = iniciar_logger("./kernelObligatorio.log", "Kernel_Logger_Obligatorio", LOG_LEVEL_INFO, 0);
     cola_new = queue_create();
     cola_ready = queue_create();
     diccionario_blocked = dictionary_create();
     cola_exit = queue_create();
-    cola_auxiliar = queue_create();
+    cola_ready_prioritaria = queue_create();
 
     diccionario_entrada_salida = dictionary_create();
     diccionario_recursos = dictionary_create();
 
     //Semaforos
-    sem_init(&hay_proceso_en_auxiliar, 0, 0);
     sem_init(&hay_proceso_en_ready,0,0);
     sem_init(&hay_proceso_en_new,0,0);
     sem_init(&hay_proceso_en_exit,0,0);

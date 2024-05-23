@@ -15,9 +15,9 @@ t_config* iniciar_config(char* ruta)
 	return nuevo_config;
 }
 
-t_log* iniciar_logger(char* ruta, char* nombre, int nivel)
+t_log* iniciar_logger(char* ruta, char* nombre, int nivel, int mostrar)
 {
-	t_log* nuevo_logger = log_create(ruta, nombre, 1, nivel);
+	t_log* nuevo_logger = log_create(ruta, nombre, mostrar, nivel);
 
 	if(nuevo_logger == NULL){
 		printf("Error con el logger");

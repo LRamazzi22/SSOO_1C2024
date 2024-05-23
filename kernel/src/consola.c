@@ -86,6 +86,23 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
 
             printf("%d\n",pcb_revisar ->PID);
         }
+
+        if(strcmp(ALGORITMO_PLANIFICACION, "vrr")==0){
+            printf("COLA READY PRIORITARIA: \n");
+
+            pthread_mutex_lock(&mutex_cola_prioritaria);
+            largo_cola = queue_size(cola_ready_prioritaria);
+            pthread_mutex_unlock(&mutex_cola_prioritaria);
+
+            for(int i = 0; i< largo_cola; i++){
+
+                pthread_mutex_lock(&mutex_cola_prioritaria);
+                pcb_revisar = list_get(cola_ready_prioritaria->elements,i);
+                pthread_mutex_unlock(&mutex_cola_prioritaria);
+
+                printf("%d\n",pcb_revisar ->PID);
+            }
+        }
         printf("COLA EXEC: \n");
         if(proceso_en_ejecucion != NULL){
             printf("%d\n",proceso_en_ejecucion ->PID);

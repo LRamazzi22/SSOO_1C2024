@@ -11,8 +11,8 @@ void iniciar_planificacion_corto_plazo(){
       pthread_detach(hilo_planificador_corto_plazo);
   }
   else if(strcmp(ALGORITMO_PLANIFICACION,"vrr")==0){
-    //pthread_create(&hilo_planificador_corto_plazo,NULL,(void*)algoritmo_NULL);
-    //pthread_detach(hilo_planificador_corto_plazo);
+    pthread_create(&hilo_planificador_corto_plazo,NULL,(void*)algoritmo_virtual_round_robin,NULL);
+    pthread_detach(hilo_planificador_corto_plazo);
   } 
 }
 
@@ -77,6 +77,10 @@ void serializar_registros_procesador (t_paquete* paquete, t_registros_cpu* proce
     // Seleccionar proceso y acutualizar estado
     sem_wait(&hay_proceso_en_ready);
 
+    if(!permitir_planificacion){
+        sem_wait(&detener_planificacion_corto_plazo);
+    }
+
     pthread_mutex_lock(&mutex_cola_ready);
     pcb* proximo_proceso_a_ejecutar = queue_pop(cola_ready);
     pthread_mutex_unlock(&mutex_cola_ready);
@@ -126,34 +130,29 @@ void algoritmo_virtual_round_robin() {
     while (true) {
         pcb* proximo_proceso_a_ejecutar = NULL;
 
-        // Primero, verifico que haya procesos en la auxiliar
-        int aux_ready_value;
-        sem_getvalue(&hay_proceso_en_auxiliar, &aux_ready_value);
-        if (aux_ready_value > 0) {
-            sem_wait(&hay_proceso_en_auxiliar);
-            pthread_mutex_lock(&mutex_cola_auxiliar);
-            if (!queue_is_empty(cola_auxiliar)) {
-                proximo_proceso_a_ejecutar = queue_pop(cola_auxiliar);
-            }
-            pthread_mutex_unlock(&mutex_cola_auxiliar);
-        } 
+        sem_wait(&hay_proceso_en_ready);
 
-        // Si no hay procesos en la cola auxiliar, verificamos la cola principal
-        if (proximo_proceso_a_ejecutar == NULL) {
-            sem_wait(&hay_proceso_en_ready);
-            pthread_mutex_lock(&mutex_cola_ready);
-            if (!queue_is_empty(cola_ready)) {
-                proximo_proceso_a_ejecutar = queue_pop(cola_ready);
-            }
-            pthread_mutex_unlock(&mutex_cola_ready);
+        if(!permitir_planificacion){
+        sem_wait(&detener_planificacion_corto_plazo);
+    }
+
+        pthread_mutex_lock(&mutex_cola_prioritaria);
+        bool no_hay_en_prioritaria = queue_is_empty(cola_ready_prioritaria);
+        pthread_mutex_unlock(&mutex_cola_prioritaria);
+
+        if(!no_hay_en_prioritaria){
+          pthread_mutex_lock(&mutex_cola_prioritaria);
+          proximo_proceso_a_ejecutar = queue_pop(cola_ready_prioritaria);
+          pthread_mutex_unlock(&mutex_cola_prioritaria);
+          
         }
-
-        if (proximo_proceso_a_ejecutar == NULL) {
-            // Si ambas colas están vacías...
-            continue;
+        else{
+          pthread_mutex_lock(&mutex_cola_ready);
+          proximo_proceso_a_ejecutar = queue_pop(cola_ready);
+          pthread_mutex_unlock(&mutex_cola_ready);
         }
-
-        // Luego, es parecido a RR... Después revisar para no repetir codigo.
+        
+        // Luego, es parecido a RR... Despues revisar para no repetir codigo.
 
         proximo_proceso_a_ejecutar->estado_proceso = EXEC;
         log_info(logger_obligatorio, "PID: %d - Estado Anterior: READY - Estado Actual: EXECUTE", proximo_proceso_a_ejecutar->PID);

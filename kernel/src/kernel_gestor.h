@@ -109,13 +109,12 @@ extern t_queue* cola_new;
 extern t_queue* cola_ready;
 extern t_dictionary* diccionario_blocked;
 extern t_queue* cola_exit;
-extern t_queue* cola_auxiliar;
+extern t_queue * cola_ready_prioritaria;
 
 extern bool permitir_planificacion;
 
 extern int espera_grado_multi;
 
-extern sem_t hay_proceso_en_auxiliar;
 extern sem_t hay_proceso_en_ready;
 extern sem_t hay_proceso_en_new;
 extern sem_t hay_proceso_en_exit;
@@ -129,7 +128,7 @@ extern sem_t detener_planificacion_salida_cpu;
 extern pthread_mutex_t mutex_cola_new;
 extern pthread_mutex_t mutex_cola_ready;
 extern pthread_mutex_t mutex_cola_exit;
-extern pthread_mutex_t mutex_cola_auxiliar;
+extern pthread_mutex_t mutex_cola_prioritaria;
 extern pthread_mutex_t mutex_para_proceso_en_ejecucion;
 extern pthread_mutex_t mutex_para_creacion_proceso;
 extern pthread_mutex_t mutex_para_diccionario_entradasalida;
