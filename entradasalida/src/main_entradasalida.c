@@ -2,33 +2,77 @@
 
 int main(int argc, char* argv[]) {
      
-    inicializar_entradasalida();
+    char* nombre_interfaz = malloc(50);
+    char* path_config = malloc(256);
+    printf("Ingrese el nombre de la interfaz\n");
+    fgets(nombre_interfaz,50,stdin);
+    printf("Ingrese el config con el que desea inicializar la interfaz\n");
+    fgets(path_config,256,stdin);
+    inicializar_entradasalida(path_config);
+    free(path_config);
+
+    tipo_de_interfaz = definir_tipo_interfaz();
+    if(tipo_de_interfaz == -1){
+        log_error(logger,"TIPO DE INTERFAZ INEXISTENTE, REVISE EL CONFIG");
+        exit (EXIT_FAILURE);
+    }
 
     //Se conecta al Kernel
     entradasalida_cliente_kernel = crear_conexion(IP_KERNEL, PUERTO_KERNEL);
+    t_paquete* paquete = crear_paquete(PRIMERA_CONEXION_IO);
+    agregar_string_a_paquete(paquete,nombre_interfaz);
+    agregar_string_a_paquete(paquete,TIPO_INTERFAZ);
+    enviar_paquete(paquete,entradasalida_cliente_kernel);
+    eliminar_paquete(paquete);
     
-    //Se conecta al Memoria 
-    entradasalida_cliente_memoria = crear_conexion(IP_MEMORIA, PUERTO_MEMORIA);
-
-    //Atender mensajes del Kernel
-    pthread_t hilo_kernel_entradasalida;
-	pthread_create(&hilo_kernel_entradasalida,NULL,(void*)atender_kernel_entradasalida, NULL);
-	pthread_detach(hilo_kernel_entradasalida);
-
+    if(strcmp(TIPO_INTERFAZ,"Generica")!=0){
+        //Se conecta al Memoria 
+        entradasalida_cliente_memoria = crear_conexion(IP_MEMORIA, PUERTO_MEMORIA);
+        enviar_handshake("Entrada/Salida", entradasalida_cliente_memoria);
+    }
+    
     enviar_handshake("Entrada/Salida", entradasalida_cliente_kernel);
-    enviar_handshake("Entrada/Salida", entradasalida_cliente_memoria);
 
-    //Atender mensajes de la Memoria
-	pthread_t hilo_memoria_entradasalida;
-	pthread_create(&hilo_memoria_entradasalida,NULL,(void*)atender_memoria_entradasalida, NULL);
-	pthread_join(hilo_memoria_entradasalida, NULL);
+
+    switch (tipo_de_interfaz){
+        case GENERICO:
+            atender_peticiones_generica();
+            break;
+        case STDIN:
+            break;
+        case STDOUT:
+            break;
+        case DIALFS:
+            break;
+        default:
+            break;
+    }
+
 
     liberar_conexion(entradasalida_cliente_kernel);
-    liberar_conexion(entradasalida_cliente_memoria);
+    //liberar_conexion(entradasalida_cliente_memoria);
     
     terminar_programa(logger, config);
 
 
     return 0;
     
+}
+
+int definir_tipo_interfaz(){
+    if(strcmp(TIPO_INTERFAZ,"Generica")==0){
+        return GENERICO;
+    }
+    else if(strcmp(TIPO_INTERFAZ,"stdin")==0){
+        return STDIN;
+    }
+    else if(strcmp(TIPO_INTERFAZ,"stdout")==0){
+        return STDOUT;
+    }
+    else if(strcmp(TIPO_INTERFAZ,"dialfs")==0){
+        return DIALFS;
+    }
+    else{
+        return -1;
+    }
 }

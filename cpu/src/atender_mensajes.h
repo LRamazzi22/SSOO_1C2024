@@ -3,8 +3,13 @@
 
 #include <cpu_gestor.h>
 
-void atender_kernel_dispatch();
+void recibir_contexto_de_CPU(t_buffer*);
+void atender_kernel_dispatch_sin_while();
 void atender_kernel_interrupt();
 void atender_memoria_cpu();
+void atender_memoria_cpu_sin_while();
+void atender_kernel_interrupt();
+void atender_memoria_cpu();
+void atender_memoria_cpu_sin_while();
 
 #endif

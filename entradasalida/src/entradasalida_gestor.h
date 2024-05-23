@@ -11,13 +11,23 @@ Las variables deben ser previamente declaradas en su modulo
 #include <stdio.h>
 #include <utils/utiles.h>
 
+typedef enum{
+    GENERICO,
+    STDIN,
+    STDOUT,
+    DIALFS
+} interfaces;
+
 //Variables Globales
 
 extern t_log* logger;
+extern t_log* logger_obligatorio;
 extern t_config* config;
 
 extern int entradasalida_cliente_memoria;
 extern int entradasalida_cliente_kernel;
+
+extern pthread_mutex_t mutex_para_interfaz;
 
 extern char* TIPO_INTERFAZ;
 extern int TIEMPO_UNIDAD_TRABAJO;

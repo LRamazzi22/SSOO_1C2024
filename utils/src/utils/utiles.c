@@ -15,9 +15,9 @@ t_config* iniciar_config(char* ruta)
 	return nuevo_config;
 }
 
-t_log* iniciar_logger(char* ruta, char* nombre, int nivel)
+t_log* iniciar_logger(char* ruta, char* nombre, int nivel, int mostrar)
 {
-	t_log* nuevo_logger = log_create(ruta, nombre, 1, nivel);
+	t_log* nuevo_logger = log_create(ruta, nombre, mostrar, nivel);
 
 	if(nuevo_logger == NULL){
 		printf("Error con el logger");
@@ -156,7 +156,7 @@ void crear_buffer(t_paquete* paquete)
 	paquete->buffer->stream = NULL;
 }
 
-t_paquete* crear_paquete(op_code codigo_de_operacion)
+t_paquete* crear_paquete(int codigo_de_operacion)
 {
 	t_paquete* paquete = malloc(sizeof(t_paquete));
 	paquete->codigo_operacion = codigo_de_operacion;
@@ -176,6 +176,14 @@ void agregar_a_paquete(t_paquete* paquete, void* valor, int tamanio)
 	//Se establece el nuevo tamanio
 	paquete->buffer->size += tamanio + sizeof(int);
 	return;
+}
+
+void agregar_int_a_paquete(t_paquete* paquete, int num){
+	agregar_a_paquete(paquete, &num, sizeof(int));
+}
+
+void agregar_string_a_paquete(t_paquete* paquete, char* el_String){
+	agregar_a_paquete(paquete,el_String,strlen(el_String)+1);
 }
 
 void* serializar_paquete(t_paquete* paquete, int tamanio_paquete)
@@ -281,6 +289,28 @@ int extraer_int_buffer(t_buffer* buffer, t_log* logger){
 	free(un_int);
 	return numero_a_retornar;
 }
+
+char* extraer_string_buffer(t_buffer* buffer, t_log* logger){
+	char* un_string = extraer_contenido_buffer(buffer, logger);
+	return un_string;
+}
+
+//No hacian falt
+
+uint32_t extraer_uint32_buffer(t_buffer* buffer, t_log* logger){
+	uint32_t* un_uint32 = extraer_contenido_buffer(buffer, logger);
+	uint32_t numero_a_retornar = *un_uint32;
+	free (un_uint32);
+	return numero_a_retornar;
+}
+
+uint8_t extraer_uint8_buffer(t_buffer* buffer, t_log* logger){
+	uint8_t* un_uint8 = extraer_contenido_buffer(buffer, logger);
+	uint8_t numero_a_retornar = *un_uint8;
+	free (un_uint8);
+	return numero_a_retornar;
+}
+
 
 
 

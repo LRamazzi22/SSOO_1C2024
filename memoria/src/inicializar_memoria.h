@@ -6,5 +6,4 @@
 void inicializar_memoria();
 void inicializar_config_memoria();
 
-
 #endif

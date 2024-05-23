@@ -10,6 +10,19 @@ modulos del CPU pueden utilizarlas. Las variables deben ser previamente declarad
 #include <stdio.h>
 #include <utils/utiles.h>
 
+typedef enum{
+    FINALIZAR,
+    SEGUIR_EJECUTANDO,
+    SLEEP_GEN,
+    WAIT_RECURSO,
+    SIGNAL_RECURSO
+} salidas_cpu;
+
+typedef enum{
+    NO_INTERRUPCION,
+    HUBO_INTERRUPCION
+} interrupciones;
+
 //Variables Globales
 
 extern int cpu_server_dispatch;
@@ -19,6 +32,7 @@ extern int kernel_cliente_dispatch;
 extern int kernel_cliente_interrupt;
 
 extern t_log* logger;
+extern t_log* logger_obligatorio;
 extern t_config* config;
 
 extern char* IP_MEMORIA;
@@ -27,5 +41,17 @@ extern char* PUERTO_ESCUCHA_DISPATCH;
 extern char* PUERTO_ESCUCHA_INTERRUPT;
 extern int CANTIDAD_ENTRADAS_TLB;
 extern char* ALGORITMO_TLB;
+
+extern char* instruccion_a_decodificar;
+extern char** instruccion_separada;
+extern int pid_en_ejecucion;
+extern int interrupcion_recibida;
+extern int pid_de_interrupcion;
+
+extern t_registros_cpu* los_registros_de_la_cpu;
+
+//Semaforos
+extern pthread_mutex_t mutex_para_interrupcion;
+extern pthread_mutex_t mutex_para_pid_interrupcion;
 
 #endif

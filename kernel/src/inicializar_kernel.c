@@ -1,8 +1,38 @@
 #include <inicializar_kernel.h>
 
 void inicializar_kernel(){
-    logger = iniciar_logger("./kernel.log", "Kernel_Logger", LOG_LEVEL_INFO);
     inicializar_config_kernel();
+
+    pid_acumulado = 0;
+    pid_a_eliminar = -1;
+    espera_grado_multi = -1;
+    cantidad_de_proceso_en_ejecucion = GRADO_MULTIPROGRAMACION;
+    permitir_planificacion = true;
+
+    logger = iniciar_logger("./kernel.log", "Kernel_Logger", LOG_LEVEL_INFO, 1);
+    logger_obligatorio = iniciar_logger("./kernelObligatorio.log", "Kernel_Logger_Obligatorio", LOG_LEVEL_INFO, 0);
+    cola_new = queue_create();
+    cola_ready = queue_create();
+    diccionario_blocked = dictionary_create();
+    cola_exit = queue_create();
+    cola_ready_prioritaria = queue_create();
+
+    diccionario_entrada_salida = dictionary_create();
+    diccionario_recursos = dictionary_create();
+
+    //Semaforos
+    sem_init(&hay_proceso_en_ready,0,0);
+    sem_init(&hay_proceso_en_new,0,0);
+    sem_init(&hay_proceso_en_exit,0,0);
+    sem_init(&multiprogramacion_permite_proceso_en_ready,0,GRADO_MULTIPROGRAMACION);
+    
+    sem_init(&detener_planificacion_corto_plazo,0,0);
+    sem_init(&detener_planificacion_exit,0,0);
+    sem_init(&detener_planificacion_salida_cpu,0,0);
+    sem_init(&detener_planificacion_to_ready,0,0);
+
+    inicializar_recursos();
+    
 }
 
 void inicializar_config_kernel(){
@@ -19,4 +49,19 @@ void inicializar_config_kernel(){
     RECURSOS = config_get_array_value(config,"RECURSOS");
     INSTANCIAS_RECURSOS = config_get_array_value(config,"INSTANCIAS_RECURSOS");
     GRADO_MULTIPROGRAMACION = config_get_int_value(config, "GRADO_MULTIPROGRAMACION");
+}
+
+void inicializar_recursos(){
+    if(!string_array_is_empty(RECURSOS)){
+        for(int i = 0; i< string_array_size(RECURSOS); i++){
+            nodo_recursos* nodo = malloc(sizeof(nodo_recursos));
+            nodo ->cola_bloqueados_recurso = queue_create();
+            nodo ->instancias = atoi(INSTANCIAS_RECURSOS[i]);
+            string_append(&RECURSOS[i],"\n");
+            pthread_mutex_lock(&mutex_para_diccionario_recursos);
+            dictionary_put(diccionario_recursos,RECURSOS[i], nodo);
+            pthread_mutex_unlock(&mutex_para_diccionario_recursos);
+            
+        }
+    }
 }
