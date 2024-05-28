@@ -195,20 +195,7 @@ void atender_cpu_dispatch(){
 
 						pthread_mutex_lock(&mutex_cola_ready);
 						queue_push(cola_ready,pcb_a_esperar);
-						char* lista = malloc(3);
-        				strcpy(lista,"[");
-        				for(int i = 0; i < queue_size(cola_ready); i++){
-            				pcb* un_pcb = list_get(cola_ready ->elements,i);
-            				char* pid = string_itoa(un_pcb ->PID);
-            				string_append(&lista, pid);
-            				if(i != (queue_size(cola_ready)-1)){
-                				string_append(&lista, ", ");
-            				}
-            
-        				}
-        				string_append(&lista, "]");
-        				log_info(logger_obligatorio, "Cola Ready %s", lista);
-        				free(lista);
+						log_de_lista_de_ready();
 						pthread_mutex_unlock(&mutex_cola_ready);
 
 						sem_post(&hay_proceso_en_ready);
@@ -284,20 +271,7 @@ void atender_cpu_dispatch(){
 
 					pthread_mutex_lock(&mutex_cola_ready);
 					queue_push(cola_ready,pcb_a_desbloquear);
-					char* lista = malloc(3);
-        			strcpy(lista,"[");
-        			for(int i = 0; i < queue_size(cola_ready); i++){
-            			pcb* un_pcb = list_get(cola_ready ->elements,i);
-            			char* pid = string_itoa(un_pcb ->PID);
-            			string_append(&lista, pid);
-            			if(i != (queue_size(cola_ready)-1)){
-                			string_append(&lista, ", ");
-            			}
-            
-        			}
-        			string_append(&lista, "]");
-        			log_info(logger_obligatorio, "Cola Ready %s", lista);
-        			free(lista);
+					log_de_lista_de_ready();
 					pthread_mutex_unlock(&mutex_cola_ready);
 
 					sem_post(&hay_proceso_en_ready);
@@ -328,20 +302,7 @@ void atender_cpu_dispatch(){
 
 						pthread_mutex_lock(&mutex_cola_ready);
 						queue_push(cola_ready,pcb_a_senial);
-						char* lista = malloc(3);
-        				strcpy(lista,"[");
-        				for(int i = 0; i < queue_size(cola_ready); i++){
-            				pcb* un_pcb = list_get(cola_ready ->elements,i);
-            				char* pid = string_itoa(un_pcb ->PID);
-            				string_append(&lista, pid);
-            				if(i != (queue_size(cola_ready)-1)){
-                				string_append(&lista, ", ");
-            				}
-            
-        				}
-        				string_append(&lista, "]");
-        				log_info(logger_obligatorio, "Cola Ready %s", lista);
-        				free(lista);
+						log_de_lista_de_ready();
 						pthread_mutex_unlock(&mutex_cola_ready);
 
 						sem_post(&hay_proceso_en_ready);
@@ -390,20 +351,7 @@ void atender_cpu_dispatch(){
 
 			pthread_mutex_lock(&mutex_cola_ready);
 			queue_push(cola_ready,pcb_a_guardar);
-			char* lista = malloc(3);
-        	strcpy(lista,"[");
-        	for(int i = 0; i < queue_size(cola_ready); i++){
-            	pcb* un_pcb = list_get(cola_ready ->elements,i);
-            	char* pid = string_itoa(un_pcb ->PID);
-            	string_append(&lista, pid);
-            	if(i != (queue_size(cola_ready)-1)){
-                	string_append(&lista, ", ");
-            	}
-            
-        	}
-        	string_append(&lista, "]");
-        	log_info(logger_obligatorio, "Cola Ready %s", lista);
-        	free(lista);
+			log_de_lista_de_ready();
 			pthread_mutex_unlock(&mutex_cola_ready);
 
 			sem_post(&hay_proceso_en_ready);

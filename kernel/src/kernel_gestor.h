@@ -12,6 +12,7 @@ modulos del kernel pueden utilizarlas. Las variables deben ser previamente decla
 
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <log_listar_ready.h>
 
 typedef enum {
     NEW,
