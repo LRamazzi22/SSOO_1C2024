@@ -7,6 +7,7 @@
 
 #include <signal.h>
 #include <unistd.h>
+#include <math.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <string.h>
@@ -15,6 +16,7 @@
 #include <commons/collections/dictionary.h>
 #include <commons/collections/queue.h>
 #include <commons/temporal.h>
+#include <commons/bitarray.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <commons/log.h>

@@ -65,8 +65,11 @@ void atender_kernel_memoria(){
 		case CREAR_PROCESO:
 			buffer = recibir_buffer(kernel_cliente);
 			int pid = extraer_int_buffer(buffer,logger);
+			char* clave_pid = string_itoa(pid);
 			char* ruta_pseudocodigo = extraer_string_buffer(buffer,logger);
-			int programCounter = leer_archivo(ruta_pseudocodigo,diccionario_de_instrucciones,pid);
+			int programCounter = leer_archivo(ruta_pseudocodigo,diccionario_de_instrucciones,clave_pid);
+			crear_tdp_del_proceso(clave_pid);
+			free(clave_pid);
 			enviar_program_counter(programCounter);
 			break;
 		case ELIMINAR_PROCESO_MEMORIA:
@@ -83,6 +86,19 @@ void atender_kernel_memoria(){
 				free(instruccion);
 			}
 			list_destroy(lista_instrucciones);
+
+			pthread_mutex_lock(&mutex_para_diccionario_tdp);
+			t_list* tdp_del_proceso = dictionary_get(diccionario_de_tdp, pid_clave);
+			pthread_mutex_unlock(&mutex_para_diccionario_tdp);
+
+			
+			int cant_paginas = list_size(tdp_del_proceso);
+
+			//Sacar todos los marcos de la lista, marcar todos esos marcos como libres
+
+			list_destroy(tdp_del_proceso);
+			log_info(logger_obligatorio, "PID: %s - Tamaño: %d", pid_clave, cant_paginas);
+			free(pid_clave);
 			break;
 		case -1:
 			log_error(logger, "El Kernel se desconecto");
@@ -99,6 +115,15 @@ void enviar_program_counter(int pc){
 	agregar_int_a_paquete(paquete,pc);
 	enviar_paquete(paquete,kernel_cliente);
 	eliminar_paquete(paquete);
+}
+
+void crear_tdp_del_proceso(char* clave_pid){
+	t_list* tdp_del_proceso = list_create();
+
+	pthread_mutex_lock(&mutex_para_diccionario_tdp);
+	dictionary_put(diccionario_de_tdp,clave_pid,tdp_del_proceso);
+	pthread_mutex_unlock(&mutex_para_diccionario_tdp);
+	log_info(logger_obligatorio, "PID: %s - Tamaño: 0", clave_pid);
 }
 
 void atender_entradasalida_memoria(void* cliente){

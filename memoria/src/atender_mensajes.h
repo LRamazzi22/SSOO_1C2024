@@ -6,6 +6,7 @@
 
 void atender_cpu_memoria();
 void enviar_instruccion(int,int);
+void crear_tdp_del_proceso(char*);
 void atender_kernel_memoria();
 void enviar_program_counter(int);
 void atender_entradasalida_memoria();
