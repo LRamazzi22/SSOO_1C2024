@@ -23,6 +23,8 @@ char* PUERTO_ESCUCHA_INTERRUPT;
 int CANTIDAD_ENTRADAS_TLB;
 char* ALGORITMO_TLB;
 
+int tam_de_pags_memoria;
+
 char* instruccion_a_decodificar; //Variable donde se almacena la instruccion recibida por la memoria, es necesario decodificarla
 char** instruccion_separada;
 int pid_en_ejecucion;

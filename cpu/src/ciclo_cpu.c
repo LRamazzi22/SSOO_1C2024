@@ -36,7 +36,7 @@ void ciclo(){
                 eliminar_paquete(paquete);
 
                 break;
-        case SLEEP_GEN:
+            case SLEEP_GEN:
                 t_paquete* paquete2 = crear_paquete(ESPERAR_GEN);
                 cargar_registros_a_paquete(paquete2);
                 string_append(&instruccion_separada[1],"\n");
@@ -47,23 +47,28 @@ void ciclo(){
                 eliminar_paquete(paquete2);
 
                 break;
-        case WAIT_RECURSO:
-            t_paquete* paquete3 = crear_paquete(WAIT_CODE);
-            cargar_registros_a_paquete(paquete3);
-            agregar_string_a_paquete(paquete3,instruccion_separada[1]);
-            enviar_paquete(paquete3,kernel_cliente_dispatch);
-            eliminar_paquete(paquete3);
-            break;
-        case SIGNAL_RECURSO:
-            t_paquete* paquete4 = crear_paquete(SIGNAL_CODE);
-            cargar_registros_a_paquete(paquete4);
-            agregar_string_a_paquete(paquete4,instruccion_separada[1]);
-            enviar_paquete(paquete4,kernel_cliente_dispatch);
-            eliminar_paquete(paquete4);
-            break;
-    
-        default:
-            break;
+            case WAIT_RECURSO:
+                t_paquete* paquete3 = crear_paquete(WAIT_CODE);
+                cargar_registros_a_paquete(paquete3);
+                agregar_string_a_paquete(paquete3,instruccion_separada[1]);
+                enviar_paquete(paquete3,kernel_cliente_dispatch);
+                eliminar_paquete(paquete3);
+                break;
+            case SIGNAL_RECURSO:
+                t_paquete* paquete4 = crear_paquete(SIGNAL_CODE);
+                cargar_registros_a_paquete(paquete4);
+                agregar_string_a_paquete(paquete4,instruccion_separada[1]);
+                enviar_paquete(paquete4,kernel_cliente_dispatch);
+                eliminar_paquete(paquete4);
+                break;
+            case SIN_MEMORIA:
+                t_paquete* paquete5 = crear_paquete(OUT_OF_MEM_CODE);
+                cargar_registros_a_paquete(paquete5);
+                enviar_paquete(paquete5,kernel_cliente_dispatch);
+                eliminar_paquete(paquete5);
+                break;
+            default:
+                break;
         }
     }
     else{
@@ -250,6 +255,16 @@ void jnz(char* nombre_registro, int nuevo_pc){
     }
 }
 
+int resize(int tam){
+    t_paquete* paquete = crear_paquete(RESIZE_CODE);
+    agregar_int_a_paquete(paquete,pid_en_ejecucion);
+    agregar_int_a_paquete(paquete,tam);
+    enviar_paquete(paquete,cpu_cliente_memoria);
+    eliminar_paquete(paquete);
+    int ok = confirmacion_resize();
+    return ok;
+}
+
 
 int ejecutar_instruccion (int codigo_instruccion) {
     
@@ -288,6 +303,17 @@ int ejecutar_instruccion (int codigo_instruccion) {
     case SIGNAL: //SIGNAL (RECURSO)
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
         return SIGNAL_RECURSO;
+    case RESIZE: //RESIZE (TAMAÑO)
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
+        int tam_a_resize = atoi(instruccion_separada[1]);
+        int ok = resize(tam_a_resize);
+        if(ok){
+            return SEGUIR_EJECUTANDO;
+        }
+        else{
+            return SIN_MEMORIA;
+        }
+        break; 
     case EXIT:
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - ",pid_en_ejecucion, instruccion_separada[0]);
         return FINALIZAR;

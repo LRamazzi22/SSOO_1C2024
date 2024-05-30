@@ -23,24 +23,10 @@ int main(int argc, char* argv[]) {
 	pthread_create(&hilo_kernel_interrupt,NULL,(void*)atender_kernel_interrupt, NULL);
 	pthread_detach(hilo_kernel_interrupt);
 
-    //Atender mensajes de la Memoria Server
-    /*
-	pthread_t hilo_memoria_server;
-	pthread_create(&hilo_memoria_server,NULL,(void*)atender_memoria_cpu, NULL);
-	pthread_detach(hilo_memoria_server);
-    */
 
     enviar_handshake("CPU", cpu_cliente_memoria);
+    atender_memoria_cpu_sin_while(); //Se recibe el tamaño de las paginas de memoria
 
-    /*
-    printf("\nUna vez conectados todos los modulos en el orden establecido en el Instruciones.MD, presione ENTER para iniciar la prueba\n\n");
-    char hola = getchar();
-
-    prueba_de_protocolo();
-
-    *los_registros_de_la_cpu -> PC = 0;
-    ciclo();
-    */
     
     while(true){
         ciclo();

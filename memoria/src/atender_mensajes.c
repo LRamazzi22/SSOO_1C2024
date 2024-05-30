@@ -12,6 +12,10 @@ void atender_cpu_memoria(){
 			mensaje = extraer_string_buffer(buffer, logger);
 			printf("Recibi un handshake de: %s, como cliente",mensaje);
 			free(mensaje);
+			t_paquete* paquete = crear_paquete(TAM_DE_PAG);
+			agregar_int_a_paquete(paquete,TAM_PAGINA);
+			enviar_paquete(paquete,cpu_cliente);
+			eliminar_paquete(paquete);
 			break;
 		case PROTOCOLO:
 			int num = extraer_int_buffer(buffer, logger);
@@ -26,6 +30,38 @@ void atender_cpu_memoria(){
 			int pc = extraer_int_buffer(buffer,logger);
 			enviar_instruccion(pc,pid);
 			break;
+		case PEDIR_MARCO:
+			int pid2 = extraer_int_buffer(buffer,logger);
+			int num_pag = extraer_int_buffer(buffer,logger);
+
+			char* pid_clave = string_itoa(pid2);
+
+			pthread_mutex_lock(&mutex_para_diccionario_tdp);
+			t_list* tdp_del_proceso = dictionary_get(diccionario_de_tdp,pid_clave);
+			pthread_mutex_unlock(&mutex_para_diccionario_tdp);
+
+			int* marco = list_get(tdp_del_proceso,num_pag);
+
+			t_paquete* paquete2 = crear_paquete(PEDIR_MARCO);
+			agregar_int_a_paquete(paquete2,*marco);
+			enviar_paquete(paquete2,cpu_cliente);
+			eliminar_paquete(paquete2);
+			break;
+		
+		case RESIZE_CODE:
+			int pid_a_cambiar_tam = extraer_int_buffer(buffer,logger);
+			int nuevo_tam_proceso = extraer_int_buffer(buffer,logger);
+
+			int respuesta = cambiar_memoria_de_proceso(pid_a_cambiar_tam, nuevo_tam_proceso);
+
+			
+			t_paquete* paquete3 = crear_paquete(RESIZE_CODE);
+			agregar_int_a_paquete(paquete3,respuesta);
+			enviar_paquete(paquete3,cpu_cliente);
+			eliminar_paquete(paquete3);
+
+			break;
+
 		case -1:
 			log_error(logger, "El CPU se desconecto");
 			exit(EXIT_FAILURE);

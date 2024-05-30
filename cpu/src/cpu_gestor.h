@@ -15,7 +15,8 @@ typedef enum{
     SEGUIR_EJECUTANDO,
     SLEEP_GEN,
     WAIT_RECURSO,
-    SIGNAL_RECURSO
+    SIGNAL_RECURSO,
+    SIN_MEMORIA
 } salidas_cpu;
 
 typedef enum{
@@ -41,6 +42,8 @@ extern char* PUERTO_ESCUCHA_DISPATCH;
 extern char* PUERTO_ESCUCHA_INTERRUPT;
 extern int CANTIDAD_ENTRADAS_TLB;
 extern char* ALGORITMO_TLB;
+
+extern int tam_de_pags_memoria;
 
 extern char* instruccion_a_decodificar;
 extern char** instruccion_separada;

@@ -3,6 +3,7 @@
 
 #include <memoria_gestor.h>
 #include <leer_pseudocodigo.h>
+#include <memoria_usuario.h>
 
 void atender_cpu_memoria();
 void enviar_instruccion(int,int);

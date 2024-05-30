@@ -84,6 +84,28 @@ void atender_cpu_dispatch(){
 			log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", pcb_a_finalizar ->PID);
 			 
 			break;
+		case OUT_OF_MEM_CODE:
+			buffer = recibir_buffer(kernel_cliente_dispatch);
+
+			pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
+			pcb* pcb_a_finalizar_por_mem = proceso_en_ejecucion;
+			pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
+
+			recibir_contexto_de_ejecucion(buffer,pcb_a_finalizar_por_mem);
+
+			if(pcb_a_finalizar_por_mem ->PID == pid_a_eliminar){ //Si el proceso que salio del cpu es al que se le mando la interrupcion de eliminarlo
+				pcb_a_finalizar_por_mem ->razon_salida = FINALIZADO_POR_USUARIO;
+				mandar_a_exit(pcb_a_finalizar_por_mem);
+				log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", pcb_a_finalizar_por_mem ->PID);
+				pid_a_eliminar = -1;
+				break;
+			}
+
+			pcb_a_finalizar_por_mem ->razon_salida = FUERA_DE_MEMORIA;
+			mandar_a_exit(pcb_a_finalizar_por_mem);
+			log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", pcb_a_finalizar_por_mem ->PID);
+
+			break;
 		case ESPERAR_GEN:
 			buffer = recibir_buffer(kernel_cliente_dispatch);
 

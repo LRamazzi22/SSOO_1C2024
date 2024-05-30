@@ -29,6 +29,7 @@ typedef enum
 	PAQUETE,
 	PROTOCOLO,
 	PEDIR_INSTRUCCION,
+    TAM_DE_PAG,
     CREAR_PROCESO,
     INICIAR_EXEC,
     FINALIZAR_EXEC,
@@ -40,6 +41,10 @@ typedef enum
     EXITO_IO,
     ELIMINAR_PROCESO_MEMORIA,
     INTERRUPCION,
+    PEDIR_MARCO,
+    OUT_OF_MEM_CODE,
+    RESIZE_CODE,
+
 } op_code;
 
 
