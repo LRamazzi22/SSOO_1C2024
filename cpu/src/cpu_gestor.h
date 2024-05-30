@@ -24,6 +24,25 @@ typedef enum{
     HUBO_INTERRUPCION
 } interrupciones;
 
+typedef struct {
+    int nro_pagina;
+    int desplazamiento;
+    int direccion_fisica;
+    int marco;
+} t_mmu_traduccion;
+
+typedef struct {
+    int pid;
+    int pagina;
+    int marco;
+    bool valido;
+} t_entrada_tlb;
+
+typedef struct {
+    int nro_pagina;
+    int marco;
+} t_entrada_pagina;
+
 //Variables Globales
 
 extern int cpu_server_dispatch;

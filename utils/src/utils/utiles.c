@@ -76,8 +76,7 @@ int crear_conexion(char *ip, char* puerto)
         exit(EXIT_FAILURE);
     }
 
-	// Ahora que tenemos el socket, vamos a conectarlo
-
+	// Ahora que tenemos el socket, vamos a conectarlo	
 	err = connect(socket_cliente, server_info->ai_addr, server_info->ai_addrlen);
 
 	if (err == -1) {
@@ -112,6 +111,9 @@ int iniciar_servidor(char* puerto_de_escucha, t_log* logger)
 	socket_servidor = socket(servinfo->ai_family,
                          servinfo->ai_socktype,
                          servinfo->ai_protocol);
+
+	if (setsockopt(socket_servidor, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0) 
+    	error("setsockopt(SO_REUSEADDR) failed");
 	// Asociamos el socket a un puerto
 	bind(socket_servidor, servinfo->ai_addr, servinfo->ai_addrlen);
 	// Escuchamos las conexiones entrantes

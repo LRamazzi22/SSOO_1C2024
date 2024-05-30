@@ -266,6 +266,41 @@ int resize(int tam){
 }
 
 
+/* t_mmu_traduccion* traducir_direccion(int dir_logica) {
+    t_mmu_traduccion* mmu = malloc(sizeof(t_mmu_traduccion));
+
+    int nro_pag = floor(dir_logica/TAM_DE_PAG);
+
+    mmu -> nro_pagina = nro_pag;
+    mmu -> desplazamiento = dir_logica - nro_pag * TAM_DE_PAG;
+
+    t_entrada_tlb* entrada_tlb = obtener_entrada_tlb(pid_en_ejecucion, mmu->nro_pagina);
+    if (entrada_tlb != NULL) {
+        mmu->marco = entrada_tlb->marco;
+    } else {
+        //Lo obtiene a partir de la tabla de paginas en memoria
+        //Habria q agregar despues esa entrada al tlb asi se accede mas rapido la proxima? 
+        //Aca se llamaria a la funcion para reemplazar (no lo vimos todavia nosotros)
+    }
+
+    mmu->direccion_fisica = (mmu->marco * TAM_DE_PAG) + mmu->desplazamiento;
+    log_info(logger, "La direccion fisica es %d = (%d * %d) + %d", mmu->direccion_fisica, mmu->marco, TAM_DE_PAG, mmu->desplazamiento);
+
+    return mmu;
+    }
+
+
+t_entrada_tlb* obtener_entrada_tlb(int pid, int num_pagina) {
+    for(int i = 0; i < list_size(tlb); i++) {
+        t_entrada_tlb* entrada = list_get(tlb, i);
+        if (entrada->valido && entrada->pid == pid && entrada->pagina == num_pagina) {
+            return entrada;
+        }
+    }
+    return NULL;
+} */
+//da error multiple declaration de tlb
+
 int ejecutar_instruccion (int codigo_instruccion) {
     
 

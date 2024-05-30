@@ -76,6 +76,7 @@ int esperar_cliente(int, t_log*, char*);
 void liberar_conexion(int);
 
 
+
 //-------------------- Protoloco de Comunicacion --------------------//
 void enviar_handshake(char*, int);
 void crear_buffer(t_paquete*);

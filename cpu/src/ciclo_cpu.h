@@ -16,6 +16,9 @@ int resize(int);
 int ejecutar_instruccion (int);
 void* apuntar_a_registro (char*, int*);
 void cargar_registros_a_paquete(t_paquete* );
+//t_list* tlb;
 
+t_mmu_traduccion* traducir_direccion(int);
+t_entrada_tlb* obtener_entrada_tlb(int, int);
 
 #endif
