@@ -102,7 +102,7 @@ void atender_memoria_cpu_sin_while(){
 			strcpy(instruccion_a_decodificar,instruccion);
 			free(instruccion);
 			break;
-		case TAM_DE_PAG: //case para recibir el tamaño de las paginas
+		case TAM_DE_PAG_CODE: //case para recibir el tamaño de las paginas
 			buffer = recibir_buffer(cpu_cliente_memoria);
 			tam_de_pags_memoria = extraer_int_buffer(buffer,logger);
 			break;

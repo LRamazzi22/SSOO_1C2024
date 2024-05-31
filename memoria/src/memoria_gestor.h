@@ -17,7 +17,7 @@ extern t_log* logger_obligatorio;
 extern t_config* config;
 
 extern void* memoria_de_usuario;
-extern float cant_marcos;
+extern float cant_marcos_totales;
 extern void* puntero_a_bits_de_los_marcos;
 extern t_bitarray* marcos_de_memoria_libres;
 
@@ -39,6 +39,7 @@ extern t_dictionary* diccionario_de_tdp;
 extern pthread_mutex_t mutex_para_leer_pseudo;
 extern pthread_mutex_t mutex_para_diccionario_instrucciones;
 extern pthread_mutex_t mutex_para_diccionario_tdp;
+extern pthread_mutex_t mutex_para_marcos_libres;
 
 
 

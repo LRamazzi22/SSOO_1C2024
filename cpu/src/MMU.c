@@ -7,5 +7,7 @@ int solicitar_marco(int pid, int num_de_pag){
     enviar_paquete(paquete,cpu_cliente_memoria);
     eliminar_paquete(paquete);
     int marco = recibir_marco();
+    log_info(logger_obligatorio, "PID: %d - OBTENER MARCO - Página: %d - Marco: %d", pid, num_de_pag, marco);
     return marco;
 }
+

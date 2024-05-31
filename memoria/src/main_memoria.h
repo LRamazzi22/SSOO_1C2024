@@ -12,7 +12,7 @@ t_log* logger_obligatorio;
 t_config* config;
 
 void* memoria_de_usuario;
-float cant_marcos;
+float cant_marcos_totales;
 void* puntero_a_bits_de_los_marcos;
 t_bitarray* marcos_de_memoria_libres;
 
@@ -34,6 +34,7 @@ t_dictionary* diccionario_de_tdp;
 pthread_mutex_t mutex_para_leer_pseudo;
 pthread_mutex_t mutex_para_diccionario_instrucciones;
 pthread_mutex_t mutex_para_diccionario_tdp;
+pthread_mutex_t mutex_para_marcos_libres;
 
 
 

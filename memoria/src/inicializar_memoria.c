@@ -12,11 +12,15 @@ void inicializar_memoria(){
 	}
 	memoria_de_usuario = malloc(TAM_MEMORIA);
 
-    cant_marcos = TAM_MEMORIA/TAM_PAGINA;
-    int cant_marcos_para_bitarray = ceil(cant_marcos/8);
+    cant_marcos_totales = TAM_MEMORIA/TAM_PAGINA;
+    int cant_marcos_para_bitarray = ceil(cant_marcos_totales/8);
 
     puntero_a_bits_de_los_marcos = malloc(cant_marcos_para_bitarray);
     marcos_de_memoria_libres = bitarray_create_with_mode(puntero_a_bits_de_los_marcos,cant_marcos_para_bitarray,LSB_FIRST);
+
+    for(int i = 0; i< cant_marcos_totales; i++){
+        bitarray_clean_bit(marcos_de_memoria_libres,i);
+    }
 
     diccionario_de_instrucciones = dictionary_create();
     diccionario_de_tdp = dictionary_create();

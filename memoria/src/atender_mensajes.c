@@ -9,15 +9,17 @@ void atender_cpu_memoria(){
 		buffer = recibir_buffer(cpu_cliente);
 		switch (cod_op) {
 		case HANDSHAKE:
+			usleep(RETARDO_RESPUESTA * 1000);
 			mensaje = extraer_string_buffer(buffer, logger);
 			printf("Recibi un handshake de: %s, como cliente",mensaje);
 			free(mensaje);
-			t_paquete* paquete = crear_paquete(TAM_DE_PAG);
+			t_paquete* paquete = crear_paquete(TAM_DE_PAG_CODE);
 			agregar_int_a_paquete(paquete,TAM_PAGINA);
 			enviar_paquete(paquete,cpu_cliente);
 			eliminar_paquete(paquete);
 			break;
 		case PROTOCOLO:
+			usleep(RETARDO_RESPUESTA * 1000);
 			int num = extraer_int_buffer(buffer, logger);
 			mensaje = extraer_string_buffer(buffer, logger);
 			printf("El numero es: %d \n", num);
@@ -31,6 +33,7 @@ void atender_cpu_memoria(){
 			enviar_instruccion(pc,pid);
 			break;
 		case PEDIR_MARCO:
+			usleep(RETARDO_RESPUESTA * 1000);
 			int pid2 = extraer_int_buffer(buffer,logger);
 			int num_pag = extraer_int_buffer(buffer,logger);
 
@@ -46,9 +49,11 @@ void atender_cpu_memoria(){
 			agregar_int_a_paquete(paquete2,*marco);
 			enviar_paquete(paquete2,cpu_cliente);
 			eliminar_paquete(paquete2);
+			log_info(logger_obligatorio,"PID: %d - Pagina: %d - Marco: %d",pid2, num_pag, *marco);
 			break;
 		
 		case RESIZE_CODE:
+			usleep(RETARDO_RESPUESTA * 1000);
 			int pid_a_cambiar_tam = extraer_int_buffer(buffer,logger);
 			int nuevo_tam_proceso = extraer_int_buffer(buffer,logger);
 
@@ -94,12 +99,16 @@ void atender_kernel_memoria(){
 		switch (cod_op) {
 		case HANDSHAKE:
 			buffer = recibir_buffer(kernel_cliente);
+			usleep(RETARDO_RESPUESTA * 1000);
 			char* mensaje = extraer_string_buffer(buffer, logger);
 			printf("Recibi un handshake de: %s, como cliente",mensaje);
 			free(mensaje);
 			break;
 		case CREAR_PROCESO:
 			buffer = recibir_buffer(kernel_cliente);
+
+			usleep(RETARDO_RESPUESTA * 1000);
+
 			int pid = extraer_int_buffer(buffer,logger);
 			char* clave_pid = string_itoa(pid);
 			char* ruta_pseudocodigo = extraer_string_buffer(buffer,logger);
@@ -110,6 +119,7 @@ void atender_kernel_memoria(){
 			break;
 		case ELIMINAR_PROCESO_MEMORIA:
 			buffer = recibir_buffer(kernel_cliente);
+			usleep(RETARDO_RESPUESTA * 1000);
 			int pid2 = extraer_int_buffer(buffer,logger);
 			char* pid_clave = string_itoa(pid2);
 
@@ -129,8 +139,19 @@ void atender_kernel_memoria(){
 
 			
 			int cant_paginas = list_size(tdp_del_proceso);
+			
 
-			//Sacar todos los marcos de la lista, marcar todos esos marcos como libres
+			for(int i = cant_paginas - 1; i >=0; i--){
+				
+            	int* marco = list_remove(tdp_del_proceso,i);
+
+            	pthread_mutex_lock(&mutex_para_marcos_libres);
+            	bitarray_clean_bit(marcos_de_memoria_libres,*marco);
+            	pthread_mutex_unlock(&mutex_para_marcos_libres);
+
+            	free(marco);
+
+        	}
 
 			list_destroy(tdp_del_proceso);
 			log_info(logger_obligatorio, "PID: %s - Tamaño: %d", pid_clave, cant_paginas);
@@ -171,6 +192,7 @@ void atender_entradasalida_memoria(void* cliente){
 		switch (cod_op) {
 		case HANDSHAKE:
 			t_buffer* buffer = recibir_buffer(*cliente_entrada_salida);
+			usleep(RETARDO_RESPUESTA * 1000);
 			char* mensaje = extraer_string_buffer(buffer, logger);
 			printf("Recibi un handshake de: %s, como cliente",mensaje);
 			free(mensaje);
