@@ -38,6 +38,8 @@ int cambiar_memoria_de_proceso(int pid, int nuevo_tam){ //SE TIENE QUE SEGUIR DE
 
         int cant_marcos_nuevos = ceil(bytesNecesarios / TAM_PAGINA);
 
+        log_info(logger_obligatorio, "PID: %d - Tamaño Actual: %d - Tamaño a Ampliar: %d", pid, tam_actual, nuevo_tam);
+
         if(hay_marcos_suficientes(cant_marcos_nuevos)){
 
             int nueva_pag = list_size(tdp_del_proceso); //Las paginas comienzan en 0, por lo que al hacer el list size obtenemos el valor de la siguiente pagina
@@ -63,7 +65,6 @@ int cambiar_memoria_de_proceso(int pid, int nuevo_tam){ //SE TIENE QUE SEGUIR DE
                     paginas_reservadas++;
                 }
                 if(paginas_reservadas == cant_marcos_nuevos){
-                    log_info(logger_obligatorio, "PID: %d - Tamaño Actual: %d - Tamaño a Ampliar: %d", pid, tam_actual, nuevo_tam);
                     return true;
                 }
 
@@ -79,6 +80,8 @@ int cambiar_memoria_de_proceso(int pid, int nuevo_tam){ //SE TIENE QUE SEGUIR DE
 
         
     }
+
+    log_info(logger_obligatorio, "PID: %d - Tamaño Actual: %d - Tamaño a Ampliar: %d", pid, tam_actual, nuevo_tam);
 
     return true;
 }
@@ -104,4 +107,12 @@ bool hay_marcos_suficientes(int cant_marcos_necesarios){
     }
 
     return false;
+}
+
+void* leer_dir_fisica(int dir_fisica, int tam_a_leer){
+    void* leido = malloc(tam_a_leer);
+
+    memcpy(leido,memoria_de_usuario + dir_fisica,tam_a_leer);
+
+    return leido;
 }

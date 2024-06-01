@@ -265,6 +265,240 @@ int resize(int tam){
     return ok;
 }
 
+void mov_in(char* reg_datos, char* reg_direccion){ //GRAN PARTE DE LO QUE ESTA ACA DEBERIA PODER MODULARIZARCE EN FUNCIONES DENTRO DE LA MMU
+    int tamano_datos = 0;
+    void* registro_datos = apuntar_a_registro(reg_datos, &tamano_datos);
+
+    tamano_datos = tamano_datos / 8;
+
+    int tamano_direccion = 0;
+    void* registro_direccion = apuntar_a_registro(reg_direccion, &tamano_direccion);
+
+    direccion_fisica* dir_fisica;
+
+    if (tamano_direccion == 8) {
+        int8_t* registro_direccion2 = registro_direccion;
+        dir_fisica = traducir_dir_logica(pid_en_ejecucion,*registro_direccion2);
+
+    } else if (tamano_direccion == 32) {
+        int32_t* registro_direccion2 = registro_direccion;
+        dir_fisica = traducir_dir_logica(pid_en_ejecucion,*registro_direccion2);
+    }
+
+    if((tam_de_pags_memoria - dir_fisica ->desplazamiento) >= tamano_datos){
+        t_paquete* paquete = crear_paquete(LECTURA_CODE);
+        agregar_int_a_paquete(paquete, pid_en_ejecucion);
+        agregar_int_a_paquete(paquete, dir_fisica ->dir_fisica_final);
+        agregar_int_a_paquete(paquete, tamano_datos);
+
+        enviar_paquete(paquete,cpu_cliente_memoria);
+        eliminar_paquete(paquete);
+
+        void* leido = recibir_lectura();
+
+        memcpy(registro_datos,leido,tamano_datos);
+
+        free(leido);
+    }
+    else{
+        float tamano_datos_sobrantes = tamano_datos - (tam_de_pags_memoria - dir_fisica ->desplazamiento);
+
+        int cant_nuevas_pags = ceil(tamano_datos_sobrantes / tam_de_pags_memoria);
+
+        t_paquete* paquete2 = crear_paquete(LECTURA_CODE);
+        agregar_int_a_paquete(paquete2, pid_en_ejecucion);
+        agregar_int_a_paquete(paquete2, dir_fisica ->dir_fisica_final);
+        agregar_int_a_paquete(paquete2, (tam_de_pags_memoria - dir_fisica ->desplazamiento));
+
+        enviar_paquete(paquete2,cpu_cliente_memoria);
+        eliminar_paquete(paquete2);
+
+        void* leido1 = recibir_lectura();
+
+        memcpy(registro_datos,leido1,(tam_de_pags_memoria - dir_fisica ->desplazamiento));
+
+        free(leido1);
+
+        int nueva_pag = dir_fisica ->num_de_pag_base + 1;
+
+        int bytes_restantes_a_copiar = tamano_datos_sobrantes;
+
+        int desplazamiento_en_reg_datos = (tam_de_pags_memoria - dir_fisica ->desplazamiento);
+
+        for (int i = 0; i < cant_nuevas_pags; i++){
+            int nuevo_marco = solicitar_marco(pid_en_ejecucion, nueva_pag);
+            nueva_pag++;
+
+            //Como tenemos que continuar desde la anterior pagina, el desplazamiento en el nuevo marco es 0, por lo que la direccion fisica es
+
+            int nueva_dir_fisica_final = nuevo_marco * tam_de_pags_memoria;
+
+            if(bytes_restantes_a_copiar > tam_de_pags_memoria){
+                t_paquete* paquete3 = crear_paquete(LECTURA_CODE);
+                agregar_int_a_paquete(paquete3, pid_en_ejecucion);
+                agregar_int_a_paquete(paquete3, nueva_dir_fisica_final);
+                agregar_int_a_paquete(paquete3, tam_de_pags_memoria);
+
+                enviar_paquete(paquete3,cpu_cliente_memoria);
+                eliminar_paquete(paquete3);
+
+                void* leido2 = recibir_lectura();
+
+                memcpy(registro_datos + desplazamiento_en_reg_datos, leido2, tam_de_pags_memoria);
+
+                bytes_restantes_a_copiar = bytes_restantes_a_copiar - tam_de_pags_memoria;
+                desplazamiento_en_reg_datos = desplazamiento_en_reg_datos + tam_de_pags_memoria;
+
+                free(leido2);
+            }
+            else{
+                t_paquete* paquete4 = crear_paquete(LECTURA_CODE);
+                agregar_int_a_paquete(paquete4, pid_en_ejecucion);
+                agregar_int_a_paquete(paquete4, nueva_dir_fisica_final);
+                agregar_int_a_paquete(paquete4, bytes_restantes_a_copiar);
+
+                enviar_paquete(paquete4,cpu_cliente_memoria);
+                eliminar_paquete(paquete4);
+
+                void* leido3 = recibir_lectura();
+
+                memcpy(registro_datos + desplazamiento_en_reg_datos, leido3, bytes_restantes_a_copiar);
+
+                free(leido3);
+            }
+        }
+
+    }
+
+    if(tamano_datos == 1){
+        int8_t* registro_datos2 = registro_datos;
+        log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Física: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
+    }
+    else if(tamano_datos == 4){
+        int32_t* registro_datos2 = registro_datos;
+        log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Física: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
+    }
+}
+
+void mov_out(char* reg_direccion, char* reg_datos){
+    int tamano_datos = 0;
+    void* registro_datos = apuntar_a_registro(reg_datos, &tamano_datos);
+
+    tamano_datos = tamano_datos / 8;
+
+    int tamano_direccion = 0;
+    void* registro_direccion = apuntar_a_registro(reg_direccion, &tamano_direccion);
+
+    direccion_fisica* dir_fisica;
+
+    if (tamano_direccion == 8) {
+        int8_t* registro_direccion2 = registro_direccion;
+        dir_fisica = traducir_dir_logica(pid_en_ejecucion,*registro_direccion2);
+
+    } else if (tamano_direccion == 32) {
+        int32_t* registro_direccion2 = registro_direccion;
+        dir_fisica = traducir_dir_logica(pid_en_ejecucion,*registro_direccion2);
+    }
+
+    if((tam_de_pags_memoria - dir_fisica ->desplazamiento) >= tamano_datos){
+        t_paquete* paquete = crear_paquete(ESCRITURA_CODE);
+        agregar_int_a_paquete(paquete, pid_en_ejecucion);
+        agregar_int_a_paquete(paquete, dir_fisica ->dir_fisica_final);
+        agregar_int_a_paquete(paquete, tamano_datos);
+        agregar_a_paquete(paquete, registro_datos, tamano_datos);
+
+        enviar_paquete(paquete,cpu_cliente_memoria);
+        eliminar_paquete(paquete);
+
+    }
+    else{
+        float tamano_datos_sobrantes = tamano_datos - (tam_de_pags_memoria - dir_fisica ->desplazamiento);
+
+        int cant_nuevas_pags = ceil(tamano_datos_sobrantes / tam_de_pags_memoria);
+
+        t_paquete* paquete2 = crear_paquete(ESCRITURA_CODE);
+        agregar_int_a_paquete(paquete2, pid_en_ejecucion);
+        agregar_int_a_paquete(paquete2, dir_fisica ->dir_fisica_final);
+        agregar_int_a_paquete(paquete2, (tam_de_pags_memoria - dir_fisica ->desplazamiento));
+
+        void* fraccion1_reg_datos = malloc(tam_de_pags_memoria - dir_fisica ->desplazamiento);
+
+        memcpy(fraccion1_reg_datos,registro_datos, (tam_de_pags_memoria - dir_fisica ->desplazamiento));
+
+        agregar_a_paquete(paquete2,fraccion1_reg_datos,(tam_de_pags_memoria - dir_fisica ->desplazamiento));
+
+
+        enviar_paquete(paquete2,cpu_cliente_memoria);
+        eliminar_paquete(paquete2);
+
+        free(fraccion1_reg_datos);
+
+
+        int nueva_pag = dir_fisica ->num_de_pag_base + 1;
+
+        int bytes_restantes_a_copiar = tamano_datos_sobrantes;
+
+        int desplazamiento_en_reg_datos = (tam_de_pags_memoria - dir_fisica ->desplazamiento);
+
+        for (int i = 0; i < cant_nuevas_pags; i++){
+            int nuevo_marco = solicitar_marco(pid_en_ejecucion, nueva_pag);
+            nueva_pag++;
+
+            //Como tenemos que continuar desde la anterior pagina, el desplazamiento en el nuevo marco es 0, por lo que la direccion fisica es
+
+            int nueva_dir_fisica_final = nuevo_marco * tam_de_pags_memoria;
+
+            if(bytes_restantes_a_copiar > tam_de_pags_memoria){
+                t_paquete* paquete3 = crear_paquete(ESCRITURA_CODE);
+                agregar_int_a_paquete(paquete3, pid_en_ejecucion);
+                agregar_int_a_paquete(paquete3, nueva_dir_fisica_final);
+                agregar_int_a_paquete(paquete3, tam_de_pags_memoria);
+
+                void* fraccionx_reg_datos = malloc(tam_de_pags_memoria);
+
+                memcpy(fraccionx_reg_datos,registro_datos + desplazamiento_en_reg_datos, tam_de_pags_memoria);
+
+                agregar_a_paquete(paquete3,fraccionx_reg_datos,tam_de_pags_memoria);
+
+
+                enviar_paquete(paquete3,cpu_cliente_memoria);
+                eliminar_paquete(paquete3);
+
+                free(fraccionx_reg_datos);
+
+                bytes_restantes_a_copiar = bytes_restantes_a_copiar - tam_de_pags_memoria;
+                desplazamiento_en_reg_datos = desplazamiento_en_reg_datos + tam_de_pags_memoria;
+            }
+            else{
+                t_paquete* paquete4 = crear_paquete(ESCRITURA_CODE);
+                agregar_int_a_paquete(paquete4, pid_en_ejecucion);
+                agregar_int_a_paquete(paquete4, nueva_dir_fisica_final);
+                agregar_int_a_paquete(paquete4, bytes_restantes_a_copiar);
+
+                void* fraccionX_reg_datos = malloc(bytes_restantes_a_copiar);
+
+                memcpy(fraccionX_reg_datos,registro_datos + desplazamiento_en_reg_datos, bytes_restantes_a_copiar);
+
+                agregar_a_paquete(paquete4,fraccionX_reg_datos, bytes_restantes_a_copiar);
+
+
+                enviar_paquete(paquete4,cpu_cliente_memoria);
+                eliminar_paquete(paquete4);
+            }
+        }
+
+    }
+
+    if(tamano_datos == 1){
+        int8_t* registro_datos2 = registro_datos;
+        log_info(logger_obligatorio, "PID: %d- Acción: ESCRIBIR - Dirección Física: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
+    }
+    else if(tamano_datos == 4){
+        int32_t* registro_datos2 = registro_datos;
+        log_info(logger_obligatorio, "PID: %d- Acción: ESCRIBIR - Dirección Física: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
+    }
+}
+
 int ejecutar_instruccion (int codigo_instruccion) {
     
 
@@ -276,32 +510,39 @@ int ejecutar_instruccion (int codigo_instruccion) {
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
         instruccion_separada[2]);
         return SEGUIR_EJECUTANDO;
+
     case SUM: // SUM (Registro Destino, Registro Origen)
         sum(instruccion_separada[1], instruccion_separada[2]);
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
         instruccion_separada[2]);
         return SEGUIR_EJECUTANDO;
+
     case SUB: // SUB (Registro Destino, Registro Origen)
         sub(instruccion_separada[1], instruccion_separada[2]);
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
         instruccion_separada[2]);
         return SEGUIR_EJECUTANDO;
+
     case JNZ: // JNZ (Registro, Instrucción)
         int nuevo_pc = atoi(instruccion_separada[2]);
         jnz(instruccion_separada[1], nuevo_pc);
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
         instruccion_separada[2]);
         return SEGUIR_EJECUTANDO;
+
     case IO_GEN_SLEEP: // IO_GEN_SLEEP (Interfaz, Unidades de trabajo)
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
         instruccion_separada[2]);
         return SLEEP_GEN;
+
     case WAIT: // WAIT (RECURSO)
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
         return WAIT_RECURSO;
+
     case SIGNAL: //SIGNAL (RECURSO)
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
         return SIGNAL_RECURSO;
+
     case RESIZE: //RESIZE (TAMAÑO)
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
         int tam_a_resize = atoi(instruccion_separada[1]);
@@ -312,10 +553,20 @@ int ejecutar_instruccion (int codigo_instruccion) {
         else{
             return SIN_MEMORIA;
         }
-        break; 
+
+    case MOV_IN: //MOV IN (Registro Datos, Registro Dirección)
+        mov_in(instruccion_separada[1],instruccion_separada[2]);
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], instruccion_separada[2]);
+        return SEGUIR_EJECUTANDO;
+    case MOV_OUT: 
+        mov_out(instruccion_separada[1],instruccion_separada[2]);
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], instruccion_separada[2]);
+        return SEGUIR_EJECUTANDO;
+
     case EXIT:
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - ",pid_en_ejecucion, instruccion_separada[0]);
         return FINALIZAR;
+
     default:
         printf("Execute: Comando no reconocido");
         return 1;

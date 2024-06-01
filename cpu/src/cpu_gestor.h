@@ -43,6 +43,14 @@ typedef struct {
     int marco;
 } t_entrada_pagina;
 
+typedef struct{
+    int base;
+    int desplazamiento;
+    int marco;
+    int dir_fisica_final;
+    int num_de_pag_base;
+} direccion_fisica;
+
 //Variables Globales
 
 extern int cpu_server_dispatch;

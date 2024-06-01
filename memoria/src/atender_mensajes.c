@@ -66,7 +66,37 @@ void atender_cpu_memoria(){
 			eliminar_paquete(paquete3);
 
 			break;
+		case LECTURA_CODE:
+			usleep(RETARDO_RESPUESTA * 1000);
+			int pid_de_proceso_lectura = extraer_int_buffer(buffer, logger);
+			int dir_fisica = extraer_int_buffer(buffer, logger);
+			int tam_a_leer = extraer_int_buffer(buffer,logger);
 
+			void* leido = leer_dir_fisica(dir_fisica,tam_a_leer);
+
+			log_info(logger_obligatorio, "PID: %d - Accion: LEER - Direccion fisica: %d - Tamaño %d", pid_de_proceso_lectura, dir_fisica, tam_a_leer);
+
+			t_paquete* paquete4 = crear_paquete(LECTURA_CODE);
+			agregar_a_paquete(paquete4,leido,tam_a_leer);
+			enviar_paquete(paquete4,cpu_cliente);
+			eliminar_paquete(paquete4);
+			free(leido);
+			break;
+
+		case ESCRITURA_CODE:
+			usleep(RETARDO_RESPUESTA * 1000);
+			int pid_del_proceso_escritura = extraer_int_buffer(buffer, logger);
+			int dir_fisica_escritura = extraer_int_buffer(buffer, logger);
+			int tamano_a_escribir = extraer_int_buffer(buffer,logger);
+
+			void* a_escribir = extraer_contenido_buffer(buffer,logger);
+
+			memcpy(memoria_de_usuario + dir_fisica_escritura, a_escribir,tamano_a_escribir);
+
+			free(a_escribir);
+
+			log_info(logger_obligatorio, "PID: %d - Accion: ESCRIBIR - Direccion fisica: %d - Tamaño %d", pid_del_proceso_escritura, dir_fisica_escritura, tamano_a_escribir);
+			break;
 		case -1:
 			log_error(logger, "El CPU se desconecto");
 			exit(EXIT_FAILURE);

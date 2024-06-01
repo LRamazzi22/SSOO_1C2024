@@ -153,6 +153,24 @@ int confirmacion_resize(){
 	return 0;
 }
 
+void* recibir_lectura(){
+	t_buffer* buffer;
+	int cod_op = recibir_operacion(cpu_cliente_memoria);
+	switch (cod_op) {
+		case LECTURA_CODE:
+			buffer = recibir_buffer(cpu_cliente_memoria);
+			void* leido = extraer_contenido_buffer(buffer, logger);
+			return leido;
+			break;
+		case -1:
+			log_error(logger, "La Memoria se desconecto");
+			exit(EXIT_FAILURE);
+		default:
+			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+			break;
+		}
+}
+
 
 	  
 

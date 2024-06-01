@@ -44,6 +44,8 @@ typedef enum
     PEDIR_MARCO,
     OUT_OF_MEM_CODE,
     RESIZE_CODE,
+    LECTURA_CODE,
+    ESCRITURA_CODE,
 
 } op_code;
 

@@ -5,6 +5,7 @@
 #include <atender_mensajes.h>
 
 int solicitar_marco(int, int);
+direccion_fisica* traducir_dir_logica(int ,int);
 
 
 #endif

@@ -4,6 +4,7 @@
 #include <utils/utiles.h>
 #include <cpu_gestor.h>
 #include <atender_mensajes.h>
+#include <MMU.h>
 
 void ciclo();
 void solicitar_instruccion(int);
@@ -12,6 +13,8 @@ void set(char*, int);
 void sum(char*, char*);
 void sub(char*, char*);
 void jnz(char*, int);
+void mov_in(char*, char*);
+void mov_out(char*, char*);
 int resize(int);
 int ejecutar_instruccion (int);
 void* apuntar_a_registro (char*, int*);
