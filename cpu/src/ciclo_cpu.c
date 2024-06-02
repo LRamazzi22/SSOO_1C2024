@@ -499,6 +499,114 @@ void mov_out(char* reg_direccion, char* reg_datos){
     }
 }
 
+void copy_string(int tamanio){
+    int tamano_datos = 0;
+    void* registroSI = apuntar_a_registro("SI", &tamano_datos);
+
+    char* contenido = *(char**)registroSI;
+    int tamanio_contenido = sizeof(*contenido);
+
+    tamano_datos = tamano_datos/8;
+
+    int tamano_direccion = 0;
+    void* registroDI = apuntar_a_registro("DI", &tamano_direccion);
+
+    int32_t* registro_direccion2 = registroDI;
+    direccion_fisica* dir_fisica = traducir_dir_logica(pid_en_ejecucion, *registro_direccion2);
+
+    if((tam_de_pags_memoria - dir_fisica ->desplazamiento) >= tamanio){
+        t_paquete* paquete = crear_paquete(ESCRITURA_CODE);
+        agregar_int_a_paquete(paquete, pid_en_ejecucion);
+        agregar_int_a_paquete(paquete, dir_fisica ->dir_fisica_final);
+        agregar_int_a_paquete(paquete, tamanio);
+        agregar_a_paquete(paquete, contenido, tamanio_contenido);
+
+        enviar_paquete(paquete,cpu_cliente_memoria);
+        eliminar_paquete(paquete);
+
+    }
+    else{
+        float tamano_datos_sobrantes = tamanio - (tam_de_pags_memoria - dir_fisica ->desplazamiento);
+
+        int cant_nuevas_pags = ceil(tamano_datos_sobrantes / tam_de_pags_memoria);
+
+        t_paquete* paquete2 = crear_paquete(ESCRITURA_CODE);
+        agregar_int_a_paquete(paquete2, pid_en_ejecucion);
+        agregar_int_a_paquete(paquete2, dir_fisica ->dir_fisica_final);
+        agregar_int_a_paquete(paquete2, (tam_de_pags_memoria - dir_fisica ->desplazamiento));
+
+        void* fraccion1_reg_datos = malloc(tam_de_pags_memoria - dir_fisica ->desplazamiento);
+
+        memcpy(fraccion1_reg_datos,registroDI, (tam_de_pags_memoria - dir_fisica ->desplazamiento));
+
+        agregar_a_paquete(paquete2,fraccion1_reg_datos,(tam_de_pags_memoria - dir_fisica ->desplazamiento));
+
+
+        enviar_paquete(paquete2,cpu_cliente_memoria);
+        eliminar_paquete(paquete2);
+
+        free(fraccion1_reg_datos);
+
+
+        int nueva_pag = dir_fisica ->num_de_pag_base + 1;
+
+        int bytes_restantes_a_copiar = tamano_datos_sobrantes;
+
+        int desplazamiento_en_reg_datos = (tam_de_pags_memoria - dir_fisica ->desplazamiento);
+
+         for (int i = 0; i < cant_nuevas_pags; i++){
+            int nuevo_marco = solicitar_marco(pid_en_ejecucion, nueva_pag);
+            nueva_pag++;
+
+            //Como tenemos que continuar desde la anterior pagina, el desplazamiento en el nuevo marco es 0, por lo que la direccion fisica es
+
+            int nueva_dir_fisica_final = nuevo_marco * tam_de_pags_memoria;
+
+            if(bytes_restantes_a_copiar > tam_de_pags_memoria){
+                t_paquete* paquete3 = crear_paquete(ESCRITURA_CODE);
+                agregar_int_a_paquete(paquete3, pid_en_ejecucion);
+                agregar_int_a_paquete(paquete3, nueva_dir_fisica_final);
+                agregar_int_a_paquete(paquete3, tam_de_pags_memoria);
+
+                void* fraccionx_reg_datos = malloc(tam_de_pags_memoria);
+
+                memcpy(fraccionx_reg_datos,registroDI + desplazamiento_en_reg_datos, tam_de_pags_memoria);
+
+                agregar_a_paquete(paquete3,fraccionx_reg_datos,tam_de_pags_memoria);
+
+
+                enviar_paquete(paquete3,cpu_cliente_memoria);
+                eliminar_paquete(paquete3);
+
+                free(fraccionx_reg_datos);
+
+                bytes_restantes_a_copiar = bytes_restantes_a_copiar - tam_de_pags_memoria;
+                desplazamiento_en_reg_datos = desplazamiento_en_reg_datos + tam_de_pags_memoria;
+            }
+            else{
+                t_paquete* paquete4 = crear_paquete(ESCRITURA_CODE);
+                agregar_int_a_paquete(paquete4, pid_en_ejecucion);
+                agregar_int_a_paquete(paquete4, nueva_dir_fisica_final);
+                agregar_int_a_paquete(paquete4, bytes_restantes_a_copiar);
+
+                void* fraccionX_reg_datos = malloc(bytes_restantes_a_copiar);
+
+                memcpy(fraccionX_reg_datos,registroDI + desplazamiento_en_reg_datos, bytes_restantes_a_copiar);
+
+                agregar_a_paquete(paquete4,fraccionX_reg_datos, bytes_restantes_a_copiar);
+
+
+                enviar_paquete(paquete4,cpu_cliente_memoria);
+                eliminar_paquete(paquete4);
+            }
+        }
+
+    }
+
+    log_info(logger_obligatorio, "PID: %d- Acción: ESCRIBIR - Dirección Física: %d - Valor: %.*s", pid_en_ejecucion, dir_fisica ->dir_fisica_final, tamanio, contenido);
+    
+}
+
 int ejecutar_instruccion (int codigo_instruccion) {
     
 
@@ -562,7 +670,11 @@ int ejecutar_instruccion (int codigo_instruccion) {
         mov_out(instruccion_separada[1],instruccion_separada[2]);
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], instruccion_separada[2]);
         return SEGUIR_EJECUTANDO;
-
+    case COPY_STRING:
+        int tamanio= atoi(instruccion_separada[1]);
+        copy_string(tamanio);
+        log_info(logger_obligatorio,"PID: %d - EJECUTANDO: %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
+        return SEGUIR_EJECUTANDO;
     case EXIT:
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - ",pid_en_ejecucion, instruccion_separada[0]);
         return FINALIZAR;
