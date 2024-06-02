@@ -123,7 +123,7 @@ int decodificar_instruccion(){
     } else if (!strcmp(instruccion_separada[0], "RESIZE")) {
         return RESIZE;
         
-    } else if (!strcmp(instruccion_separada[0], "COPY_STRING ")) {
+    } else if (!strcmp(instruccion_separada[0], "COPY_STRING")) {
         return COPY_STRING;
         
     } else if (!strcmp(instruccion_separada[0], "WAIT")) {
@@ -372,11 +372,11 @@ void mov_in(char* reg_datos, char* reg_direccion){ //GRAN PARTE DE LO QUE ESTA A
 
     if(tamano_datos == 1){
         int8_t* registro_datos2 = registro_datos;
-        log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Física: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
+        log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
     }
     else if(tamano_datos == 4){
         int32_t* registro_datos2 = registro_datos;
-        log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Física: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
+        log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
     }
 }
 
@@ -491,20 +491,22 @@ void mov_out(char* reg_direccion, char* reg_datos){
 
     if(tamano_datos == 1){
         int8_t* registro_datos2 = registro_datos;
-        log_info(logger_obligatorio, "PID: %d- Acción: ESCRIBIR - Dirección Física: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
+        log_info(logger_obligatorio, "PID: %d- Acción: ESCRIBIR - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
     }
     else if(tamano_datos == 4){
         int32_t* registro_datos2 = registro_datos;
-        log_info(logger_obligatorio, "PID: %d- Acción: ESCRIBIR - Dirección Física: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
+        log_info(logger_obligatorio, "PID: %d- Acción: ESCRIBIR - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
     }
 }
 
-void copy_string(int tamanio){
+    void copy_string(int tamanio){
     int tamano_datos = 0;
     void* registroSI = apuntar_a_registro("SI", &tamano_datos);
 
-    char* contenido = *(char**)registroSI;
-    int tamanio_contenido = sizeof(*contenido);
+   // char* contenido = *registroSI; //a chekear si esta bien esto
+    //int tamanio_contenido = sizeof(*contenido);
+
+    int tamanio_contenido = sizeof(*registroSI);
 
     tamano_datos = tamano_datos/8;
 
@@ -519,7 +521,7 @@ void copy_string(int tamanio){
         agregar_int_a_paquete(paquete, pid_en_ejecucion);
         agregar_int_a_paquete(paquete, dir_fisica ->dir_fisica_final);
         agregar_int_a_paquete(paquete, tamanio);
-        agregar_a_paquete(paquete, contenido, tamanio_contenido);
+        agregar_a_paquete(paquete, registroSI, tamanio_contenido);
 
         enviar_paquete(paquete,cpu_cliente_memoria);
         eliminar_paquete(paquete);
@@ -602,8 +604,8 @@ void copy_string(int tamanio){
         }
 
     }
-
-    log_info(logger_obligatorio, "PID: %d- Acción: ESCRIBIR - Dirección Física: %d - Valor: %.*s", pid_en_ejecucion, dir_fisica ->dir_fisica_final, tamanio, contenido);
+    char* contenido = (char*)registroSI;
+    log_info(logger_obligatorio, "PID: %d- Accion: ESCRIBIR - Dirección Fisica: %d - Valor: %.*s", pid_en_ejecucion, dir_fisica ->dir_fisica_final, tamanio, contenido);
     
 }
 

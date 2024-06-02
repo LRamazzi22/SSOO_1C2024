@@ -16,6 +16,7 @@ void jnz(char*, int);
 void mov_in(char*, char*);
 void mov_out(char*, char*);
 int resize(int);
+void copy_string(int );
 int ejecutar_instruccion (int);
 void* apuntar_a_registro (char*, int*);
 void cargar_registros_a_paquete(t_paquete* );
