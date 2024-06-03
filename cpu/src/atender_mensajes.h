@@ -10,5 +10,6 @@ void atender_memoria_cpu_sin_while();
 int recibir_marco();
 int confirmacion_resize();
 void* recibir_lectura();
+bool confirmacion_escritura();
 
 #endif

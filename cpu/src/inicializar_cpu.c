@@ -7,6 +7,8 @@ void inicializar_cpu(){
     interrupcion_recibida = NO_INTERRUPCION;
     pid_de_interrupcion = 0;
     inicializar_config_cpu();
+
+    tlb = list_create();
 }
 
 void inicializar_config_cpu(){

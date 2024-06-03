@@ -33,10 +33,9 @@ int interrupcion_recibida;
 int pid_de_interrupcion;
 
 t_registros_cpu*  los_registros_de_la_cpu;
-
-void prueba_de_protocolo();
-void solicitar_instruccion(int );
 t_registros_cpu* iniciar_registros_cpu();
+
+t_list* tlb;
 
 //Semaforos
 pthread_mutex_t mutex_para_interrupcion;

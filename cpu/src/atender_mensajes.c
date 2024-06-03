@@ -168,7 +168,29 @@ void* recibir_lectura(){
 		default:
 			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
 			break;
-		}
+	}
+}
+
+bool confirmacion_escritura(){
+	t_buffer* buffer;
+	int cod_op = recibir_operacion(cpu_cliente_memoria);
+	switch (cod_op) {
+		case ESCRITURA_CODE:
+			buffer = recibir_buffer(cpu_cliente_memoria);
+			char* confirm = extraer_string_buffer(buffer, logger);
+			
+			return (strcmp(confirm, "Ok")==0);
+
+			break;
+		case -1:
+			log_error(logger, "La Memoria se desconecto");
+			exit(EXIT_FAILURE);
+		default:
+			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+			break;
+	}
+
+	return false;
 }
 
 

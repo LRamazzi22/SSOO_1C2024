@@ -24,25 +24,6 @@ typedef enum{
     HUBO_INTERRUPCION
 } interrupciones;
 
-typedef struct {
-    int nro_pagina;
-    int desplazamiento;
-    int direccion_fisica;
-    int marco;
-} t_mmu_traduccion;
-
-typedef struct {
-    int pid;
-    int pagina;
-    int marco;
-    bool valido;
-} t_entrada_tlb;
-
-typedef struct {
-    int nro_pagina;
-    int marco;
-} t_entrada_pagina;
-
 typedef struct{
     int base;
     int desplazamiento;
@@ -50,6 +31,14 @@ typedef struct{
     int dir_fisica_final;
     int num_de_pag_base;
 } direccion_fisica;
+
+typedef struct {
+    int pid;
+    int num_pag;
+    int marco;
+    int ultima_vez_usada;
+} entradas_tlb;
+
 
 //Variables Globales
 
@@ -79,6 +68,8 @@ extern int interrupcion_recibida;
 extern int pid_de_interrupcion;
 
 extern t_registros_cpu* los_registros_de_la_cpu;
+
+extern t_list* tlb;
 
 //Semaforos
 extern pthread_mutex_t mutex_para_interrupcion;

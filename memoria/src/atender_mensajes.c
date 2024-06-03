@@ -96,6 +96,12 @@ void atender_cpu_memoria(){
 			free(a_escribir);
 
 			log_info(logger_obligatorio, "PID: %d - Accion: ESCRIBIR - Direccion fisica: %d - Tamaño %d", pid_del_proceso_escritura, dir_fisica_escritura, tamano_a_escribir);
+
+			t_paquete* paquete5 = crear_paquete(ESCRITURA_CODE);
+			char* mensaje = "Ok";
+			agregar_string_a_paquete(paquete5,mensaje);
+			enviar_paquete(paquete5, cpu_cliente);
+			eliminar_paquete(paquete5);
 			break;
 		case -1:
 			log_error(logger, "El CPU se desconecto");

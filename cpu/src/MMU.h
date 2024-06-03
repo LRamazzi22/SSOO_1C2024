@@ -6,6 +6,8 @@
 
 int solicitar_marco(int, int);
 direccion_fisica* traducir_dir_logica(int ,int);
+int buscar_en_tlb(int, int);
+void agregar_en_tlb(int, int, int);
 
 
 #endif

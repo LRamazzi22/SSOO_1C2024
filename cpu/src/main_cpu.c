@@ -41,16 +41,6 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-void prueba_de_protocolo(){
-    t_paquete* paquete = crear_paquete(PROTOCOLO);
-    int num = 23;
-    agregar_int_a_paquete(paquete,num);
-    char * mensaje = "Hola como estas, soy el cpu.\n\n";
-    agregar_string_a_paquete(paquete, mensaje);
-    enviar_paquete(paquete, cpu_cliente_memoria);
-    eliminar_paquete(paquete);
-}
-
 t_registros_cpu* iniciar_registros_cpu(){
     t_registros_cpu* registro = malloc(sizeof(t_registros_cpu));
 
