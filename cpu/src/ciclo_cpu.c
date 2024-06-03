@@ -92,10 +92,9 @@ void solicitar_instruccion(int programCounter){
     agregar_int_a_paquete(paquete,pid_en_ejecucion);
     agregar_int_a_paquete(paquete, programCounter);
     enviar_paquete(paquete, cpu_cliente_memoria);
-    log_info(logger_obligatorio, "PID: %d - FETCH Program Counter: %d", pid_en_ejecucion, programCounter);
     eliminar_paquete(paquete);
     atender_memoria_cpu_sin_while();
-    printf("%s",instruccion_a_decodificar);
+    log_info(logger_obligatorio, "PID: %d - FETCH Program Counter: %d", pid_en_ejecucion, programCounter);
 }
 
 int decodificar_instruccion(){
@@ -225,7 +224,8 @@ int ejecutar_instruccion (int codigo_instruccion) {
         mov_in(instruccion_separada[1],instruccion_separada[2]);
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], instruccion_separada[2]);
         return SEGUIR_EJECUTANDO;
-    case MOV_OUT: 
+
+    case MOV_OUT: //MOV OUT (Registro Dirección, Registro Datos)
         bool ok2 = mov_out(instruccion_separada[1],instruccion_separada[2]);
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], instruccion_separada[2]);
 
@@ -236,7 +236,7 @@ int ejecutar_instruccion (int codigo_instruccion) {
             return SIN_MEMORIA;
         }
         
-    case COPY_STRING:
+    case COPY_STRING: //COPY_STRING (Tamaño)
         int tamanio= atoi(instruccion_separada[1]);
         bool ok3 = copy_string(tamanio);
         log_info(logger_obligatorio,"PID: %d - EJECUTANDO: %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);

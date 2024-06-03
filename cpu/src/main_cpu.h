@@ -33,7 +33,6 @@ int interrupcion_recibida;
 int pid_de_interrupcion;
 
 t_registros_cpu*  los_registros_de_la_cpu;
-t_registros_cpu* iniciar_registros_cpu();
 
 t_list* tlb;
 
