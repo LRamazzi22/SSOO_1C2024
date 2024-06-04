@@ -32,6 +32,10 @@ t_registros_cpu* iniciar_registros_cpu(){
     registro->BX = calloc(1,sizeof(uint8_t));
     registro->CX = calloc(1,sizeof(uint8_t));
     registro->DX = calloc(1,sizeof(uint8_t));
+    registro->AX = malloc(sizeof(uint8_t));
+    registro->BX = malloc(sizeof(uint8_t));
+    registro->CX = malloc(sizeof(uint8_t));
+    registro->DX = malloc(sizeof(uint8_t));
     registro->EAX = calloc(1,sizeof(uint32_t));
     registro->EBX = calloc(1,sizeof(uint32_t));
     registro->ECX = calloc(1,sizeof(uint32_t));

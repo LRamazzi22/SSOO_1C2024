@@ -8,10 +8,10 @@ void set(char* nombre_registro, int num){
         printf("Es NULL\n");
     }
     if (tamano == 8) {
-        int8_t* registro2 = registro;
+        uint8_t* registro2 = (uint8_t*)registro;
         *registro2 = num;
     } else if (tamano == 32) {
-        int32_t* registro2 = registro;
+        uint32_t* registro2 = (uint32_t*)registro;
         *registro2 = num;
     }
 }
@@ -22,11 +22,11 @@ void sum(char* nombre_registro_destino, char* nombre_registro_origen){
     int contenido_origen = 0;
 
     if (tamano_origen == 8) {
-        int8_t* registro_origen2 = registro_origen;
+        uint8_t* registro_origen2 = (uint8_t*)registro_origen;
         contenido_origen = *registro_origen2;
         
     } else if (tamano_origen == 32) {
-        int32_t* registro_origen2 = registro_origen;
+        uint32_t* registro_origen2 = (uint32_t*)registro_origen;
         contenido_origen = *registro_origen2;
     }
 
@@ -34,13 +34,13 @@ void sum(char* nombre_registro_destino, char* nombre_registro_origen){
     void* registro_destino = apuntar_a_registro(nombre_registro_destino, &tamano_destino);
 
     if (tamano_destino == 8) {
-        int8_t* registro_destino2 = registro_destino;
+        uint8_t* registro_destino2 = (uint8_t*)registro_destino;
         *registro_destino2 += contenido_origen;
-        printf("%d\n", *registro_destino2);
+        printf("%u\n", *registro_destino2);
     } else if (tamano_destino == 32) {
-        int32_t* registro_destino2 = registro_destino;
+        uint32_t* registro_destino2 = (uint32_t*)registro_destino;
         *registro_destino2 += contenido_origen;
-        printf("%d\n", *registro_destino2);
+        printf("%u\n", *registro_destino2);
     }
 }
 
@@ -50,11 +50,11 @@ void sub(char* nombre_registro_destino, char* nombre_registro_origen){
     int contenido_origen = 0;
 
     if (tamano_origen == 8) {
-        int8_t* registro_origen2 = registro_origen;
+        uint8_t* registro_origen2 = (uint8_t*)registro_origen;
         contenido_origen = *registro_origen2;
         
     } else if (tamano_origen == 32) {
-        int32_t* registro_origen2 = registro_origen;
+        uint32_t* registro_origen2 = (uint32_t*)registro_origen;
         contenido_origen = *registro_origen2;
     }
 
@@ -62,13 +62,13 @@ void sub(char* nombre_registro_destino, char* nombre_registro_origen){
     void* registro_destino = apuntar_a_registro(nombre_registro_destino, &tamano_destino);
 
     if (tamano_destino == 8) {
-        int8_t* registro_destino2 = registro_destino;
+        uint8_t* registro_destino2 = (uint8_t*)registro_destino;
         *registro_destino2 -= contenido_origen;
-        printf("%d\n", *registro_destino2);
+        printf("%u\n", *registro_destino2);
     } else if (tamano_destino == 32) {
-        int32_t* registro_destino2 = registro_destino;
+        uint32_t* registro_destino2 = (uint32_t*)registro_destino;
         *registro_destino2 -= contenido_origen;
-        printf("%d\n", *registro_destino2);
+        printf("%u\n", *registro_destino2);
     }
 }
 
@@ -78,11 +78,11 @@ void jnz(char* nombre_registro, int nuevo_pc){
     int contenido = -1;
     
     if (tamano == 8) {
-        int8_t* registro2 = registro;
+        uint8_t* registro2 = (uint8_t*)registro;
         contenido = *registro2;
         
     } else if (tamano == 32) {
-        int32_t* registro2 = registro;
+        uint32_t* registro2 = (uint32_t*)registro;
         contenido = *registro2;
     }
     
@@ -113,11 +113,11 @@ void mov_in(char* reg_datos, char* reg_direccion){ //GRAN PARTE DE LO QUE ESTA A
     direccion_fisica* dir_fisica;
 
     if (tamano_direccion == 8) {
-        int8_t* registro_direccion2 = registro_direccion;
+        uint8_t* registro_direccion2 = (uint8_t*)registro_direccion;
         dir_fisica = traducir_dir_logica(pid_en_ejecucion,*registro_direccion2);
 
     } else if (tamano_direccion == 32) {
-        int32_t* registro_direccion2 = registro_direccion;
+        uint32_t* registro_direccion2 = (uint32_t*)registro_direccion;
         dir_fisica = traducir_dir_logica(pid_en_ejecucion,*registro_direccion2);
     }
 
@@ -133,15 +133,6 @@ void mov_in(char* reg_datos, char* reg_direccion){ //GRAN PARTE DE LO QUE ESTA A
         void* leido = recibir_lectura();
 
         memcpy(registro_datos,leido,tamano_datos);
-
-        if(tamano_datos == 1){
-            int8_t* para_log = leido;
-            log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *para_log);
-        }
-        else if(tamano_datos == 4){
-            int32_t* para_log = leido;
-            log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *para_log);
-        }
 
         free(leido);
     }
@@ -163,15 +154,6 @@ void mov_in(char* reg_datos, char* reg_direccion){ //GRAN PARTE DE LO QUE ESTA A
         memcpy(registro_datos,leido1,(tam_de_pags_memoria - dir_fisica ->desplazamiento));
 
         free(leido1);
-
-        if(tamano_datos == 1){
-            int8_t* para_log = leido1;
-            log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *para_log);
-        }
-        else if(tamano_datos == 4){
-            int32_t* para_log = leido1;
-            log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *para_log);
-        }
 
         int nueva_pag = dir_fisica ->num_de_pag_base + 1;
 
@@ -200,15 +182,6 @@ void mov_in(char* reg_datos, char* reg_direccion){ //GRAN PARTE DE LO QUE ESTA A
 
                 memcpy(registro_datos + desplazamiento_en_reg_datos, leido2, tam_de_pags_memoria);
 
-                if(tamano_datos == 1){
-                    int8_t* para_log = leido2;
-                    log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, nueva_dir_fisica_final, *para_log);
-                }
-                else if(tamano_datos == 4){
-                    int32_t* para_log = leido2;
-                    log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, nueva_dir_fisica_final, *para_log);
-                }
-
                 bytes_restantes_a_copiar = bytes_restantes_a_copiar - tam_de_pags_memoria;
                 desplazamiento_en_reg_datos = desplazamiento_en_reg_datos + tam_de_pags_memoria;
 
@@ -225,15 +198,6 @@ void mov_in(char* reg_datos, char* reg_direccion){ //GRAN PARTE DE LO QUE ESTA A
 
                 void* leido3 = recibir_lectura();
 
-                if(tamano_datos == 1){
-                    int8_t* para_log = leido3;
-                    log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, nueva_dir_fisica_final, *para_log);
-                }
-                else if(tamano_datos == 4){
-                    int32_t* para_log = leido3;
-                    log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, nueva_dir_fisica_final, *para_log);
-                }
-
                 memcpy(registro_datos + desplazamiento_en_reg_datos, leido3, bytes_restantes_a_copiar);
 
                 free(leido3);
@@ -241,16 +205,16 @@ void mov_in(char* reg_datos, char* reg_direccion){ //GRAN PARTE DE LO QUE ESTA A
         }
 
     }
-    /*
+    
     if(tamano_datos == 1){
-        int8_t* registro_datos2 = registro_datos;
+        uint8_t* registro_datos2 = (uint8_t*)registro_datos;
         log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
     }
     else if(tamano_datos == 4){
-        int32_t* registro_datos2 = registro_datos;
+        uint32_t* registro_datos2 = (uint32_t*)registro_datos;
         log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
     }
-    */
+    
 }
 
 bool mov_out(char* reg_direccion, char* reg_datos){
@@ -265,11 +229,11 @@ bool mov_out(char* reg_direccion, char* reg_datos){
     direccion_fisica* dir_fisica;
 
     if (tamano_direccion == 8) {
-        int8_t* registro_direccion2 = registro_direccion;
+        uint8_t* registro_direccion2 = (uint8_t*)registro_direccion;
         dir_fisica = traducir_dir_logica(pid_en_ejecucion,*registro_direccion2);
 
     } else if (tamano_direccion == 32) {
-        int32_t* registro_direccion2 = registro_direccion;
+        uint32_t* registro_direccion2 = (uint32_t*)registro_direccion;
         dir_fisica = traducir_dir_logica(pid_en_ejecucion,*registro_direccion2);
     }
 
@@ -287,15 +251,6 @@ bool mov_out(char* reg_direccion, char* reg_datos){
 
         if(!confirm){
             return false;
-        }
-
-        if(tamano_datos == 1){
-            int8_t* para_log = registro_datos;
-            log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *para_log);
-        }
-        else if(tamano_datos == 4){
-            int32_t* para_log = registro_datos;
-            log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *para_log);
         }
 
     }
@@ -321,21 +276,11 @@ bool mov_out(char* reg_direccion, char* reg_datos){
 
         bool confirm = confirmacion_escritura();
 
+        free(fraccion1_reg_datos);
+
         if(!confirm){
-            free(fraccion1_reg_datos);
             return false;
         }
-
-        if(tamano_datos == 1){
-            int8_t* para_log = fraccion1_reg_datos;
-            log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *para_log);
-        }
-        else if(tamano_datos == 4){
-            int32_t* para_log = fraccion1_reg_datos;
-            log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *para_log);
-        }
-
-        free(fraccion1_reg_datos);
 
 
         int nueva_pag = dir_fisica ->num_de_pag_base + 1;
@@ -370,22 +315,11 @@ bool mov_out(char* reg_direccion, char* reg_datos){
 
                 bool confirm = confirmacion_escritura();
 
+                free(fraccionx_reg_datos);
+
                 if(!confirm){
-                    free(fraccionx_reg_datos);
                     return false;
                 }
-
-
-                if(tamano_datos == 1){
-                    int8_t* para_log = fraccionx_reg_datos;
-                    log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, nueva_dir_fisica_final, *para_log);
-                }
-                else if(tamano_datos == 4){
-                    int32_t* para_log = fraccionx_reg_datos;
-                    log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, nueva_dir_fisica_final, *para_log);
-                }
-
-                free(fraccionx_reg_datos);
 
                 bytes_restantes_a_copiar = bytes_restantes_a_copiar - tam_de_pags_memoria;
                 desplazamiento_en_reg_datos = desplazamiento_en_reg_datos + tam_de_pags_memoria;
@@ -409,37 +343,30 @@ bool mov_out(char* reg_direccion, char* reg_datos){
 
                 bool confirm = confirmacion_escritura();
 
+                free(fraccionX_reg_datos);
+
                 if(!confirm){
-                    free(fraccionX_reg_datos);
                     return false;
                 }
 
-
-                if(tamano_datos == 1){
-                    int8_t* para_log = fraccionX_reg_datos;
-                    log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, nueva_dir_fisica_final, *para_log);
-                }
-                else if(tamano_datos == 4){
-                    int32_t* para_log = fraccionX_reg_datos;
-                    log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, nueva_dir_fisica_final, *para_log);
-                }
-
-                free(fraccionX_reg_datos);
+                
             }
         }
 
     }
 
-    /*
+    
     if(tamano_datos == 1){
-        int8_t* registro_datos2 = registro_datos;
+        uint8_t* registro_datos2 = (uint8_t*)registro_datos;
         log_info(logger_obligatorio, "PID: %d- Acción: ESCRIBIR - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
     }
     else if(tamano_datos == 4){
-        int32_t* registro_datos2 = registro_datos;
+        uint32_t* registro_datos2 = (uint32_t*)registro_datos;
         log_info(logger_obligatorio, "PID: %d- Acción: ESCRIBIR - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
     }
-    */
+
+
+    
 
    return true;
 }
@@ -456,7 +383,7 @@ bool copy_string(int tamanio){
     int tamano_direccion = 0;
     void* registroDI = apuntar_a_registro("DI", &tamano_direccion);
 
-    int32_t* registro_direccion2 = registroDI;
+    uint32_t* registro_direccion2 = registroDI;
     direccion_fisica* dir_fisica = traducir_dir_logica(pid_en_ejecucion, *registro_direccion2);
 
     if((tam_de_pags_memoria - dir_fisica ->desplazamiento) >= tamanio){
