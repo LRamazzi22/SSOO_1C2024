@@ -40,10 +40,10 @@ void atender_cpu_memoria(){
 			char* pid_clave = string_itoa(pid2);
 
 			pthread_mutex_lock(&mutex_para_diccionario_tdp);
-			t_list* tdp_del_proceso = dictionary_get(diccionario_de_tdp,pid_clave);
+			nodo_dic_tdp* nodo_tdp = dictionary_get(diccionario_de_tdp,pid_clave);
 			pthread_mutex_unlock(&mutex_para_diccionario_tdp);
 
-			int* marco = list_get(tdp_del_proceso,num_pag);
+			int* marco = list_get(nodo_tdp-> tdp_del_proceso,num_pag);
 
 			t_paquete* paquete2 = crear_paquete(PEDIR_MARCO);
 			agregar_int_a_paquete(paquete2,*marco);
@@ -170,16 +170,16 @@ void atender_kernel_memoria(){
 			list_destroy(lista_instrucciones);
 
 			pthread_mutex_lock(&mutex_para_diccionario_tdp);
-			t_list* tdp_del_proceso = dictionary_get(diccionario_de_tdp, pid_clave);
+			nodo_dic_tdp* nodo_tdp = dictionary_get(diccionario_de_tdp, pid_clave);
 			pthread_mutex_unlock(&mutex_para_diccionario_tdp);
 
 			
-			int cant_paginas = list_size(tdp_del_proceso);
+			int cant_paginas = list_size(nodo_tdp ->tdp_del_proceso);
 			
 
 			for(int i = cant_paginas - 1; i >=0; i--){
 				
-            	int* marco = list_remove(tdp_del_proceso,i);
+            	int* marco = list_remove(nodo_tdp ->tdp_del_proceso,i);
 
             	pthread_mutex_lock(&mutex_para_marcos_libres);
             	bitarray_clean_bit(marcos_de_memoria_libres,*marco);
@@ -189,8 +189,10 @@ void atender_kernel_memoria(){
 
         	}
 
-			list_destroy(tdp_del_proceso);
+			list_destroy(nodo_tdp -> tdp_del_proceso);
 			log_info(logger_obligatorio, "PID: %s - Tamaño: %d", pid_clave, cant_paginas);
+
+			free(nodo_tdp);
 			free(pid_clave);
 			break;
 		case -1:
@@ -211,10 +213,12 @@ void enviar_program_counter(int pc){
 }
 
 void crear_tdp_del_proceso(char* clave_pid){
-	t_list* tdp_del_proceso = list_create();
+	nodo_dic_tdp* nodo_tdp = malloc(sizeof(nodo_dic_tdp));
+	nodo_tdp ->tdp_del_proceso = list_create();
+	nodo_tdp ->tam_de_proceso = 0;
 
 	pthread_mutex_lock(&mutex_para_diccionario_tdp);
-	dictionary_put(diccionario_de_tdp,clave_pid,tdp_del_proceso);
+	dictionary_put(diccionario_de_tdp,clave_pid,nodo_tdp);
 	pthread_mutex_unlock(&mutex_para_diccionario_tdp);
 	log_info(logger_obligatorio, "PID: %s - Tamaño: 0", clave_pid);
 }

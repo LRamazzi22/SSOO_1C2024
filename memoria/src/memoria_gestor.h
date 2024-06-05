@@ -10,6 +10,11 @@ modulos de la Memoria pueden utilizarlas. Las variables deben ser previamente de
 #include <stdio.h>
 #include <utils/utiles.h>
 
+typedef struct{
+    t_list* tdp_del_proceso;
+    int tam_de_proceso;
+} nodo_dic_tdp;
+
 //Variables Globales
 
 extern t_log* logger;
