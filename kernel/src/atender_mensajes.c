@@ -148,6 +148,19 @@ void atender_cpu_dispatch(){
 			pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
 			free(interfaz);
 			break;
+
+		case STD_READ_CODE:
+			buffer = recibir_buffer(kernel_cliente_dispatch);
+
+			io_std* dir_fisicas = extraer_dir_fisicas_de_buffer(buffer);
+
+			break;
+
+		case STD_WRITE_CODE:
+			buffer = recibir_buffer(kernel_cliente_dispatch);
+
+			break;
+
 		case WAIT_CODE:
 			buffer = recibir_buffer(kernel_cliente_dispatch);
 
@@ -421,6 +434,15 @@ nodo_de_diccionario_interfaz* comprobrar_existencia_de_interfaz(pcb* el_pcb, cha
 	log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", el_pcb ->PID);
 
 	return NULL;
+}
+
+io_std* extraer_dir_fisicas_de_buffer(t_buffer* buffer){
+	io_std* conjunto_de_dir_fisicas = malloc(sizeof(io_std));
+
+
+	//EXTRAER TODAS LAS COSAS
+
+	return conjunto_de_dir_fisicas;
 }
 
 

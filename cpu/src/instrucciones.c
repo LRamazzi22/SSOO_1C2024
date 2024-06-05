@@ -114,11 +114,13 @@ void mov_in(char* reg_datos, char* reg_direccion){ //GRAN PARTE DE LO QUE ESTA A
 
     if (tamano_direccion == 8) {
         uint8_t* registro_direccion2 = (uint8_t*)registro_direccion;
-        dir_fisica = traducir_dir_logica(pid_en_ejecucion,*registro_direccion2);
+        uint8_t contenido = *registro_direccion2;
+        dir_fisica = traducir_dir_logica(pid_en_ejecucion,(int)contenido);
 
     } else if (tamano_direccion == 32) {
         uint32_t* registro_direccion2 = (uint32_t*)registro_direccion;
-        dir_fisica = traducir_dir_logica(pid_en_ejecucion,*registro_direccion2);
+        uint32_t contenido = *registro_direccion2;
+        dir_fisica = traducir_dir_logica(pid_en_ejecucion,(int)contenido);
     }
 
     if((tam_de_pags_memoria - dir_fisica ->desplazamiento) >= tamano_datos){
@@ -230,11 +232,13 @@ bool mov_out(char* reg_direccion, char* reg_datos){
 
     if (tamano_direccion == 8) {
         uint8_t* registro_direccion2 = (uint8_t*)registro_direccion;
-        dir_fisica = traducir_dir_logica(pid_en_ejecucion,*registro_direccion2);
+        uint8_t contenido = *registro_direccion2;
+        dir_fisica = traducir_dir_logica(pid_en_ejecucion,(int)contenido);
 
     } else if (tamano_direccion == 32) {
         uint32_t* registro_direccion2 = (uint32_t*)registro_direccion;
-        dir_fisica = traducir_dir_logica(pid_en_ejecucion,*registro_direccion2);
+        uint32_t contenido = *registro_direccion2;
+        dir_fisica = traducir_dir_logica(pid_en_ejecucion,(int)contenido);
     }
 
     if((tam_de_pags_memoria - dir_fisica ->desplazamiento) >= tamano_datos){
@@ -527,6 +531,145 @@ bool copy_string(int tamanio){
 
    return true;
     
+}
+
+void std_read_write(char* interfaz, char* registro_direccion, char* registro_tam, int cod_operacion){
+    io_std* conjunto_dir_fisicas = io_std_get_dir_fis(interfaz, registro_direccion, registro_tam);
+
+    t_paquete* paquete6 = crear_paquete(cod_operacion);
+    agregar_string_a_paquete(paquete6, conjunto_dir_fisicas ->interfaz);
+    agregar_int_a_paquete(paquete6, conjunto_dir_fisicas ->tam);
+    agregar_int_a_paquete(paquete6, conjunto_dir_fisicas ->cant_dir_fisicas);
+
+    for(int i = 0; i < (conjunto_dir_fisicas ->cant_dir_fisicas * 2); i++){
+        int*  dir_fisica_o_tam = list_remove(conjunto_dir_fisicas ->lista_dir_fisicas, i);
+        agregar_int_a_paquete(paquete6, *dir_fisica_o_tam);
+        free(dir_fisica_o_tam);
+    }
+
+    enviar_paquete(paquete6, cpu_server_dispatch);
+    eliminar_paquete(paquete6);
+
+    list_destroy(conjunto_dir_fisicas ->lista_dir_fisicas);
+    free(conjunto_dir_fisicas ->interfaz);
+    free(conjunto_dir_fisicas);
+}
+
+io_std* io_std_get_dir_fis(char* interfaz, char* registro_direccion, char* registro_tam){
+    io_std* nueva_peticion = malloc(sizeof(io_std));
+
+    nueva_peticion ->interfaz = strdup(interfaz);
+
+    int tamano_reg_tam;
+
+    void* reg_tamano = apuntar_a_registro(registro_tam, &tamano_reg_tam);
+
+    if(tamano_reg_tam == 8){
+        uint8_t* reg_tamano2 = (uint8_t* )reg_tamano;
+        uint8_t contenido_reg = *reg_tamano2;
+
+        nueva_peticion ->tam = (int)contenido_reg;
+    }
+    else if(tamano_reg_tam == 32){
+        uint32_t* reg_tamano2 = (uint32_t* )reg_tamano;
+        uint32_t contenido_reg = *reg_tamano2;
+
+        nueva_peticion ->tam = (int)contenido_reg;
+    }
+
+    direccion_fisica* dir_fisica;
+
+    int tamano_reg_dir;
+
+    void* reg_direccion = apuntar_a_registro(registro_direccion, &tamano_reg_dir);
+
+    if (tamano_reg_dir == 8) {
+        uint8_t* registro_direccion2 = (uint8_t*)reg_direccion;
+        uint8_t contenido = *registro_direccion2;
+        dir_fisica = traducir_dir_logica(pid_en_ejecucion,(int)contenido);
+
+    } else if (tamano_reg_dir == 32) {
+        uint32_t* registro_direccion2 = (uint32_t*)reg_direccion;
+        uint32_t contenido = *registro_direccion2;
+        dir_fisica = traducir_dir_logica(pid_en_ejecucion,(int)contenido);
+    }
+
+    if((tam_de_pags_memoria - dir_fisica ->desplazamiento) >= nueva_peticion ->tam){
+        nueva_peticion ->cant_dir_fisicas = 1;
+
+        int* direccion_fisica_0 = malloc(sizeof(int));
+        *direccion_fisica_0 = dir_fisica ->dir_fisica_final;
+
+        list_add(nueva_peticion ->lista_dir_fisicas,direccion_fisica_0);
+
+        int* tam_0 = malloc(sizeof(int));
+        *tam_0 = nueva_peticion ->tam;
+
+        list_add(nueva_peticion ->lista_dir_fisicas,tam_0);
+    }
+    else{
+        float tamano_datos_sobrantes = nueva_peticion ->tam - (tam_de_pags_memoria - dir_fisica ->desplazamiento);
+
+        int* direccion_fisica_1 = malloc(sizeof(int));
+        *direccion_fisica_1 = dir_fisica ->dir_fisica_final;
+
+        list_add(nueva_peticion ->lista_dir_fisicas,direccion_fisica_1);
+
+        int* tam_1 = malloc(sizeof(int));
+        *tam_1 = (tam_de_pags_memoria - dir_fisica ->desplazamiento);
+
+        list_add(nueva_peticion ->lista_dir_fisicas,tam_1);
+
+        nueva_peticion ->cant_dir_fisicas = 1;
+
+        int cant_nuevas_pags = ceil(tamano_datos_sobrantes / tam_de_pags_memoria);
+
+        int nueva_pag = dir_fisica ->num_de_pag_base + 1;
+
+        int bytes_restantes = tamano_datos_sobrantes;
+
+        for (int i = 0; i < cant_nuevas_pags; i++){
+            int nuevo_marco = solicitar_marco(pid_en_ejecucion, nueva_pag);
+            nueva_pag++;
+
+            nueva_peticion ->cant_dir_fisicas ++;
+
+            //Como tenemos que continuar desde la anterior pagina, el desplazamiento en el nuevo marco es 0, por lo que la direccion fisica es
+
+            int nueva_dir_fisica_final = nuevo_marco * tam_de_pags_memoria;
+
+            if(bytes_restantes > tam_de_pags_memoria){
+                
+                int* direccion_fisica_x = malloc(sizeof(int));
+                *direccion_fisica_x = nueva_dir_fisica_final;
+
+                list_add(nueva_peticion ->lista_dir_fisicas,direccion_fisica_x);
+
+                int* tam_x = malloc(sizeof(int));
+                *tam_x = tam_de_pags_memoria;
+
+                list_add(nueva_peticion ->lista_dir_fisicas,tam_x);
+
+                bytes_restantes = bytes_restantes - tam_de_pags_memoria;
+            
+            }
+            else{
+                int* direccion_fisica_X = malloc(sizeof(int));
+                *direccion_fisica_X = nueva_dir_fisica_final;
+
+                list_add(nueva_peticion ->lista_dir_fisicas,direccion_fisica_X);
+
+                int* tam_X = malloc(sizeof(int));
+                *tam_X = bytes_restantes;
+
+                list_add(nueva_peticion ->lista_dir_fisicas,tam_X);
+            }
+        }
+
+    }
+
+    return nueva_peticion;
+
 }
 
 void* apuntar_a_registro (char* regist, int* puntero_a_tamano) {

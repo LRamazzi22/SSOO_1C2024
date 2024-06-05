@@ -13,6 +13,8 @@ void mov_in(char*, char*);
 bool mov_out(char*, char*);
 int resize(int);
 bool copy_string(int );
+void std_read_write(char*, char*, char*, int);
+io_std* io_std_get_dir_fis(char*, char*, char*);
 void* apuntar_a_registro (char*, int*);
 
 #endif

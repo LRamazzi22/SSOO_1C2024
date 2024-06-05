@@ -47,6 +47,14 @@ void ciclo(){
                 eliminar_paquete(paquete2);
 
                 break;
+            case STD_READ:
+                std_read_write(instruccion_separada[1], instruccion_separada[2], instruccion_separada[3], STD_READ_CODE);
+
+                break;
+            case STD_WRITE:
+                std_read_write(instruccion_separada[1], instruccion_separada[2], instruccion_separada[3], STD_WRITE_CODE);
+
+                break;
             case WAIT_RECURSO:
                 t_paquete* paquete3 = crear_paquete(WAIT_CODE);
                 cargar_registros_a_paquete(paquete3);
@@ -173,44 +181,44 @@ int ejecutar_instruccion (int codigo_instruccion) {
     case SET: // SET (Registro, Valor)
         int numero = atoi(instruccion_separada[2]);
         set(instruccion_separada[1], numero);
-        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s %s",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
         instruccion_separada[2]);
         return SEGUIR_EJECUTANDO;
 
     case SUM: // SUM (Registro Destino, Registro Origen)
         sum(instruccion_separada[1], instruccion_separada[2]);
-        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s %s",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
         instruccion_separada[2]);
         return SEGUIR_EJECUTANDO;
 
     case SUB: // SUB (Registro Destino, Registro Origen)
         sub(instruccion_separada[1], instruccion_separada[2]);
-        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s %s",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
         instruccion_separada[2]);
         return SEGUIR_EJECUTANDO;
 
     case JNZ: // JNZ (Registro, Instrucción)
         int nuevo_pc = atoi(instruccion_separada[2]);
         jnz(instruccion_separada[1], nuevo_pc);
-        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s %s",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
         instruccion_separada[2]);
         return SEGUIR_EJECUTANDO;
 
     case IO_GEN_SLEEP: // IO_GEN_SLEEP (Interfaz, Unidades de trabajo)
-        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s %s",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
         instruccion_separada[2]);
         return SLEEP_GEN;
 
     case WAIT: // WAIT (RECURSO)
-        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
         return WAIT_RECURSO;
 
     case SIGNAL: //SIGNAL (RECURSO)
-        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
         return SIGNAL_RECURSO;
 
     case RESIZE: //RESIZE (TAMAÑO)
-        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
         int tam_a_resize = atoi(instruccion_separada[1]);
         int ok = resize(tam_a_resize);
         if(ok){
@@ -222,12 +230,12 @@ int ejecutar_instruccion (int codigo_instruccion) {
 
     case MOV_IN: //MOV IN (Registro Datos, Registro Dirección)
         mov_in(instruccion_separada[1],instruccion_separada[2]);
-        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], instruccion_separada[2]);
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s %s",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], instruccion_separada[2]);
         return SEGUIR_EJECUTANDO;
 
     case MOV_OUT: //MOV OUT (Registro Dirección, Registro Datos)
         bool ok2 = mov_out(instruccion_separada[1],instruccion_separada[2]);
-        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], instruccion_separada[2]);
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s %s",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], instruccion_separada[2]);
 
         if(ok2){
             return SEGUIR_EJECUTANDO;
@@ -239,7 +247,7 @@ int ejecutar_instruccion (int codigo_instruccion) {
     case COPY_STRING: //COPY_STRING (Tamaño)
         int tamanio= atoi(instruccion_separada[1]);
         bool ok3 = copy_string(tamanio);
-        log_info(logger_obligatorio,"PID: %d - EJECUTANDO: %s %s - ",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
+        log_info(logger_obligatorio,"PID: %d - EJECUTANDO: %s - %s",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1]);
 
         if(ok3){
             return SEGUIR_EJECUTANDO;
@@ -247,9 +255,19 @@ int ejecutar_instruccion (int codigo_instruccion) {
         else{
             return SIN_MEMORIA;
         }
-        
+    
+    case IO_STDIN_READ: //IO_STDIN_READ (Interfaz, Registro Dirección, Registro Tamaño)
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s %s %s",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
+        instruccion_separada[2], instruccion_separada[3]);
+        return STD_READ;
+
+    case IO_STDOUT_WRITE: //IO_STDOUT_WRITE (Interfaz, Registro Dirección, Registro Tamaño)
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s %s %s",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
+        instruccion_separada[2], instruccion_separada[3]);
+        return STD_WRITE;
+
     case EXIT:
-        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - ",pid_en_ejecucion, instruccion_separada[0]);
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s",pid_en_ejecucion, instruccion_separada[0]);
         return FINALIZAR;
 
     default:

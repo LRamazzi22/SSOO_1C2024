@@ -37,6 +37,8 @@ typedef enum
     INTERRUMPIR_EXEC,
     PRIMERA_CONEXION_IO,
     ESPERAR_GEN,
+    STD_READ_CODE,
+    STD_WRITE_CODE,
     WAIT_CODE,
     SIGNAL_CODE,
     EXITO_IO,
@@ -62,6 +64,13 @@ typedef struct
 	op_code codigo_operacion;
 	t_buffer* buffer;
 } t_paquete;
+
+typedef struct{
+    char* interfaz;
+    int tam;
+    int cant_dir_fisicas;
+    t_list* lista_dir_fisicas;
+} io_std;
 
 
 void decir_hola(char*);

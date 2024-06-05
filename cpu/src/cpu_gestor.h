@@ -14,6 +14,8 @@ typedef enum{
     FINALIZAR,
     SEGUIR_EJECUTANDO,
     SLEEP_GEN,
+    STD_READ,
+    STD_WRITE,
     WAIT_RECURSO,
     SIGNAL_RECURSO,
     SIN_MEMORIA
