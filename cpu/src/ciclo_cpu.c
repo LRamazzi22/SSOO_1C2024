@@ -48,11 +48,11 @@ void ciclo(){
 
                 break;
             case STD_READ:
-                std_read_write(instruccion_separada[1], instruccion_separada[2], instruccion_separada[3], STD_READ_CODE);
+                std_read_write(instruccion_separada[1], instruccion_separada[2], instruccion_separada[3], "stdin");
 
                 break;
             case STD_WRITE:
-                std_read_write(instruccion_separada[1], instruccion_separada[2], instruccion_separada[3], STD_WRITE_CODE);
+                std_read_write(instruccion_separada[1], instruccion_separada[2], instruccion_separada[3], "stdout");
 
                 break;
             case WAIT_RECURSO:

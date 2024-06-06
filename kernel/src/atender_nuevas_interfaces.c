@@ -238,10 +238,45 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
             free(tiempo_espera);
         }
         else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "stdin")==0){
+            pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
+            io_std* dir_fisicas = queue_pop(nodo_blocked ->cola_Variables);
+            pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
+
+            t_paquete* paquete2 = crear_paquete(STD_READ_CODE);
+            agregar_int_a_paquete(paquete2, pcb_a_enviar ->PID);
+            agregar_int_a_paquete(paquete2, dir_fisicas ->tam);
+            agregar_int_a_paquete(paquete2, dir_fisicas ->cant_dir_fisicas);
+
+            for(int i = 0; i < list_size(dir_fisicas ->lista_dir_fisicas); i++){
+                int* dir_fisica_o_tam = list_remove(dir_fisicas ->lista_dir_fisicas, i);
+                agregar_int_a_paquete(paquete2, *dir_fisica_o_tam);
+                free(dir_fisica_o_tam);
+            }
+            enviar_paquete(paquete2, *nodo_interfaz ->cliente);
+            eliminar_paquete(paquete2);
+            list_destroy(dir_fisicas ->lista_dir_fisicas);
+            free(dir_fisicas);
             
         }
         else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "stdout")==0){
-            
+            pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
+            io_std* dir_fisicas = queue_pop(nodo_blocked ->cola_Variables);
+            pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
+
+            t_paquete* paquete2 = crear_paquete(STD_WRITE_CODE);
+            agregar_int_a_paquete(paquete2, pcb_a_enviar ->PID);
+            agregar_int_a_paquete(paquete2, dir_fisicas ->tam);
+            agregar_int_a_paquete(paquete2, dir_fisicas ->cant_dir_fisicas);
+
+            for(int i = 0; i < list_size(dir_fisicas ->lista_dir_fisicas); i++){
+                int* dir_fisica_o_tam = list_remove(dir_fisicas ->lista_dir_fisicas, i);
+                agregar_int_a_paquete(paquete2, *dir_fisica_o_tam);
+                free(dir_fisica_o_tam);
+            }
+            enviar_paquete(paquete2, *nodo_interfaz ->cliente);
+            eliminar_paquete(paquete2);
+            list_destroy(dir_fisicas ->lista_dir_fisicas);
+            free(dir_fisicas);
         }
         else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "dialfs")==0){
             

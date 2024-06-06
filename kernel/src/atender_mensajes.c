@@ -149,15 +149,52 @@ void atender_cpu_dispatch(){
 			free(interfaz);
 			break;
 
-		case STD_READ_CODE:
+		case STD_READ_WRITE_CODE:
 			buffer = recibir_buffer(kernel_cliente_dispatch);
+
+			pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
+			pcb* pcb_a_std_read_write = proceso_en_ejecucion;
+			pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
+
+			recibir_contexto_de_ejecucion(buffer, pcb_a_std_read_write);
+
+			char* tipo_interfaz1 = extraer_string_buffer(buffer, logger);
 
 			io_std* dir_fisicas = extraer_dir_fisicas_de_buffer(buffer);
 
-			break;
+			if(pcb_a_std_read_write ->PID == pid_a_eliminar){
+				pcb_a_std_read_write ->razon_salida = FINALIZADO_POR_USUARIO;
+				mandar_a_exit(pcb_a_std_read_write);
+				pid_a_eliminar = -1;
 
-		case STD_WRITE_CODE:
-			buffer = recibir_buffer(kernel_cliente_dispatch);
+				free(dir_fisicas ->interfaz);
+				
+				for(int i = 0; i < list_size(dir_fisicas ->lista_dir_fisicas); i++){
+					int* un_num = list_remove(dir_fisicas ->lista_dir_fisicas, i);
+					free(un_num);
+				}
+				list_destroy(dir_fisicas ->lista_dir_fisicas);
+				free(dir_fisicas);
+			}
+
+			pthread_mutex_lock(&mutex_para_eliminar_entradasalida);
+			nodo_de_diccionario_interfaz* nodo_interfaz1 = comprobrar_existencia_de_interfaz(pcb_a_std_read_write, dir_fisicas ->interfaz, tipo_interfaz1);
+
+			if(nodo_interfaz1 != NULL){
+				pthread_mutex_lock(&mutex_para_diccionario_blocked);
+				nodo_de_diccionario_blocked* nodo_bloqueados1 = dictionary_get(diccionario_blocked,dir_fisicas ->interfaz);
+				pthread_mutex_unlock(&mutex_para_diccionario_blocked);
+
+				pthread_mutex_lock(&(nodo_bloqueados1 ->mutex_para_cola_variables));
+				queue_push(nodo_bloqueados1 ->cola_Variables, dir_fisicas);
+				pthread_mutex_unlock(&(nodo_bloqueados1 ->mutex_para_cola_variables));
+
+				sem_post(&(nodo_interfaz1 ->hay_proceso_en_bloqueados));
+
+			}
+			pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
+
+			free(tipo_interfaz1);
 
 			break;
 
@@ -438,9 +475,15 @@ nodo_de_diccionario_interfaz* comprobrar_existencia_de_interfaz(pcb* el_pcb, cha
 
 io_std* extraer_dir_fisicas_de_buffer(t_buffer* buffer){
 	io_std* conjunto_de_dir_fisicas = malloc(sizeof(io_std));
+	conjunto_de_dir_fisicas ->interfaz = extraer_string_buffer(buffer, logger);
+	conjunto_de_dir_fisicas ->tam = extraer_int_buffer(buffer, logger);
+	conjunto_de_dir_fisicas ->cant_dir_fisicas = extraer_int_buffer(buffer, logger);
 
-
-	//EXTRAER TODAS LAS COSAS
+	for(int i = 0; i < (conjunto_de_dir_fisicas ->cant_dir_fisicas * 2); i++){
+		int* dir_fisica_o_tam = malloc(sizeof(int));
+		*dir_fisica_o_tam = extraer_int_buffer(buffer, logger);
+		list_add(conjunto_de_dir_fisicas ->lista_dir_fisicas, dir_fisica_o_tam);
+	}	
 
 	return conjunto_de_dir_fisicas;
 }

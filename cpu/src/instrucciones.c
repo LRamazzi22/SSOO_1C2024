@@ -533,10 +533,12 @@ bool copy_string(int tamanio){
     
 }
 
-void std_read_write(char* interfaz, char* registro_direccion, char* registro_tam, int cod_operacion){
+void std_read_write(char* interfaz, char* registro_direccion, char* registro_tam, char* tipo_interfaz){
     io_std* conjunto_dir_fisicas = io_std_get_dir_fis(interfaz, registro_direccion, registro_tam);
 
-    t_paquete* paquete6 = crear_paquete(cod_operacion);
+    t_paquete* paquete6 = crear_paquete(STD_READ_WRITE_CODE);
+    cargar_registros_a_paquete(paquete6);
+    agregar_string_a_paquete(paquete6, tipo_interfaz);
     agregar_string_a_paquete(paquete6, conjunto_dir_fisicas ->interfaz);
     agregar_int_a_paquete(paquete6, conjunto_dir_fisicas ->tam);
     agregar_int_a_paquete(paquete6, conjunto_dir_fisicas ->cant_dir_fisicas);
