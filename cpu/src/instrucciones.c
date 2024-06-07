@@ -543,16 +543,16 @@ void std_read_write(char* interfaz, char* registro_direccion, char* registro_tam
     agregar_int_a_paquete(paquete6, conjunto_dir_fisicas ->tam);
     agregar_int_a_paquete(paquete6, conjunto_dir_fisicas ->cant_dir_fisicas);
 
-    for(int i = 0; i < (conjunto_dir_fisicas ->cant_dir_fisicas * 2); i++){
-        int*  dir_fisica_o_tam = list_remove(conjunto_dir_fisicas ->lista_dir_fisicas, i);
-        agregar_int_a_paquete(paquete6, *dir_fisica_o_tam);
-        free(dir_fisica_o_tam);
+    for(int i = 0; i < conjunto_dir_fisicas ->cant_dir_fisicas; i++){
+        dir_fis_y_tam*  dir_fisica_y_tam = list_get(conjunto_dir_fisicas ->lista_dir_fisicas, i);
+        agregar_int_a_paquete(paquete6, dir_fisica_y_tam ->dir_fisica);
+        agregar_int_a_paquete(paquete6, dir_fisica_y_tam ->tam);
     }
 
-    enviar_paquete(paquete6, cpu_server_dispatch);
+    enviar_paquete(paquete6, kernel_cliente_dispatch);
     eliminar_paquete(paquete6);
 
-    list_destroy(conjunto_dir_fisicas ->lista_dir_fisicas);
+    list_destroy_and_destroy_elements(conjunto_dir_fisicas ->lista_dir_fisicas, free);
     free(conjunto_dir_fisicas ->interfaz);
     free(conjunto_dir_fisicas);
 }
@@ -561,6 +561,9 @@ io_std* io_std_get_dir_fis(char* interfaz, char* registro_direccion, char* regis
     io_std* nueva_peticion = malloc(sizeof(io_std));
 
     nueva_peticion ->interfaz = strdup(interfaz);
+    string_append(&nueva_peticion ->interfaz, "\n");
+
+    nueva_peticion ->lista_dir_fisicas = list_create();
 
     int tamano_reg_tam;
 
@@ -599,28 +602,24 @@ io_std* io_std_get_dir_fis(char* interfaz, char* registro_direccion, char* regis
     if((tam_de_pags_memoria - dir_fisica ->desplazamiento) >= nueva_peticion ->tam){
         nueva_peticion ->cant_dir_fisicas = 1;
 
-        int* direccion_fisica_0 = malloc(sizeof(int));
-        *direccion_fisica_0 = dir_fisica ->dir_fisica_final;
+        dir_fis_y_tam* direccion_y_tam_0 = malloc(sizeof(dir_fis_y_tam));
 
-        list_add(nueva_peticion ->lista_dir_fisicas,direccion_fisica_0);
+        direccion_y_tam_0 ->dir_fisica = dir_fisica ->dir_fisica_final;
 
-        int* tam_0 = malloc(sizeof(int));
-        *tam_0 = nueva_peticion ->tam;
+        direccion_y_tam_0 ->tam = nueva_peticion ->tam;
 
-        list_add(nueva_peticion ->lista_dir_fisicas,tam_0);
+        list_add(nueva_peticion ->lista_dir_fisicas,direccion_y_tam_0);
     }
     else{
         float tamano_datos_sobrantes = nueva_peticion ->tam - (tam_de_pags_memoria - dir_fisica ->desplazamiento);
 
-        int* direccion_fisica_1 = malloc(sizeof(int));
-        *direccion_fisica_1 = dir_fisica ->dir_fisica_final;
+        dir_fis_y_tam* direccion_y_tam_1 = malloc(sizeof(dir_fis_y_tam));
 
-        list_add(nueva_peticion ->lista_dir_fisicas,direccion_fisica_1);
+        direccion_y_tam_1 ->dir_fisica = dir_fisica ->dir_fisica_final;
 
-        int* tam_1 = malloc(sizeof(int));
-        *tam_1 = (tam_de_pags_memoria - dir_fisica ->desplazamiento);
+        direccion_y_tam_1 ->tam = (tam_de_pags_memoria - dir_fisica ->desplazamiento);
 
-        list_add(nueva_peticion ->lista_dir_fisicas,tam_1);
+        list_add(nueva_peticion ->lista_dir_fisicas,direccion_y_tam_1);
 
         nueva_peticion ->cant_dir_fisicas = 1;
 
@@ -641,34 +640,34 @@ io_std* io_std_get_dir_fis(char* interfaz, char* registro_direccion, char* regis
             int nueva_dir_fisica_final = nuevo_marco * tam_de_pags_memoria;
 
             if(bytes_restantes > tam_de_pags_memoria){
+
+                dir_fis_y_tam* direccion_y_tam_x = malloc(sizeof(dir_fis_y_tam));
                 
-                int* direccion_fisica_x = malloc(sizeof(int));
-                *direccion_fisica_x = nueva_dir_fisica_final;
+                direccion_y_tam_x ->dir_fisica = nueva_dir_fisica_final;
 
-                list_add(nueva_peticion ->lista_dir_fisicas,direccion_fisica_x);
+                direccion_y_tam_x ->tam = tam_de_pags_memoria;
 
-                int* tam_x = malloc(sizeof(int));
-                *tam_x = tam_de_pags_memoria;
 
-                list_add(nueva_peticion ->lista_dir_fisicas,tam_x);
+
+                list_add(nueva_peticion ->lista_dir_fisicas,direccion_y_tam_x);
 
                 bytes_restantes = bytes_restantes - tam_de_pags_memoria;
             
             }
             else{
-                int* direccion_fisica_X = malloc(sizeof(int));
-                *direccion_fisica_X = nueva_dir_fisica_final;
+                dir_fis_y_tam* direccion_y_tam_X = malloc(sizeof(dir_fis_y_tam));
 
-                list_add(nueva_peticion ->lista_dir_fisicas,direccion_fisica_X);
+                direccion_y_tam_X ->dir_fisica = nueva_dir_fisica_final;
 
-                int* tam_X = malloc(sizeof(int));
-                *tam_X = bytes_restantes;
+                direccion_y_tam_X ->tam = bytes_restantes;
 
-                list_add(nueva_peticion ->lista_dir_fisicas,tam_X);
+                list_add(nueva_peticion ->lista_dir_fisicas, direccion_y_tam_X);
             }
         }
 
     }
+
+    nueva_peticion ->cant_dir_fisicas = list_size(nueva_peticion ->lista_dir_fisicas);
 
     return nueva_peticion;
 

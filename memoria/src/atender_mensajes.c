@@ -91,7 +91,9 @@ void atender_cpu_memoria(){
 
 			void* a_escribir = extraer_contenido_buffer(buffer,logger);
 
+			pthread_mutex_lock(&mutex_para_mem_de_usuario);
 			memcpy(memoria_de_usuario + dir_fisica_escritura, a_escribir,tamano_a_escribir);
+			pthread_mutex_unlock(&mutex_para_mem_de_usuario);
 
 			free(a_escribir);
 
@@ -229,14 +231,57 @@ void atender_entradasalida_memoria(void* cliente){
     while (continuar_while) {
         log_info(logger, "Esperando mensajes de Entrada/Salida");
 		int cod_op = recibir_operacion(*cliente_entrada_salida);
+		t_buffer* buffer;
 		switch (cod_op) {
 		case HANDSHAKE:
-			t_buffer* buffer = recibir_buffer(*cliente_entrada_salida);
+			buffer = recibir_buffer(*cliente_entrada_salida);
 			usleep(RETARDO_RESPUESTA * 1000);
 			char* mensaje = extraer_string_buffer(buffer, logger);
 			printf("Recibi un handshake de: %s, como cliente",mensaje);
 			free(mensaje);
 			break;
+		case ESCRITURA_CODE:
+			buffer = recibir_buffer(*cliente_entrada_salida);
+			usleep(RETARDO_RESPUESTA * 1000);
+			int pid_del_proceso_escritura = extraer_int_buffer(buffer, logger);
+			int dir_fisica_escritura = extraer_int_buffer(buffer, logger);
+			int tamano_a_escribir = extraer_int_buffer(buffer,logger);
+
+			void* a_escribir = extraer_contenido_buffer(buffer,logger);
+
+			pthread_mutex_lock(&mutex_para_mem_de_usuario);
+			memcpy(memoria_de_usuario + dir_fisica_escritura, a_escribir,tamano_a_escribir);
+			pthread_mutex_unlock(&mutex_para_mem_de_usuario);
+
+			free(a_escribir);
+
+			log_info(logger_obligatorio, "PID: %d - Accion: ESCRIBIR - Direccion fisica: %d - Tamaño %d", pid_del_proceso_escritura, dir_fisica_escritura, tamano_a_escribir);
+
+			t_paquete* paquete5 = crear_paquete(ESCRITURA_CODE);
+			char* mensaje1 = "Ok";
+			agregar_string_a_paquete(paquete5,mensaje1);
+			enviar_paquete(paquete5, *cliente_entrada_salida);
+			eliminar_paquete(paquete5);
+			break;
+		
+		case LECTURA_CODE:
+			buffer = recibir_buffer(*cliente_entrada_salida);
+			usleep(RETARDO_RESPUESTA * 1000);
+			int pid_de_proceso_lectura = extraer_int_buffer(buffer, logger);
+			int dir_fisica = extraer_int_buffer(buffer, logger);
+			int tam_a_leer = extraer_int_buffer(buffer,logger);
+
+			void* leido = leer_dir_fisica(dir_fisica,tam_a_leer);
+
+			log_info(logger_obligatorio, "PID: %d - Accion: LEER - Direccion fisica: %d - Tamaño %d", pid_de_proceso_lectura, dir_fisica, tam_a_leer);
+
+			t_paquete* paquete4 = crear_paquete(LECTURA_CODE);
+			agregar_a_paquete(paquete4,leido,tam_a_leer);
+			enviar_paquete(paquete4,*cliente_entrada_salida);
+			eliminar_paquete(paquete4);
+			free(leido);
+			break;
+
 		case -1:
 			log_info(logger, "La Entrada/Salida se desconecto");
 			continuar_while = false;
@@ -247,3 +292,4 @@ void atender_entradasalida_memoria(void* cliente){
 		}
 	}
 }
+

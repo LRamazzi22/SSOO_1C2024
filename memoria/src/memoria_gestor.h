@@ -45,6 +45,7 @@ extern pthread_mutex_t mutex_para_leer_pseudo;
 extern pthread_mutex_t mutex_para_diccionario_instrucciones;
 extern pthread_mutex_t mutex_para_diccionario_tdp;
 extern pthread_mutex_t mutex_para_marcos_libres;
+extern pthread_mutex_t mutex_para_mem_de_usuario;
 
 
 

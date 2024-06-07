@@ -1,22 +1,41 @@
 #include <atender_mensajes.h>
 
-void atender_memoria_entradasalida(){
-    while (1) {
-		log_info(logger, "Esperando mensajes de Memoria");
-		int cod_op = recibir_operacion(entradasalida_cliente_memoria);
-		switch (cod_op) {
-		case HANDSHAKE:
-			t_buffer* buffer = recibir_buffer(entradasalida_cliente_memoria);
-			char* mensaje = extraer_string_buffer(buffer, logger);
-			printf("Recibi un handshake de: %s, como cliente",mensaje);
-			free(mensaje);
+bool confirmacion_escritura(){
+	t_buffer* buffer;
+	int cod_op = recibir_operacion(entradasalida_cliente_memoria);
+	switch (cod_op) {
+		case ESCRITURA_CODE:
+			buffer = recibir_buffer(entradasalida_cliente_memoria);
+			char* confirm = extraer_string_buffer(buffer, logger);
+			
+			return (strcmp(confirm, "Ok")==0);
+
 			break;
 		case -1:
-			log_error(logger, "Se desconceto la Memoria");
+			log_error(logger, "La Memoria se desconecto");
 			exit(EXIT_FAILURE);
 		default:
 			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
 			break;
-		}
-	}  
+	}
+
+	return false;
+}
+
+void* recibir_lectura(){
+	t_buffer* buffer;
+	int cod_op = recibir_operacion(entradasalida_cliente_memoria);
+	switch (cod_op) {
+		case LECTURA_CODE:
+			buffer = recibir_buffer(entradasalida_cliente_memoria);
+			void* leido = extraer_contenido_buffer(buffer, logger);
+			return leido;
+			break;
+		case -1:
+			log_error(logger, "La Memoria se desconecto");
+			exit(EXIT_FAILURE);
+		default:
+			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+			break;
+	}
 }

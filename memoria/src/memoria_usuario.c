@@ -118,7 +118,9 @@ bool hay_marcos_suficientes(int cant_marcos_necesarios){
 void* leer_dir_fisica(int dir_fisica, int tam_a_leer){
     void* leido = malloc(tam_a_leer);
 
+    pthread_mutex_lock(&mutex_para_mem_de_usuario);
     memcpy(leido,memoria_de_usuario + dir_fisica,tam_a_leer);
+    pthread_mutex_unlock(&mutex_para_mem_de_usuario);
 
     return leido;
 }

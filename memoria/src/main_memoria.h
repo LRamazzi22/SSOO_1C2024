@@ -35,6 +35,7 @@ pthread_mutex_t mutex_para_leer_pseudo;
 pthread_mutex_t mutex_para_diccionario_instrucciones;
 pthread_mutex_t mutex_para_diccionario_tdp;
 pthread_mutex_t mutex_para_marcos_libres;
+pthread_mutex_t mutex_para_mem_de_usuario;
 
 
 

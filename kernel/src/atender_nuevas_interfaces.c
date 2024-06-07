@@ -134,6 +134,37 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
             sem_post(&(nodo_interfaz ->se_puede_enviar_proceso));
             break;
 
+        case FALLO_IO:
+            buffer = recibir_buffer(*nombre_cliente ->cliente);
+			int pid2 = extraer_int_buffer(buffer,logger);
+
+
+			pthread_mutex_lock(&mutex_para_diccionario_blocked);
+			nodo_de_diccionario_blocked* nodo_bloqueados2 = dictionary_get(diccionario_blocked, nombre_cliente ->nombre);
+			pthread_mutex_unlock(&mutex_para_diccionario_blocked);
+
+            pcb* un_pcb2 = buscar_proceso_en_cola(pid2,nodo_bloqueados);
+
+            if(un_pcb2 != NULL){
+                pthread_mutex_lock(&(nodo_bloqueados2 ->mutex_para_cola_bloqueados));
+                eliminar_pcb_cola(nodo_bloqueados2 -> cola_bloqueados, un_pcb2);
+                pthread_mutex_unlock(&(nodo_bloqueados2 ->mutex_para_cola_bloqueados));
+
+                un_pcb2 ->estado_proceso = EXIT_PROCESS;
+
+                mandar_a_exit(un_pcb2);
+                log_info(logger_obligatorio,"PID: %d - Estado Anterior: BLOCKED - Estado Actual: EXIT", un_pcb2 ->PID);
+
+            }
+            pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
+            nodo_de_diccionario_interfaz* nodo_interfaz2 = dictionary_get(diccionario_entrada_salida,nombre_cliente ->nombre);
+            pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
+
+            sem_post(&(nodo_interfaz2 ->se_puede_enviar_proceso));
+
+
+            break;
+
         case -1:
             pthread_mutex_lock(&mutex_para_eliminar_entradasalida);
 
@@ -248,13 +279,13 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
             agregar_int_a_paquete(paquete2, dir_fisicas ->cant_dir_fisicas);
 
             for(int i = 0; i < list_size(dir_fisicas ->lista_dir_fisicas); i++){
-                int* dir_fisica_o_tam = list_remove(dir_fisicas ->lista_dir_fisicas, i);
-                agregar_int_a_paquete(paquete2, *dir_fisica_o_tam);
-                free(dir_fisica_o_tam);
+                dir_fis_y_tam* dir_fisica_y_tam = list_get(dir_fisicas ->lista_dir_fisicas, i);
+                agregar_int_a_paquete(paquete2, dir_fisica_y_tam ->dir_fisica);
+                agregar_int_a_paquete(paquete2, dir_fisica_y_tam ->tam);
             }
             enviar_paquete(paquete2, *nodo_interfaz ->cliente);
             eliminar_paquete(paquete2);
-            list_destroy(dir_fisicas ->lista_dir_fisicas);
+            list_destroy_and_destroy_elements(dir_fisicas ->lista_dir_fisicas, free);
             free(dir_fisicas);
             
         }
@@ -269,13 +300,13 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
             agregar_int_a_paquete(paquete2, dir_fisicas ->cant_dir_fisicas);
 
             for(int i = 0; i < list_size(dir_fisicas ->lista_dir_fisicas); i++){
-                int* dir_fisica_o_tam = list_remove(dir_fisicas ->lista_dir_fisicas, i);
-                agregar_int_a_paquete(paquete2, *dir_fisica_o_tam);
-                free(dir_fisica_o_tam);
+                dir_fis_y_tam* dir_fisica_y_tam = list_get(dir_fisicas ->lista_dir_fisicas, i);
+                agregar_int_a_paquete(paquete2, dir_fisica_y_tam ->dir_fisica);
+                agregar_int_a_paquete(paquete2, dir_fisica_y_tam ->tam);
             }
             enviar_paquete(paquete2, *nodo_interfaz ->cliente);
             eliminar_paquete(paquete2);
-            list_destroy(dir_fisicas ->lista_dir_fisicas);
+            list_destroy_and_destroy_elements(dir_fisicas ->lista_dir_fisicas, free);
             free(dir_fisicas);
         }
         else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "dialfs")==0){

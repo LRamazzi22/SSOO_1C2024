@@ -5,6 +5,8 @@
 #include <inicializar_entradasalida.h>
 #include <atender_mensajes.h>
 #include <interfaz_generica.h>
+#include <interfaz_stdin.h>
+#include <interfaz_stdout.h>
 
 t_log* logger;
 t_log* logger_obligatorio;

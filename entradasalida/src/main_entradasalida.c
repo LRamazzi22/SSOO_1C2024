@@ -39,8 +39,10 @@ int main(int argc, char* argv[]) {
             atender_peticiones_generica();
             break;
         case STDIN:
+            atender_peticiones_stdin();
             break;
         case STDOUT:
+            atender_peticiones_stdout();
             break;
         case DIALFS:
             break;

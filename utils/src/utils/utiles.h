@@ -43,6 +43,7 @@ typedef enum
     WAIT_CODE,
     SIGNAL_CODE,
     EXITO_IO,
+    FALLO_IO,
     ELIMINAR_PROCESO_MEMORIA,
     INTERRUPCION,
     PEDIR_MARCO,
@@ -72,6 +73,11 @@ typedef struct{
     int cant_dir_fisicas;
     t_list* lista_dir_fisicas;
 } io_std;
+
+typedef struct{
+    int dir_fisica;
+    int tam;
+} dir_fis_y_tam;
 
 
 void decir_hola(char*);

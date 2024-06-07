@@ -168,12 +168,7 @@ void atender_cpu_dispatch(){
 				pid_a_eliminar = -1;
 
 				free(dir_fisicas ->interfaz);
-				
-				for(int i = 0; i < list_size(dir_fisicas ->lista_dir_fisicas); i++){
-					int* un_num = list_remove(dir_fisicas ->lista_dir_fisicas, i);
-					free(un_num);
-				}
-				list_destroy(dir_fisicas ->lista_dir_fisicas);
+				list_destroy_and_destroy_elements(dir_fisicas ->lista_dir_fisicas, free);
 				free(dir_fisicas);
 			}
 
@@ -479,10 +474,13 @@ io_std* extraer_dir_fisicas_de_buffer(t_buffer* buffer){
 	conjunto_de_dir_fisicas ->tam = extraer_int_buffer(buffer, logger);
 	conjunto_de_dir_fisicas ->cant_dir_fisicas = extraer_int_buffer(buffer, logger);
 
-	for(int i = 0; i < (conjunto_de_dir_fisicas ->cant_dir_fisicas * 2); i++){
-		int* dir_fisica_o_tam = malloc(sizeof(int));
-		*dir_fisica_o_tam = extraer_int_buffer(buffer, logger);
-		list_add(conjunto_de_dir_fisicas ->lista_dir_fisicas, dir_fisica_o_tam);
+	conjunto_de_dir_fisicas ->lista_dir_fisicas = list_create();
+
+	for(int i = 0; i < conjunto_de_dir_fisicas ->cant_dir_fisicas; i++){
+		dir_fis_y_tam* dir_fisica_y_tam = malloc(sizeof(dir_fis_y_tam));
+		dir_fisica_y_tam ->dir_fisica = extraer_int_buffer(buffer, logger);
+		dir_fisica_y_tam ->tam = extraer_int_buffer(buffer, logger);
+		list_add(conjunto_de_dir_fisicas ->lista_dir_fisicas, dir_fisica_y_tam);
 	}	
 
 	return conjunto_de_dir_fisicas;
