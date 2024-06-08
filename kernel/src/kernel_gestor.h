@@ -100,6 +100,7 @@ extern char* PUERTO_MEMORIA;
 extern char* IP_CPU;
 extern char* PUERTO_CPU_DISPATCH;
 extern char* PUERTO_CPU_INTERRUPT;
+extern char* PATH_SCRIPTS;
 extern char* ALGORITMO_PLANIFICACION;
 extern int QUANTUM;
 extern char** RECURSOS;

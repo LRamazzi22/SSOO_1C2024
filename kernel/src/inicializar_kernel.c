@@ -44,6 +44,7 @@ void inicializar_config_kernel(){
     IP_CPU = config_get_string_value(config,"IP_CPU");
     PUERTO_CPU_DISPATCH = config_get_string_value(config, "PUERTO_CPU_DISPATCH");
     PUERTO_CPU_INTERRUPT = config_get_string_value(config, "PUERTO_CPU_INTERRUPT");
+    PATH_SCRIPTS = config_get_string_value(config, "PATH_SCRIPTS");
     ALGORITMO_PLANIFICACION = config_get_string_value(config,"ALGORITMO_PLANIFICACION");
     QUANTUM = config_get_int_value(config, "QUANTUM");
     RECURSOS = config_get_array_value(config,"RECURSOS");

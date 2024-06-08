@@ -21,8 +21,9 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
     
     //En cuanto se agreguen las funciones de los comandos, hay que agregar mas validaciones
     
-    if(strcmp(comando_por_partes[0],"EJECUTAR_SCRIPT")==0){
-        printf("Hola, soy ejecutar script\n");
+    if(strcmp(comando_por_partes[0],"EJECUTAR_SCRIPT")==0 && (string_array_size(comando_por_partes)==2) && (strcmp(comando_por_partes[1],"")!=0)){
+        
+        ejecutar_script(comando_por_partes[1]);
     }
     else if((strcmp(comando_por_partes[0],"INICIAR_PROCESO")==0) && (string_array_size(comando_por_partes)==2) && (strcmp(comando_por_partes[1],"")!=0)){
         pthread_t hilo_crear_proceso;
@@ -30,18 +31,18 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
         pthread_create(&hilo_crear_proceso, NULL, (void*)crear_proceso,(void*)ruta);
         pthread_detach(hilo_crear_proceso);
     }
-    else if(strcmp(comando_por_partes[0],"FINALIZAR_PROCESO")==0){
+    else if(strcmp(comando_por_partes[0],"FINALIZAR_PROCESO")==0 && (string_array_size(comando_por_partes)==1)){
         printf("Hola, soy finalizar proceso\n");
         
     }
-    else if(strcmp(comando_por_partes[0],"DETENER_PLANIFICACION")==0){
+    else if(strcmp(comando_por_partes[0],"DETENER_PLANIFICACION")==0 && (string_array_size(comando_por_partes)==1)){
         permitir_planificacion = false;
     }
-    else if(strcmp(comando_por_partes[0],"INICIAR_PLANIFICACION")==0){
+    else if(strcmp(comando_por_partes[0],"INICIAR_PLANIFICACION")==0 && (string_array_size(comando_por_partes)==1)){
         
         iniciar_planificacion();
     }
-    else if(strcmp(comando_por_partes[0],"MULTIPROGRAMACION")==0){
+    else if(strcmp(comando_por_partes[0],"MULTIPROGRAMACION")==0 && (string_array_size(comando_por_partes)==2) && (strcmp(comando_por_partes[1],"")!=0)){
         int nuevo_grado_multi = atoi(comando_por_partes[1]);
         int diferencia = nuevo_grado_multi - GRADO_MULTIPROGRAMACION;
         if(diferencia > 0){
@@ -54,7 +55,7 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
         }
         GRADO_MULTIPROGRAMACION = nuevo_grado_multi;
     }
-    else if(strcmp(comando_por_partes[0],"PROCESO_ESTADO")==0){
+    else if(strcmp(comando_por_partes[0],"PROCESO_ESTADO")==0 && (string_array_size(comando_por_partes)==1)){
         printf("Hola, soy proceso estado\n");
         pcb* pcb_revisar;
         int largo_cola;
@@ -260,4 +261,38 @@ void iniciar_planificacion(){
         }
         permitir_planificacion = true;
     }
+}
+
+void ejecutar_script(char* nombre_archivo){
+    char* archivo = strdup(PATH_SCRIPTS);
+    string_append(&archivo, nombre_archivo);
+
+    FILE* archivo_script = fopen(archivo, "r");
+
+    if(archivo_script != NULL){
+        while(!feof(archivo_script)){
+            usleep(500 * 1000);
+            char instruccion_consola[256];
+            fgets(instruccion_consola,256,archivo_script);
+
+            if(instruccion_consola[strlen(instruccion_consola)-1] == '\n'){
+                instruccion_consola[strlen(instruccion_consola)-1] = '\0';
+            }
+            
+
+            char** comando_por_partes = string_split(instruccion_consola, " ");
+
+            validar_y_ejecutar_comando(comando_por_partes);
+
+            string_array_destroy(comando_por_partes);
+
+        }
+
+    }
+    else{
+        log_error(logger,"No existe ese archivo de Script");
+    }
+
+    fclose(archivo_script);
+    free(archivo);
 }
