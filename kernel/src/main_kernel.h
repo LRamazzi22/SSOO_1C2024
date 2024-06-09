@@ -50,6 +50,8 @@ t_dictionary* diccionario_blocked;
 t_queue* cola_exit;
 t_queue * cola_ready_prioritaria;
 
+t_dictionary* diccionario_de_todos_los_procesos;
+
 bool permitir_planificacion;
 
 int espera_grado_multi;
@@ -75,6 +77,7 @@ pthread_mutex_t mutex_para_diccionario_entradasalida;
 pthread_mutex_t mutex_para_diccionario_recursos;
 pthread_mutex_t mutex_para_diccionario_blocked;
 pthread_mutex_t mutex_para_eliminar_entradasalida;
+pthread_mutex_t mutex_para_diccionario_de_todos_los_procesos;
 
 
 #endif

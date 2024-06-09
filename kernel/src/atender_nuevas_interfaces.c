@@ -66,8 +66,7 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
             sem_wait(&(nodo_para_detener ->detener_planificacion_recibir_respuestas_IO));
         }
 
-        switch (cod_op)
-        {
+        switch (cod_op){
         case HANDSHAKE:
             buffer = recibir_buffer(*nombre_cliente ->cliente);
 			char* mensaje = extraer_string_buffer(buffer, logger);
@@ -94,6 +93,7 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
 
                 un_pcb ->estado_proceso = READY;
                 log_info(logger_obligatorio,"PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", un_pcb ->PID);
+                strcpy(un_pcb ->interfaz_bloqueante, "No");
 
                 if(strcmp(ALGORITMO_PLANIFICACION, "vrr")==0){
                     int64_t tiempo_ejecutado = temporal_gettime(un_pcb ->tiempo_en_ejecucion);
@@ -250,68 +250,74 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
             sem_wait(&(nodo_interfaz ->detener_planificacion_enviar_peticion_IO));
         }
         
+        pcb* pcb_a_enviar = NULL;
+
 
         pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_bloqueados));
-        pcb* pcb_a_enviar = queue_peek(nodo_blocked ->cola_bloqueados);
+        if(!queue_is_empty(nodo_blocked ->cola_bloqueados)){
+            pcb_a_enviar = queue_peek(nodo_blocked ->cola_bloqueados);
+        }
         pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_bloqueados));
 
+        if(pcb_a_enviar != NULL){
+            if(strcmp(nodo_interfaz ->tipo_de_interfaz, "Generica")==0){
+                pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
+                int* tiempo_espera = queue_pop(nodo_blocked ->cola_Variables);
+                pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
 
-        if(strcmp(nodo_interfaz ->tipo_de_interfaz, "Generica")==0){
-            pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
-            int* tiempo_espera = queue_pop(nodo_blocked ->cola_Variables);
-            pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
-
-            t_paquete* paquete = crear_paquete(ESPERAR_GEN);
-	        agregar_int_a_paquete(paquete,pcb_a_enviar ->PID);
-	        agregar_int_a_paquete(paquete,*tiempo_espera);
-	        enviar_paquete(paquete,*nodo_interfaz ->cliente);
-	        eliminar_paquete(paquete);
-            free(tiempo_espera);
-        }
-        else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "stdin")==0){
-            pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
-            io_std* dir_fisicas = queue_pop(nodo_blocked ->cola_Variables);
-            pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
-
-            t_paquete* paquete2 = crear_paquete(STD_READ_CODE);
-            agregar_int_a_paquete(paquete2, pcb_a_enviar ->PID);
-            agregar_int_a_paquete(paquete2, dir_fisicas ->tam);
-            agregar_int_a_paquete(paquete2, dir_fisicas ->cant_dir_fisicas);
-
-            for(int i = 0; i < list_size(dir_fisicas ->lista_dir_fisicas); i++){
-                dir_fis_y_tam* dir_fisica_y_tam = list_get(dir_fisicas ->lista_dir_fisicas, i);
-                agregar_int_a_paquete(paquete2, dir_fisica_y_tam ->dir_fisica);
-                agregar_int_a_paquete(paquete2, dir_fisica_y_tam ->tam);
+                t_paquete* paquete = crear_paquete(ESPERAR_GEN);
+                agregar_int_a_paquete(paquete,pcb_a_enviar ->PID);
+                agregar_int_a_paquete(paquete,*tiempo_espera);
+                enviar_paquete(paquete,*nodo_interfaz ->cliente);
+                eliminar_paquete(paquete);
+                free(tiempo_espera);
             }
-            enviar_paquete(paquete2, *nodo_interfaz ->cliente);
-            eliminar_paquete(paquete2);
-            list_destroy_and_destroy_elements(dir_fisicas ->lista_dir_fisicas, free);
-            free(dir_fisicas);
-            
-        }
-        else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "stdout")==0){
-            pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
-            io_std* dir_fisicas = queue_pop(nodo_blocked ->cola_Variables);
-            pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
+            else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "stdin")==0){
+                pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
+                io_std* dir_fisicas = queue_pop(nodo_blocked ->cola_Variables);
+                pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
 
-            t_paquete* paquete2 = crear_paquete(STD_WRITE_CODE);
-            agregar_int_a_paquete(paquete2, pcb_a_enviar ->PID);
-            agregar_int_a_paquete(paquete2, dir_fisicas ->tam);
-            agregar_int_a_paquete(paquete2, dir_fisicas ->cant_dir_fisicas);
+                t_paquete* paquete2 = crear_paquete(STD_READ_CODE);
+                agregar_int_a_paquete(paquete2, pcb_a_enviar ->PID);
+                agregar_int_a_paquete(paquete2, dir_fisicas ->tam);
+                agregar_int_a_paquete(paquete2, dir_fisicas ->cant_dir_fisicas);
 
-            for(int i = 0; i < list_size(dir_fisicas ->lista_dir_fisicas); i++){
-                dir_fis_y_tam* dir_fisica_y_tam = list_get(dir_fisicas ->lista_dir_fisicas, i);
-                agregar_int_a_paquete(paquete2, dir_fisica_y_tam ->dir_fisica);
-                agregar_int_a_paquete(paquete2, dir_fisica_y_tam ->tam);
+                for(int i = 0; i < list_size(dir_fisicas ->lista_dir_fisicas); i++){
+                    dir_fis_y_tam* dir_fisica_y_tam = list_get(dir_fisicas ->lista_dir_fisicas, i);
+                    agregar_int_a_paquete(paquete2, dir_fisica_y_tam ->dir_fisica);
+                    agregar_int_a_paquete(paquete2, dir_fisica_y_tam ->tam);
+                }
+                enviar_paquete(paquete2, *nodo_interfaz ->cliente);
+                eliminar_paquete(paquete2);
+                list_destroy_and_destroy_elements(dir_fisicas ->lista_dir_fisicas, free);
+                free(dir_fisicas);
+                
             }
-            enviar_paquete(paquete2, *nodo_interfaz ->cliente);
-            eliminar_paquete(paquete2);
-            list_destroy_and_destroy_elements(dir_fisicas ->lista_dir_fisicas, free);
-            free(dir_fisicas);
+            else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "stdout")==0){
+                pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
+                io_std* dir_fisicas = queue_pop(nodo_blocked ->cola_Variables);
+                pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
+
+                t_paquete* paquete2 = crear_paquete(STD_WRITE_CODE);
+                agregar_int_a_paquete(paquete2, pcb_a_enviar ->PID);
+                agregar_int_a_paquete(paquete2, dir_fisicas ->tam);
+                agregar_int_a_paquete(paquete2, dir_fisicas ->cant_dir_fisicas);
+
+                for(int i = 0; i < list_size(dir_fisicas ->lista_dir_fisicas); i++){
+                    dir_fis_y_tam* dir_fisica_y_tam = list_get(dir_fisicas ->lista_dir_fisicas, i);
+                    agregar_int_a_paquete(paquete2, dir_fisica_y_tam ->dir_fisica);
+                    agregar_int_a_paquete(paquete2, dir_fisica_y_tam ->tam);
+                }
+                enviar_paquete(paquete2, *nodo_interfaz ->cliente);
+                eliminar_paquete(paquete2);
+                list_destroy_and_destroy_elements(dir_fisicas ->lista_dir_fisicas, free);
+                free(dir_fisicas);
+            }
+            else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "dialfs")==0){
+                
+            }
         }
-        else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "dialfs")==0){
-            
-        }
+        
 
         
     }

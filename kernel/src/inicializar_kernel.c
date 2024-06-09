@@ -20,6 +20,8 @@ void inicializar_kernel(){
     diccionario_entrada_salida = dictionary_create();
     diccionario_recursos = dictionary_create();
 
+    diccionario_de_todos_los_procesos = dictionary_create();
+
     //Semaforos
     sem_init(&hay_proceso_en_ready,0,0);
     sem_init(&hay_proceso_en_new,0,0);

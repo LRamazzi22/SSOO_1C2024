@@ -15,6 +15,11 @@ void eliminar_el_proceso(pcb* un_pcb){
     agregar_int_a_paquete(paquete,un_pcb ->PID);
     enviar_paquete(paquete,kernel_cliente_memoria);
     eliminar_paquete(paquete);
+
+    pthread_mutex_lock(&mutex_para_diccionario_de_todos_los_procesos);
+    dictionary_remove(diccionario_de_todos_los_procesos,string_itoa(un_pcb ->PID));
+    pthread_mutex_unlock(&mutex_para_diccionario_de_todos_los_procesos);
+    
     borrar_registros_pcb(un_pcb);
     
     for(int i = 0; i<list_size(un_pcb ->lista_recursos_tomados); i++){

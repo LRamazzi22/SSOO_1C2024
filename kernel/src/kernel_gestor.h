@@ -40,6 +40,8 @@ typedef struct
     t_list* lista_recursos_tomados;
     razones_exit razon_salida;
     t_temporal* tiempo_en_ejecucion;
+    char interfaz_bloqueante[100];
+    char recurso_bloqueante[100];
 
 } pcb;
 
@@ -60,6 +62,7 @@ typedef struct
     pthread_mutex_t mutex_para_cola_bloqueados;
     t_queue* cola_Variables;
     pthread_mutex_t mutex_para_cola_variables;
+    char tipo_interfaz[30];
 } nodo_de_diccionario_blocked;
 
 typedef struct 
@@ -113,6 +116,8 @@ extern t_dictionary* diccionario_blocked;
 extern t_queue* cola_exit;
 extern t_queue * cola_ready_prioritaria;
 
+extern t_dictionary* diccionario_de_todos_los_procesos;
+
 extern bool permitir_planificacion;
 
 extern int espera_grado_multi;
@@ -137,6 +142,7 @@ extern pthread_mutex_t mutex_para_diccionario_entradasalida;
 extern pthread_mutex_t mutex_para_diccionario_recursos;
 extern pthread_mutex_t mutex_para_diccionario_blocked;
 extern pthread_mutex_t mutex_para_eliminar_entradasalida;
+extern pthread_mutex_t mutex_para_diccionario_de_todos_los_procesos;
 
 
 

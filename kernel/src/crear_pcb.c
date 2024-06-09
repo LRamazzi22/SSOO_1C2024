@@ -31,6 +31,14 @@ pcb* creacion_pcb(char* ruta_pseudocodigo){
     el_pcb ->registros_cpu_en_pcb->DI = calloc(1,sizeof(uint32_t));
     el_pcb ->registros_cpu_en_pcb->SI = calloc(1,sizeof(uint32_t));
 
+    pthread_mutex_lock(&mutex_para_diccionario_de_todos_los_procesos);
+    char* pid_clave = string_itoa(el_pcb ->PID);
+    dictionary_put(diccionario_de_todos_los_procesos,pid_clave, el_pcb);
+    pthread_mutex_unlock(&mutex_para_diccionario_de_todos_los_procesos);
+
+    strcpy(el_pcb ->interfaz_bloqueante, "No");
+    strcpy(el_pcb ->recurso_bloqueante, "No");
+
     log_info(logger_obligatorio, "Se crea el proceso %d en NEW", el_pcb->PID);
     return el_pcb;
 
