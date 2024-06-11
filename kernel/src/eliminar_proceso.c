@@ -38,6 +38,9 @@ void eliminar_el_proceso(pcb* un_pcb){
 			log_info(logger_obligatorio, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", pcb_a_desbloquear->PID);
 			pcb_a_desbloquear ->quantum_restante = QUANTUM;
 
+            char* recurso_lista = strdup(un_recurso);
+			list_add(un_pcb ->lista_recursos_tomados,recurso_lista);
+
 
 			pthread_mutex_lock(&mutex_cola_ready);
 			queue_push(cola_ready,pcb_a_desbloquear);

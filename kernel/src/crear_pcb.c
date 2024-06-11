@@ -16,6 +16,7 @@ pcb* creacion_pcb(char* ruta_pseudocodigo){
     int programCounter = recibir_PC_memoria();
     if(programCounter <0){
         return NULL;
+        pid_acumulado--;
     }
     el_pcb ->registros_cpu_en_pcb = malloc(sizeof(t_registros_cpu));
     el_pcb ->registros_cpu_en_pcb->PC = malloc(sizeof(uint32_t));

@@ -436,6 +436,7 @@ void eliminar_proceso_por_usuario(pcb* el_pcb_a_eliminar){
 
                     pthread_mutex_lock(&(nodo_del_recurso ->mutex_del_recurso));
                     eliminar_pcb_cola(nodo_del_recurso ->cola_bloqueados_recurso, el_pcb_a_eliminar);
+                    nodo_del_recurso ->instancias++;
                     pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
 
                 }
@@ -462,6 +463,12 @@ void eliminar_proceso_por_usuario(pcb* el_pcb_a_eliminar){
                 break;
 
             case EXEC:
+                if(strcmp(ALGORITMO_PLANIFICACION,"rr")==0 || strcmp(ALGORITMO_PLANIFICACION,"vrr")==0){
+                    pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
+                    pthread_cancel(proceso_en_ejecucion ->hilo_quantum);
+                    temporal_stop(proceso_en_ejecucion ->tiempo_en_ejecucion);
+                    pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
+                }
 
                 t_paquete* paquete = crear_paquete(INTERRUPCION);
                 agregar_int_a_paquete(paquete, el_pcb_a_eliminar ->PID);

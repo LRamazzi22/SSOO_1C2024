@@ -2,18 +2,24 @@
 
 
 void set(char* nombre_registro, int num){
-    int tamano = 0;
-    void* registro = apuntar_a_registro(nombre_registro, &tamano);
-    if (registro == NULL) {
-        printf("Es NULL\n");
+    if(strcmp(nombre_registro, "PC")==0){
+        *los_registros_de_la_cpu ->PC = num - 1; //Asi, si seteas el PC; queda el numero que querias y no uno mas
     }
-    if (tamano == 8) {
-        uint8_t* registro2 = (uint8_t*)registro;
-        *registro2 = num;
-    } else if (tamano == 32) {
-        uint32_t* registro2 = (uint32_t*)registro;
-        *registro2 = num;
+    else{
+        int tamano = 0;
+        void* registro = apuntar_a_registro(nombre_registro, &tamano);
+        if (registro == NULL) {
+            printf("Es NULL\n");
+        }
+        if (tamano == 8) {
+            uint8_t* registro2 = (uint8_t*)registro;
+            *registro2 = num;
+        } else if (tamano == 32) {
+            uint32_t* registro2 = (uint32_t*)registro;
+            *registro2 = num;
+        }
     }
+    
 }
 
 void sum(char* nombre_registro_destino, char* nombre_registro_origen){
@@ -87,7 +93,7 @@ void jnz(char* nombre_registro, int nuevo_pc){
     }
     
     if(contenido){
-        *los_registros_de_la_cpu -> PC = nuevo_pc -2;
+        *los_registros_de_la_cpu -> PC = nuevo_pc -1;
     }
 }
 

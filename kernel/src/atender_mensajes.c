@@ -41,7 +41,7 @@ int recibir_PC_memoria(){
 void atender_cpu_dispatch(){
 		int cod_op = recibir_operacion(kernel_cliente_dispatch);
 
-		if(strcmp(ALGORITMO_PLANIFICACION,"rr")==0 || strcmp(ALGORITMO_PLANIFICACION,"vrr")==0){
+		if(proceso_en_ejecucion != NULL && (strcmp(ALGORITMO_PLANIFICACION,"rr")==0 || strcmp(ALGORITMO_PLANIFICACION,"vrr")==0)){
 			pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
 			pthread_cancel(proceso_en_ejecucion ->hilo_quantum);
 			temporal_stop(proceso_en_ejecucion ->tiempo_en_ejecucion);
@@ -220,8 +220,6 @@ void atender_cpu_dispatch(){
 					pthread_mutex_unlock(&mutex_para_diccionario_recursos);
 
 					if(existe_recurso){
-						char* recurso_lista = strdup(recurso);
-						list_add(pcb_a_esperar ->lista_recursos_tomados,recurso_lista);
 						pthread_mutex_lock(&mutex_para_diccionario_recursos);
 						nodo_recursos* nodo_del_recurso = dictionary_get(diccionario_recursos,recurso);
 						pthread_mutex_unlock(&mutex_para_diccionario_recursos);
@@ -239,6 +237,8 @@ void atender_cpu_dispatch(){
 							queue_push(nodo_del_recurso ->cola_bloqueados_recurso,pcb_a_esperar);
 						}
 						else if(strcmp(ALGORITMO_PLANIFICACION,"rr")==0 || strcmp(ALGORITMO_PLANIFICACION,"vrr")==0){ //ROUND ROBIN O VIRTUAL ROUND ROBIN
+							char* recurso_lista = strdup(recurso);
+							list_add(pcb_a_esperar ->lista_recursos_tomados,recurso_lista);
 							int64_t tiempo_ejecutado = temporal_gettime(pcb_a_esperar ->tiempo_en_ejecucion);
 							temporal_destroy(pcb_a_esperar ->tiempo_en_ejecucion);
 							if(tiempo_ejecutado < pcb_a_esperar ->quantum_restante){
@@ -256,6 +256,8 @@ void atender_cpu_dispatch(){
 								atender_cpu_dispatch();
 							}
 							else{
+								char* recurso_lista = strdup(recurso);
+								list_add(pcb_a_esperar ->lista_recursos_tomados,recurso_lista);
 								log_info(logger_obligatorio,"PID: %d - Desalojado por fin de Quantum",pcb_a_esperar ->PID);
 								pcb_a_esperar->estado_proceso = READY;
 								log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: READY", pcb_a_esperar->PID);
@@ -271,6 +273,8 @@ void atender_cpu_dispatch(){
 							}
 						}
 						else{ //ES FIFO
+							char* recurso_lista = strdup(recurso);
+							list_add(pcb_a_esperar ->lista_recursos_tomados,recurso_lista);
 							t_paquete* paquete_pcb_a_enviar = crear_paquete(INICIAR_EXEC);
 							agregar_int_a_paquete(paquete_pcb_a_enviar,pcb_a_esperar->PID);
 							serializar_registros_procesador(paquete_pcb_a_enviar, pcb_a_esperar->registros_cpu_en_pcb);
@@ -337,6 +341,9 @@ void atender_cpu_dispatch(){
 							log_info(logger_obligatorio, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", pcb_a_desbloquear->PID);
 							pcb_a_desbloquear ->quantum_restante = QUANTUM;
 							strcpy(pcb_a_desbloquear ->recurso_bloqueante, "No");
+
+							char* recurso_lista = strdup(recurso_signal);
+							list_add(pcb_a_desbloquear ->lista_recursos_tomados,recurso_lista);
 
 
 							pthread_mutex_lock(&mutex_cola_ready);

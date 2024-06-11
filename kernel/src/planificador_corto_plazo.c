@@ -131,7 +131,7 @@ void serializar_registros_procesador (t_paquete* paquete, t_registros_cpu* proce
 void esperar_quantum(void* pcb_referencia){
   pcb* un_pcb = pcb_referencia;
   usleep(un_pcb ->quantum_restante * 1000);
-  if(un_pcb ->PID == proceso_en_ejecucion ->PID){
+  if(un_pcb != NULL && un_pcb ->PID == proceso_en_ejecucion ->PID){
     t_paquete* paquete = crear_paquete(INTERRUPCION);
     agregar_int_a_paquete(paquete, un_pcb ->PID);
     enviar_paquete(paquete,kernel_cliente_interrupt);
