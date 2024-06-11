@@ -77,6 +77,8 @@ void agregar_en_tlb(int pid, int num_pag, int marco){
     }
     else if(strcmp(ALGORITMO_TLB, "fifo")== 0){
         entradas_tlb* entrada_a_remplazar = list_remove(tlb,0);
+        log_info(logger_obligatorio, "PID ANTIGUO: %d - PAGINA ANTIGUA: %d - MARCO ANTIGUO: %d - PID NUEVO: %d - PAGINA NUEVA: %d - MARCO NUEVO: %d ", entrada_a_remplazar ->pid, entrada_a_remplazar ->num_pag, 
+        entrada_a_remplazar ->marco, nueva_entrada ->pid, nueva_entrada ->num_pag, nueva_entrada ->marco);
         free(entrada_a_remplazar);
         list_add(tlb, nueva_entrada);
     }
@@ -94,6 +96,8 @@ void agregar_en_tlb(int pid, int num_pag, int marco){
         }
 
         list_remove(tlb,posicion_a_remplazar);
+        log_info(logger_obligatorio, "PID ANTIGUO: %d - PAGINA ANTIGUA: %d - MARCO ANTIGUO: %d - PID NUEVO: %d - PAGINA NUEVA: %d - MARCO NUEVO: %d ", entrada_a_remplazar ->pid, entrada_a_remplazar ->num_pag, 
+        entrada_a_remplazar ->marco, nueva_entrada ->pid, nueva_entrada ->num_pag, nueva_entrada ->marco);
         free(entrada_a_remplazar);
         list_add(tlb, nueva_entrada);
     }
