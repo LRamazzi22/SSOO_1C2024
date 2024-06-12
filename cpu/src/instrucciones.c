@@ -214,6 +214,7 @@ void mov_in(char* reg_datos, char* reg_direccion){ //GRAN PARTE DE LO QUE ESTA A
 
     }
     
+    
     if(tamano_datos == 1){
         uint8_t* registro_datos2 = (uint8_t*)registro_datos;
         log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
@@ -222,6 +223,9 @@ void mov_in(char* reg_datos, char* reg_direccion){ //GRAN PARTE DE LO QUE ESTA A
         uint32_t* registro_datos2 = (uint32_t*)registro_datos;
         log_info(logger_obligatorio, "PID: %d- Acción: LEER - Dirección Fisica: %d - Valor: %d", pid_en_ejecucion, dir_fisica ->dir_fisica_final, *registro_datos2);
     }
+    
+
+    free(dir_fisica);
     
 }
 
@@ -260,6 +264,7 @@ bool mov_out(char* reg_direccion, char* reg_datos){
         bool confirm = confirmacion_escritura();
 
         if(!confirm){
+            free(dir_fisica);
             return false;
         }
 
@@ -286,11 +291,13 @@ bool mov_out(char* reg_direccion, char* reg_datos){
 
         bool confirm = confirmacion_escritura();
 
-        free(fraccion1_reg_datos);
-
         if(!confirm){
+            free(dir_fisica);
+            free(fraccion1_reg_datos);
             return false;
         }
+
+        free(fraccion1_reg_datos);
 
 
         int nueva_pag = dir_fisica ->num_de_pag_base + 1;
@@ -325,11 +332,13 @@ bool mov_out(char* reg_direccion, char* reg_datos){
 
                 bool confirm = confirmacion_escritura();
 
-                free(fraccionx_reg_datos);
-
                 if(!confirm){
+                    free(dir_fisica);
+                    free(fraccionx_reg_datos);
                     return false;
                 }
+
+                free(fraccionx_reg_datos);
 
                 bytes_restantes_a_copiar = bytes_restantes_a_copiar - tam_de_pags_memoria;
                 desplazamiento_en_reg_datos = desplazamiento_en_reg_datos + tam_de_pags_memoria;
@@ -353,11 +362,13 @@ bool mov_out(char* reg_direccion, char* reg_datos){
 
                 bool confirm = confirmacion_escritura();
 
-                free(fraccionX_reg_datos);
-
                 if(!confirm){
+                    free(dir_fisica);
+                    free(fraccionX_reg_datos);
                     return false;
                 }
+
+                free(fraccionX_reg_datos);
 
                 
             }
@@ -376,7 +387,7 @@ bool mov_out(char* reg_direccion, char* reg_datos){
     }
 
 
-    
+    free(dir_fisica);    
 
    return true;
 }
