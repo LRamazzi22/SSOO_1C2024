@@ -20,6 +20,8 @@ void inicializar_kernel(){
     diccionario_entrada_salida = dictionary_create();
     diccionario_recursos = dictionary_create();
 
+    diccionario_de_todos_los_procesos = dictionary_create();
+
     //Semaforos
     sem_init(&hay_proceso_en_ready,0,0);
     sem_init(&hay_proceso_en_new,0,0);
@@ -44,6 +46,7 @@ void inicializar_config_kernel(){
     IP_CPU = config_get_string_value(config,"IP_CPU");
     PUERTO_CPU_DISPATCH = config_get_string_value(config, "PUERTO_CPU_DISPATCH");
     PUERTO_CPU_INTERRUPT = config_get_string_value(config, "PUERTO_CPU_INTERRUPT");
+    PATH_SCRIPTS = config_get_string_value(config, "PATH_SCRIPTS");
     ALGORITMO_PLANIFICACION = config_get_string_value(config,"ALGORITMO_PLANIFICACION");
     QUANTUM = config_get_int_value(config, "QUANTUM");
     RECURSOS = config_get_array_value(config,"RECURSOS");

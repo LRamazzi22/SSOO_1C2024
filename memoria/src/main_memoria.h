@@ -11,8 +11,11 @@ t_log* logger;
 t_log* logger_obligatorio;
 t_config* config;
 
-pthread_mutex_t mutex_para_leer_pseudo;
-pthread_mutex_t mutex_para_diccionario_instrucciones;
+void* memoria_de_usuario;
+float cant_marcos_totales;
+void* puntero_a_bits_de_los_marcos;
+t_bitarray* marcos_de_memoria_libres;
+
 
 int memoria_server;
 int cpu_cliente;
@@ -25,6 +28,15 @@ char* PATH_INSTRUCCIONES;
 int RETARDO_RESPUESTA;
 
 t_dictionary* diccionario_de_instrucciones;
+t_dictionary* diccionario_de_tdp;
+
+//Semaforos
+pthread_mutex_t mutex_para_leer_pseudo;
+pthread_mutex_t mutex_para_diccionario_instrucciones;
+pthread_mutex_t mutex_para_diccionario_tdp;
+pthread_mutex_t mutex_para_marcos_libres;
+pthread_mutex_t mutex_para_mem_de_usuario;
+
 
 
 #endif

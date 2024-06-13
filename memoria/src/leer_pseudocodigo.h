@@ -3,7 +3,7 @@
 
 #include <memoria_gestor.h>
 
-int leer_archivo(char*, t_dictionary*,int);
+int leer_archivo(char*, t_dictionary*, char*);
 
 
 #endif

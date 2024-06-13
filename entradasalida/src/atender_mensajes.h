@@ -3,6 +3,7 @@
 
 #include <entradasalida_gestor.h>
 
-void atender_memoria_entradasalida();
+bool confirmacion_escritura();
+void* recibir_lectura();
 
 #endif

@@ -14,14 +14,33 @@ typedef enum{
     FINALIZAR,
     SEGUIR_EJECUTANDO,
     SLEEP_GEN,
+    STD_READ,
+    STD_WRITE,
     WAIT_RECURSO,
-    SIGNAL_RECURSO
+    SIGNAL_RECURSO,
+    SIN_MEMORIA
 } salidas_cpu;
 
 typedef enum{
     NO_INTERRUPCION,
     HUBO_INTERRUPCION
 } interrupciones;
+
+typedef struct{
+    int base;
+    int desplazamiento;
+    int marco;
+    int dir_fisica_final;
+    int num_de_pag_base;
+} direccion_fisica;
+
+typedef struct {
+    int pid;
+    int num_pag;
+    int marco;
+    int ultima_vez_usada;
+} entradas_tlb;
+
 
 //Variables Globales
 
@@ -42,6 +61,8 @@ extern char* PUERTO_ESCUCHA_INTERRUPT;
 extern int CANTIDAD_ENTRADAS_TLB;
 extern char* ALGORITMO_TLB;
 
+extern int tam_de_pags_memoria;
+
 extern char* instruccion_a_decodificar;
 extern char** instruccion_separada;
 extern int pid_en_ejecucion;
@@ -49,6 +70,8 @@ extern int interrupcion_recibida;
 extern int pid_de_interrupcion;
 
 extern t_registros_cpu* los_registros_de_la_cpu;
+
+extern t_list* tlb;
 
 //Semaforos
 extern pthread_mutex_t mutex_para_interrupcion;

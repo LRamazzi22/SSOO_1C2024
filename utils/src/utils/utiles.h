@@ -7,14 +7,17 @@
 
 #include <signal.h>
 #include <unistd.h>
+#include <math.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <string.h>
+#include <time.h>
 #include <commons/string.h>
 #include <commons/collections/list.h>
 #include <commons/collections/dictionary.h>
 #include <commons/collections/queue.h>
 #include <commons/temporal.h>
+#include <commons/bitarray.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <commons/log.h>
@@ -27,17 +30,28 @@ typedef enum
 	PAQUETE,
 	PROTOCOLO,
 	PEDIR_INSTRUCCION,
+    TAM_DE_PAG_CODE,
     CREAR_PROCESO,
     INICIAR_EXEC,
     FINALIZAR_EXEC,
     INTERRUMPIR_EXEC,
     PRIMERA_CONEXION_IO,
     ESPERAR_GEN,
+    STD_READ_WRITE_CODE,
+    STD_READ_CODE,
+    STD_WRITE_CODE,
     WAIT_CODE,
     SIGNAL_CODE,
     EXITO_IO,
+    FALLO_IO,
     ELIMINAR_PROCESO_MEMORIA,
     INTERRUPCION,
+    PEDIR_MARCO,
+    OUT_OF_MEM_CODE,
+    RESIZE_CODE,
+    LECTURA_CODE,
+    ESCRITURA_CODE,
+
 } op_code;
 
 
@@ -53,6 +67,18 @@ typedef struct
 	t_buffer* buffer;
 } t_paquete;
 
+typedef struct{
+    char* interfaz;
+    int tam;
+    int cant_dir_fisicas;
+    t_list* lista_dir_fisicas;
+} io_std;
+
+typedef struct{
+    int dir_fisica;
+    int tam;
+} dir_fis_y_tam;
+
 
 void decir_hola(char*);
 t_config* iniciar_config(char*);
@@ -67,6 +93,7 @@ int crear_conexion(char*, char*);
 int iniciar_servidor(char*, t_log*);
 int esperar_cliente(int, t_log*, char*);
 void liberar_conexion(int);
+
 
 
 //-------------------- Protoloco de Comunicacion --------------------//

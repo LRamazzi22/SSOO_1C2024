@@ -6,7 +6,7 @@ int main(int argc, char* argv[]) {
     
     //Se inicia al kernel como servidor
     kernel_server = iniciar_servidor(PUERTO_ESCUCHA, logger);
-
+    
     //Se conecta Kernel a memoria
     kernel_cliente_memoria = crear_conexion(IP_MEMORIA, PUERTO_MEMORIA);
 

@@ -82,27 +82,6 @@ void atender_kernel_interrupt(){
 	}  
 }
 
-void atender_memoria_cpu(){
-    while (1) {
-        log_info(logger, "Esperando mensajes de memoria");
-		int cod_op = recibir_operacion(cpu_cliente_memoria);
-		switch (cod_op) {
-		case HANDSHAKE:
-			t_buffer* buffer = recibir_buffer(cpu_cliente_memoria);
-			char* mensaje = extraer_string_buffer(buffer, logger);
-			printf("Recibi un handshake de: %s, como cliente",mensaje);
-			free(mensaje);
-			break;
-		case -1:
-			log_error(logger, "La Memoria se desconecto");
-			exit(EXIT_FAILURE);
-		default:
-			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
-			break;
-		}
-	}  
-}
-
 void atender_memoria_cpu_sin_while(){
         log_info(logger, "Esperando mensajes de memoria");
 		t_buffer* buffer;
@@ -122,7 +101,11 @@ void atender_memoria_cpu_sin_while(){
 			instruccion_a_decodificar = malloc(strlen(instruccion)+1);
 			strcpy(instruccion_a_decodificar,instruccion);
 			free(instruccion);
-			break; 
+			break;
+		case TAM_DE_PAG_CODE: //case para recibir el tamaño de las paginas
+			buffer = recibir_buffer(cpu_cliente_memoria);
+			tam_de_pags_memoria = extraer_int_buffer(buffer,logger);
+			break;
 		case -1:
 			log_error(logger, "La Memoria se desconecto");
 			exit(EXIT_FAILURE);
@@ -130,7 +113,85 @@ void atender_memoria_cpu_sin_while(){
 			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
 			break;
 		}
+}
+
+int recibir_marco(){
+	t_buffer* buffer;
+		int cod_op = recibir_operacion(cpu_cliente_memoria);
+		switch (cod_op) {
+		case PEDIR_MARCO:
+			buffer = recibir_buffer(cpu_cliente_memoria);
+			int marco = extraer_int_buffer(buffer,logger);
+			return marco;
+			break;
+		case -1:
+			log_error(logger, "La Memoria se desconecto");
+			exit(EXIT_FAILURE);
+		default:
+			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+			break;
+		}
+	return -1;
+}
+
+int confirmacion_resize(){
+	t_buffer* buffer;
+	int cod_op = recibir_operacion(cpu_cliente_memoria);
+	switch (cod_op) {
+		case RESIZE_CODE:
+			buffer = recibir_buffer(cpu_cliente_memoria);
+			int confirmacion = extraer_int_buffer(buffer,logger);
+			return confirmacion;
+			break;
+		case -1:
+			log_error(logger, "La Memoria se desconecto");
+			exit(EXIT_FAILURE);
+		default:
+			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+			break;
+		}
+	return 0;
+}
+
+void* recibir_lectura(){
+	t_buffer* buffer;
+	int cod_op = recibir_operacion(cpu_cliente_memoria);
+	switch (cod_op) {
+		case LECTURA_CODE:
+			buffer = recibir_buffer(cpu_cliente_memoria);
+			void* leido = extraer_contenido_buffer(buffer, logger);
+			return leido;
+			break;
+		case -1:
+			log_error(logger, "La Memoria se desconecto");
+			exit(EXIT_FAILURE);
+		default:
+			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+			break;
 	}
+}
+
+bool confirmacion_escritura(){
+	t_buffer* buffer;
+	int cod_op = recibir_operacion(cpu_cliente_memoria);
+	switch (cod_op) {
+		case ESCRITURA_CODE:
+			buffer = recibir_buffer(cpu_cliente_memoria);
+			char* confirm = extraer_string_buffer(buffer, logger);
+			
+			return (strcmp(confirm, "Ok")==0);
+
+			break;
+		case -1:
+			log_error(logger, "La Memoria se desconecto");
+			exit(EXIT_FAILURE);
+		default:
+			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+			break;
+	}
+
+	return false;
+}
 
 
 	  

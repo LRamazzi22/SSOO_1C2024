@@ -3,13 +3,6 @@
 int main(int argc, char* argv[]) {
 
     inicializar_memoria();
-
-    if(TAM_MEMORIA % TAM_PAGINA != 0){
-		log_error(logger, "Tamanio de memoria no es multiplo de tamanio de memoria");
-		exit(EXIT_FAILURE);
-	}
-	void* reserva_memoria = malloc(TAM_MEMORIA);
-	diccionario_de_instrucciones = dictionary_create();
 		
 	//Se inicia la memoria como servidor
     memoria_server = iniciar_servidor(PUERTO_ESCUCHA, logger);
@@ -43,7 +36,8 @@ int main(int argc, char* argv[]) {
 	liberar_conexion(memoria_server);
 	
 	terminar_programa(logger, config);
-	free(reserva_memoria);
+	free(memoria_de_usuario);
+	bitarray_destroy(marcos_de_memoria_libres);
 	return EXIT_SUCCESS;
 
 	
