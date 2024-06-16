@@ -274,7 +274,7 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
             }
             else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "stdin")==0){
                 pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
-                io_std* dir_fisicas = queue_pop(nodo_blocked ->cola_Variables);
+                io_std_fs* dir_fisicas = queue_pop(nodo_blocked ->cola_Variables);
                 pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
 
                 t_paquete* paquete2 = crear_paquete(STD_READ_CODE);
@@ -295,7 +295,7 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
             }
             else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "stdout")==0){
                 pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
-                io_std* dir_fisicas = queue_pop(nodo_blocked ->cola_Variables);
+                io_std_fs* dir_fisicas = queue_pop(nodo_blocked ->cola_Variables);
                 pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
 
                 t_paquete* paquete2 = crear_paquete(STD_WRITE_CODE);

@@ -15,7 +15,10 @@ bool mov_out(char*, char*);
 int resize(int);
 bool copy_string(int );
 void std_read_write(char*, char*, char*, char*);
-io_std* io_std_get_dir_fis(char*, char*, char*);
+io_std_fs* io_std_fs_get_dir_fis(char*, char*, char*);
+void fs_create_delete(char*, char*, int );
+void fs_truncate(char*, char*, char* );
+void fs_read_write(char*, char*, char*, char*, char*, char*);
 void* apuntar_a_registro (char*, int*);
 
 #endif

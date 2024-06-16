@@ -21,7 +21,7 @@ void atender_cpu_dispatch();
 nodo_de_diccionario_interfaz* comprobrar_existencia_de_interfaz(pcb*, char* ,char* );
 void recibir_contexto_de_ejecucion(t_buffer* ,pcb*); 
 void atender_cpu_interrupt();
-io_std* extraer_dir_fisicas_de_buffer(t_buffer*);
+io_std_fs* extraer_dir_fisicas_de_buffer(t_buffer*);
 void atender_entradasalida_kernel(void*);
 
 

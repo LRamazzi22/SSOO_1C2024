@@ -55,6 +55,26 @@ void ciclo(){
                 std_read_write(instruccion_separada[1], instruccion_separada[2], instruccion_separada[3], "stdout");
 
                 break;
+            case FS_CREATE:
+                fs_create_delete(instruccion_separada[1], instruccion_separada[2], FS_CREATE_CODE);
+
+                break;
+            case FS_DELETE:
+                fs_create_delete(instruccion_separada[1], instruccion_separada[2], FS_DELETE_CODE);
+
+                break;
+            case FS_TRUNCATE:
+                fs_truncate(instruccion_separada[1], instruccion_separada[2], instruccion_separada[3]);
+
+                break;
+            case FS_READ:
+                fs_read_write(instruccion_separada[1], instruccion_separada[2], instruccion_separada[3], instruccion_separada[4], instruccion_separada[5], "lectura");
+
+                break;
+            case FS_WRITE:
+                fs_read_write(instruccion_separada[1], instruccion_separada[2], instruccion_separada[3], instruccion_separada[4], instruccion_separada[5], "escritura");
+
+                break;
             case WAIT_RECURSO:
                 t_paquete* paquete3 = crear_paquete(WAIT_CODE);
                 cargar_registros_a_paquete(paquete3);
@@ -265,6 +285,28 @@ int ejecutar_instruccion (int codigo_instruccion) {
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s %s %s",pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], 
         instruccion_separada[2], instruccion_separada[3]);
         return STD_WRITE;
+
+    case IO_FS_CREATE: //IO_FS_CREATE (Interfaz, Nombre Archivo)
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s %s", pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], instruccion_separada[2]);
+        return FS_CREATE;
+    
+    case IO_FS_DELETE: //IO_FS_DELETE (Interfaz, Nombre Archivo)
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s %s", pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], instruccion_separada[2]);
+        return FS_DELETE;
+
+    case IO_FS_TRUNCATE: //IO_FS_TRUNCATE (Interfaz, Nombre Archivo, Registro Tamaño)
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s %s %s", pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], instruccion_separada[2], instruccion_separada[3]);
+        return FS_TRUNCATE;
+
+    case IO_FS_READ: //IO_FS_READ (Interfaz, Nombre Archivo, Registro Dirección, Registro Tamaño, Registro Puntero Archivo)
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s %s %s %s %s", pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], instruccion_separada[2], instruccion_separada[3],
+        instruccion_separada[4], instruccion_separada[5]);
+        return FS_READ;
+
+    case IO_FS_WRITE: //IO_FS_WRITE (Interfaz, Nombre Archivo, Registro Dirección, Registro Tamaño, Registro Puntero Archivo)
+        log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s - %s %s %s %s %s", pid_en_ejecucion, instruccion_separada[0], instruccion_separada[1], instruccion_separada[2], instruccion_separada[3],
+        instruccion_separada[4], instruccion_separada[5]);
+        return FS_WRITE;
 
     case EXIT:
         log_info(logger_obligatorio, "PID: %d - EJECUTANDO: %s",pid_en_ejecucion, instruccion_separada[0]);
