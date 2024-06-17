@@ -60,6 +60,15 @@ typedef enum
 
 } op_code;
 
+typedef enum{
+    VAR_FS_CREATE,
+    VAR_FS_DELETE,
+    VAR_FS_TRUNCATE,
+    VAR_FS_READ,
+    VAR_FS_WRITE
+
+} tipo_var_fs;
+
 
 typedef struct
 {

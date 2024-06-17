@@ -72,8 +72,14 @@ typedef struct
     pthread_mutex_t mutex_del_recurso;
 } nodo_recursos;
 
+typedef struct{
+    int tipo_variable;
+    char* nombre_Archivo;
+    int tam_truncate; //Solo para fs Truncate
+    io_std_fs* dir_fisicas; //Solo para fs read/write
+    int puntero_Arch; //Solo para fs read/write
 
-
+} var_fs;
 
 
 

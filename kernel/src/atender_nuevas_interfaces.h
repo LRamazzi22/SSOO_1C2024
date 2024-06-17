@@ -15,6 +15,8 @@ void atender_mensajes_interfaz(void*);
 void enviar_proceso_interfaz(void* );
 pcb* buscar_proceso_en_cola(int , nodo_de_diccionario_blocked*);
 void atender_las_nuevas_interfaces();
+void enviar_fs_create_delete(nodo_de_diccionario_interfaz*, var_fs*, int, int);
+void enviar_fs_read_write(nodo_de_diccionario_interfaz*, var_fs*, int, int);
 
 
 

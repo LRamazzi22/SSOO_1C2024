@@ -39,6 +39,9 @@ extern char* PATH_BASE_DIALFS;
 extern int BLOCK_SIZE;
 extern int BLOCK_COUNT;
 
+extern FILE* Archivo_bloques;
+extern FILE* Archivo_bitmap;
+
 
 
 

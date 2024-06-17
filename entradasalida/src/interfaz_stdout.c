@@ -32,6 +32,8 @@ void atender_peticiones_stdout(){
                     memcpy(texto + desplazamiento, leido, tam );
 
                     desplazamiento = desplazamiento + tam;
+
+                    free(leido);
                 }
 
                 texto[tam_total] = '\0';

@@ -314,7 +314,41 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
                 free(dir_fisicas);
             }
             else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "dialfs")==0){
-                
+                pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
+                var_fs* variable_fs = queue_pop(nodo_blocked ->cola_Variables);
+                pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
+
+                switch(variable_fs ->tipo_variable){
+
+                    case VAR_FS_CREATE:
+                        enviar_fs_create_delete(nodo_interfaz, variable_fs, FS_CREATE_CODE, pcb_a_enviar->PID);
+                        break;
+                    
+                    case VAR_FS_DELETE:
+                        enviar_fs_create_delete(nodo_interfaz, variable_fs, FS_DELETE_CODE, pcb_a_enviar->PID);                 
+                        break;
+                    
+                    case VAR_FS_TRUNCATE:
+                        t_paquete* paquete = crear_paquete(FS_TRUNCATE_CODE);
+                        agregar_int_a_paquete(paquete, pcb_a_enviar ->PID);
+                        agregar_string_a_paquete(paquete,variable_fs ->nombre_Archivo);
+                        agregar_int_a_paquete(paquete, variable_fs ->tam_truncate);
+                        enviar_paquete(paquete, *nodo_interfaz ->cliente);
+                        eliminar_paquete(paquete);
+                        
+                        break;
+
+                    case VAR_FS_READ:
+                        enviar_fs_read_write(nodo_interfaz, variable_fs, FS_READ_CODE, pcb_a_enviar->PID);
+                        break;
+                    
+                    case VAR_FS_WRITE:
+                        enviar_fs_read_write(nodo_interfaz, variable_fs, FS_CREATE_CODE, pcb_a_enviar->PID);
+                        break;
+                }
+
+                free(variable_fs ->nombre_Archivo);
+                free(variable_fs);
             }
         }
         
@@ -350,4 +384,33 @@ void atender_las_nuevas_interfaces(){
         pthread_detach(hilo_atender_entradasalida);
     }
     
+}
+
+void enviar_fs_create_delete(nodo_de_diccionario_interfaz* nodo_interfaz, var_fs* variable_fs, int cod_op, int PID){
+    t_paquete* paquete = crear_paquete(cod_op);
+    agregar_int_a_paquete(paquete, PID);
+    agregar_string_a_paquete(paquete, variable_fs ->nombre_Archivo);
+    enviar_paquete(paquete, *nodo_interfaz ->cliente);
+    eliminar_paquete(paquete);                                             
+}
+
+void enviar_fs_read_write(nodo_de_diccionario_interfaz* nodo_interfaz, var_fs* variable_fs, int cod_op, int PID){
+    t_paquete* paquete = crear_paquete(cod_op);
+    agregar_int_a_paquete(paquete, PID);
+    agregar_string_a_paquete(paquete,variable_fs ->nombre_Archivo);
+    agregar_int_a_paquete(paquete, variable_fs ->puntero_Arch);
+
+    agregar_int_a_paquete(paquete, variable_fs-> dir_fisicas ->tam);
+    agregar_int_a_paquete(paquete, variable_fs->dir_fisicas ->cant_dir_fisicas);
+
+    for(int i = 0; i < list_size(variable_fs->dir_fisicas ->lista_dir_fisicas); i++){
+        dir_fis_y_tam* dir_fisica_y_tam = list_get(variable_fs ->dir_fisicas ->lista_dir_fisicas, i);
+        agregar_int_a_paquete(paquete, dir_fisica_y_tam ->dir_fisica);
+        agregar_int_a_paquete(paquete, dir_fisica_y_tam ->tam);
+    }
+    enviar_paquete(paquete, *nodo_interfaz ->cliente);
+    eliminar_paquete(paquete);
+    list_destroy_and_destroy_elements(variable_fs->dir_fisicas ->lista_dir_fisicas, free);
+    free(variable_fs->dir_fisicas);
+   
 }

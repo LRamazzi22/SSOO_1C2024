@@ -189,7 +189,15 @@ void atender_cpu_dispatch(){
 						nodo_de_diccionario_blocked* nodo_bloqueados2 = dictionary_get(diccionario_blocked, interfaz1);
 						pthread_mutex_unlock(&mutex_para_diccionario_blocked);
 
-						//CARGAR VARIABLES A COLA DE VARIABLES
+						var_fs* variable_para_cola = malloc(sizeof(var_fs));
+
+						variable_para_cola ->tipo_variable = VAR_FS_CREATE;
+						variable_para_cola ->nombre_Archivo = nombre_Arch1;
+
+						pthread_mutex_lock(&(nodo_bloqueados2 ->mutex_para_cola_variables));
+						queue_push(nodo_bloqueados2 ->cola_Variables, variable_para_cola);
+						pthread_mutex_unlock(&(nodo_bloqueados2 ->mutex_para_cola_variables));
+
 
 						sem_post(&(nodo_interfaz2 ->hay_proceso_en_bloqueados));
 
@@ -224,7 +232,15 @@ void atender_cpu_dispatch(){
 						nodo_de_diccionario_blocked* nodo_bloqueados3 = dictionary_get(diccionario_blocked, interfaz2);
 						pthread_mutex_unlock(&mutex_para_diccionario_blocked);
 
-						//CARGAR VARIABLES A COLA DE VARIABLES
+						var_fs* variable_para_cola = malloc(sizeof(var_fs));
+
+						variable_para_cola ->tipo_variable = VAR_FS_DELETE;
+						variable_para_cola ->nombre_Archivo = nombre_Arch2;
+
+						pthread_mutex_lock(&(nodo_bloqueados3 ->mutex_para_cola_variables));
+						queue_push(nodo_bloqueados3 ->cola_Variables, variable_para_cola);
+						pthread_mutex_unlock(&(nodo_bloqueados3 ->mutex_para_cola_variables));
+
 
 						sem_post(&(nodo_interfaz3 ->hay_proceso_en_bloqueados));
 
@@ -261,7 +277,16 @@ void atender_cpu_dispatch(){
 						nodo_de_diccionario_blocked* nodo_bloqueados4 = dictionary_get(diccionario_blocked, interfaz3);
 						pthread_mutex_unlock(&mutex_para_diccionario_blocked);
 
-						//CARGAR VARIABLES A COLA DE VARIABLES
+						var_fs* variable_para_cola = malloc(sizeof(var_fs));
+
+						variable_para_cola ->tipo_variable = VAR_FS_TRUNCATE;
+						variable_para_cola ->nombre_Archivo = nombre_Arch3;
+						variable_para_cola ->tam_truncate = tam_a_truncar;
+
+						pthread_mutex_lock(&(nodo_bloqueados4 ->mutex_para_cola_variables));
+						queue_push(nodo_bloqueados4 ->cola_Variables, variable_para_cola);
+						pthread_mutex_unlock(&(nodo_bloqueados4 ->mutex_para_cola_variables));
+						
 
 						sem_post(&(nodo_interfaz4 ->hay_proceso_en_bloqueados));
 
@@ -299,7 +324,23 @@ void atender_cpu_dispatch(){
 						nodo_de_diccionario_blocked* nodo_bloqueados5 = dictionary_get(diccionario_blocked,dir_fisicas_fs ->interfaz);
 						pthread_mutex_unlock(&mutex_para_diccionario_blocked);
 
-						//CARGAR VARIABLES A COLA DE VARIABLES
+						var_fs* variable_para_cola = malloc(sizeof(var_fs));
+						variable_para_cola ->nombre_Archivo = nombre_Arch4;
+						variable_para_cola ->puntero_Arch = puntero_arch;
+						variable_para_cola ->dir_fisicas = dir_fisicas_fs;
+						
+						if(strcmp(lectura_o_escritura, "lectura")==0){
+							variable_para_cola ->tipo_variable = VAR_FS_READ;
+						}
+						else if(strcmp(lectura_o_escritura, "escritura")==0){
+							variable_para_cola ->tipo_variable = VAR_FS_WRITE;
+						}
+						
+						free(lectura_o_escritura);
+
+						pthread_mutex_lock(&(nodo_bloqueados5 ->mutex_para_cola_variables));
+						queue_push(nodo_bloqueados5 ->cola_Variables, variable_para_cola);
+						pthread_mutex_unlock(&(nodo_bloqueados5 ->mutex_para_cola_variables));
 
 						sem_post(&(nodo_interfaz5 ->hay_proceso_en_bloqueados));
 

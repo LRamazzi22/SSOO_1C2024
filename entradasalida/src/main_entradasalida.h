@@ -7,6 +7,7 @@
 #include <interfaz_generica.h>
 #include <interfaz_stdin.h>
 #include <interfaz_stdout.h>
+#include <interfaz_dialfs.h>
 
 t_log* logger;
 t_log* logger_obligatorio;
@@ -28,6 +29,9 @@ char* PUERTO_MEMORIA;
 char* PATH_BASE_DIALFS;
 int BLOCK_SIZE;
 int BLOCK_COUNT;
+
+FILE* Archivo_bloques;
+FILE* Archivo_bitmap;
 
 
 int definir_tipo_interfaz();

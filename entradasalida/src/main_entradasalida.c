@@ -45,6 +45,7 @@ int main(int argc, char* argv[]) {
             atender_peticiones_stdout();
             break;
         case DIALFS:
+            levantar_archivos();
             break;
         default:
             break;
@@ -72,6 +73,7 @@ int definir_tipo_interfaz(){
         return STDOUT;
     }
     else if(strcmp(TIPO_INTERFAZ,"dialfs")==0){
+        
         return DIALFS;
     }
     else{
