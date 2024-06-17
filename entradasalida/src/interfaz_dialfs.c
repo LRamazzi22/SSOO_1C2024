@@ -117,20 +117,16 @@ void levantar_archivos(){
     Archivo_bloques = fopen(nombre_archivo_bloques, "r+b");
 
     if(Archivo_bloques == NULL){
-        Archivo_bloques = fopen(nombre_archivo_bloques, "w");
-       /*
-       if(fseek(Archivo_bloques, tamanio_archivo, SEEK_SET) != 0){
-        log_info(logger,"Error al ajustar tamanio del archivo");
-        fclose(Archivo_bloques);
-        return;
-       }
-       */
-       
-        
+        Archivo_bloques = fopen(nombre_archivo_bloques, "w+");
+
+        if(fseek(Archivo_bloques, tamanio_archivo, SEEK_SET) != 0){
+            log_info(logger,"Error al ajustar tamanio del archivo");
+            fclose(Archivo_bloques);
+            return;
+        }
+
+        //fputc('\0', Archivo_bloques);
     }
 
     fclose(Archivo_bloques);
-
-
-
 }
