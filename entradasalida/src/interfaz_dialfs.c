@@ -117,16 +117,61 @@ void levantar_archivos(){
     Archivo_bloques = fopen(nombre_archivo_bloques, "r+b");
 
     if(Archivo_bloques == NULL){
-        Archivo_bloques = fopen(nombre_archivo_bloques, "w+");
+        Archivo_bloques = fopen(nombre_archivo_bloques, "w+b");
 
-        if(fseek(Archivo_bloques, tamanio_archivo, SEEK_SET) != 0){
-            log_info(logger,"Error al ajustar tamanio del archivo");
-            fclose(Archivo_bloques);
-            return;
+        truncate(nombre_archivo_bloques,tamanio_archivo);
+    }
+    else{
+        fseek(Archivo_bloques, 0, SEEK_END);
+        int tam = ftell(Archivo_bloques);
+        fseek(Archivo_bloques, 0, SEEK_SET);
+        
+        if(tam != tamanio_archivo){
+            truncate(nombre_archivo_bloques, tamanio_archivo);
         }
-
-        //fputc('\0', Archivo_bloques);
     }
 
+    int fd_bloques = fileno(Archivo_bloques);
+
+    archivo_bloques_en_mem = mmap(NULL,tamanio_archivo, PROT_READ | PROT_WRITE, MAP_SHARED, fd_bloques, 0);
+
     fclose(Archivo_bloques);
+
+    free(nombre_archivo_bloques);
+
+    char* nombre_archivo_bitmap = strdup(PATH_BASE_DIALFS);
+    string_append(&nombre_archivo_bitmap, "/bitmap.dat");
+
+    Archivo_bitmap = fopen(nombre_archivo_bitmap, "r+b");
+
+    float cant_block_float = BLOCK_COUNT;
+
+    int tamanio_bitmap = ceil(cant_block_float/8);
+
+    bool creacion = false;
+
+    if(Archivo_bitmap == NULL){
+        Archivo_bitmap = fopen(nombre_archivo_bitmap, "w+b");
+
+        truncate(nombre_archivo_bitmap,tamanio_bitmap);
+
+        creacion = true;
+    }
+
+    int fd_bitmap = fileno(Archivo_bitmap);
+
+    puntero_a_bits_de_bloques = mmap(NULL, tamanio_bitmap, PROT_READ | PROT_WRITE, MAP_SHARED, fd_bitmap, 0);
+
+     fclose(Archivo_bloques);
+
+    bitmap_bloques = bitarray_create_with_mode(puntero_a_bits_de_bloques, tamanio_bitmap, LSB_FIRST);
+
+    if(creacion){
+        for(int i = 0; i < BLOCK_COUNT; i++){
+            bitarray_clean_bit(bitmap_bloques,i);
+        }
+    }
+
+    free(nombre_archivo_bitmap);
+
 }

@@ -12,6 +12,8 @@
 #include <netdb.h>
 #include <string.h>
 #include <time.h>
+#include <sys/mman.h>
+#include <sys/types.h>
 #include <commons/string.h>
 #include <commons/collections/list.h>
 #include <commons/collections/dictionary.h>

@@ -33,6 +33,11 @@ int BLOCK_COUNT;
 FILE* Archivo_bloques;
 FILE* Archivo_bitmap;
 
+void* archivo_bloques_en_mem;
+void* puntero_a_bits_de_bloques;
+
+t_bitarray* bitmap_bloques;
+
 
 int definir_tipo_interfaz();
 

@@ -42,6 +42,11 @@ extern int BLOCK_COUNT;
 extern FILE* Archivo_bloques;
 extern FILE* Archivo_bitmap;
 
+extern void* archivo_bloques_en_mem;
+extern void* puntero_a_bits_de_bloques;
+
+extern t_bitarray* bitmap_bloques;
+
 
 
 
