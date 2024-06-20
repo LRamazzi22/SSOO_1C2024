@@ -46,6 +46,7 @@ int main(int argc, char* argv[]) {
             break;
         case DIALFS:
             levantar_archivos();
+            atender_peticiones_dialfs();
             break;
         default:
             break;

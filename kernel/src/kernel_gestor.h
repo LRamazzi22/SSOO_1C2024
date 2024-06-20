@@ -27,7 +27,8 @@ typedef enum{
     RECURSO_INVALIDO,
     INTERFAZ_INVALIDA,
     FUERA_DE_MEMORIA,
-    FINALIZADO_POR_USUARIO
+    FINALIZADO_POR_USUARIO,
+    FALLO_EN_IO
 
 } razones_exit;
 typedef struct 

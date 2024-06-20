@@ -151,6 +151,7 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
                 pthread_mutex_unlock(&(nodo_bloqueados2 ->mutex_para_cola_bloqueados));
 
                 un_pcb2 ->estado_proceso = EXIT_PROCESS;
+                un_pcb2 ->razon_salida = FALLO_EN_IO;
 
                 mandar_a_exit(un_pcb2);
                 log_info(logger_obligatorio,"PID: %d - Estado Anterior: BLOCKED - Estado Actual: EXIT", un_pcb2 ->PID);

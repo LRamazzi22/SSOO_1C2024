@@ -69,6 +69,9 @@ void eliminar_el_proceso(pcb* un_pcb){
         case FINALIZADO_POR_USUARIO:
             log_info(logger_obligatorio, "Finaliza el proceso %d - Motivo: INTERRUPTED_BY_USER",un_pcb->PID);
             break;
+        case FALLO_EN_IO:
+            log_info(logger_obligatorio, "Finaliza el proceso %d - Motivo: FALLO EN IO",un_pcb->PID);
+            break;
     }
     free(un_pcb);
     if(espera_grado_multi > 0){
