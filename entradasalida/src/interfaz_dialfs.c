@@ -33,7 +33,7 @@ void atender_peticiones_dialfs(){
                         t_config* meta_config = config_create(path_archivo);
 
                         config_set_value(meta_config, "BLOQUE_INICIAL", string_itoa(bloque_elegido));
-                        config_set_value(meta_config, "TAMANIO_ARCHIVO", string_itoa(BLOCK_SIZE));
+                        config_set_value(meta_config, "TAMANIO_ARCHIVO", "0");
 
                         config_save(meta_config);
 
