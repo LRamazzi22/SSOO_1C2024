@@ -1,7 +1,6 @@
 #include <interfaz_dialfs.h>
 
 
-
 void atender_peticiones_dialfs(){
     while(1){
         int cod_op = recibir_operacion(entradasalida_cliente_kernel);
@@ -47,6 +46,8 @@ void atender_peticiones_dialfs(){
 
                     free(path_archivo);
 
+                    log_info(logger_obligatorio, "PID: <%d> - Crear Archivo: <%s>",pid1,nombre_Archivo1);
+
                     t_paquete* paquete = crear_paquete(EXITO_IO);
                     agregar_int_a_paquete(paquete,pid1);
                     enviar_paquete(paquete,entradasalida_cliente_kernel);
@@ -89,6 +90,9 @@ void atender_peticiones_dialfs(){
                     log_info(logger, "Se intenta borrar un archivo que no existe, no se hara nada");
                 }
 
+                log_info(logger_obligatorio, "PID: <%d> - Eliminar Archivo: <%s>",pid2,nombre_Archivo2);
+
+
                 t_paquete* paquete = crear_paquete(EXITO_IO);
                 agregar_int_a_paquete(paquete,pid2);
                 enviar_paquete(paquete,entradasalida_cliente_kernel);
@@ -110,11 +114,22 @@ void atender_peticiones_dialfs(){
                 int pid4 = extraer_int_buffer(buffer,logger);
                 char* nombre_Archivo4 = extraer_string_buffer(buffer, logger);
                 int puntero_Arch4 = extraer_int_buffer(buffer, logger);
-                int tam_tota4l = extraer_int_buffer(buffer,logger);
+                int tam_total4 = extraer_int_buffer(buffer,logger);
                 int cant_dir_fisicas4 = extraer_int_buffer(buffer, logger);
 
 
-                void* leido_de_fs; //ACA HAY QUE HACER LA FUNCION QUE LEE EL CONTENIDO DEL FS
+                void* leido_de_fs = malloc(tam_total4);
+
+                char* path_archivo4 = strdup(PATH_BASE_DIALFS);
+                string_append(&path_archivo4, nombre_Archivo4);
+
+                t_config* meta_config_read = config_create(path_archivo4);
+
+                int posicion_arch = config_get_int_value(meta_config_read, "BLOQUE INICIAL");
+
+                int desplazamiento_en_bloques = (posicion_arch * BLOCK_SIZE) + puntero_Arch4;
+
+                memcpy(leido_de_fs, archivo_bloques_en_mem + desplazamiento_en_bloques, tam_total4);
 
                 int desplazamiento4 = 0;
 
@@ -141,7 +156,13 @@ void atender_peticiones_dialfs(){
                     
                 }
 
+                log_info(logger_obligatorio,"PID: <%d> - Leer Archivo: <%s> - Tamaño a Leer: <%d> - Puntero Archivo: <%d>",pid4,nombre_Archivo4,tam_total4,puntero_Arch4);
+
+                free(nombre_Archivo4);
+                free(path_archivo4);
                 free(leido_de_fs);
+
+                config_destroy(meta_config_read);
 
 
                 break;
@@ -154,7 +175,7 @@ void atender_peticiones_dialfs(){
                 int tam_total5 = extraer_int_buffer(buffer,logger);
                 int cant_dir_fisicas5 = extraer_int_buffer(buffer, logger);
                 
-                void* contenido = malloc(tam_total5 + 1);
+                void* contenido = malloc(tam_total5);
 
                 int desplazamiento5 = 0;
 
@@ -179,6 +200,27 @@ void atender_peticiones_dialfs(){
 
                     free(leido);
                 }
+
+                char* path_archivo5 = strdup(PATH_BASE_DIALFS);
+                string_append(&path_archivo5, nombre_Archivo5);
+
+                t_config* meta_config_write = config_create(path_archivo5);
+
+                int posicion_arch2 = config_get_int_value(meta_config_write, "BLOQUE INICIAL");
+
+                int desplazamiento_en_bloques2 = (posicion_arch2 * BLOCK_SIZE) + puntero_Arch5;
+
+                memcpy(archivo_bloques_en_mem + desplazamiento_en_bloques2,contenido ,tam_total5);
+
+                config_destroy(meta_config_write);
+
+                free(contenido);
+
+                log_info(logger_obligatorio,"PID: %d - Leer Archivo: %s - Tamaño a Leer: %d - Puntero Archivo: %d", pid5, nombre_Archivo5, tam_total5, puntero_Arch5);
+
+                free(nombre_Archivo5);
+
+                free(path_archivo5);
 
                 break;
             default:
@@ -267,3 +309,4 @@ int buscar_bloque_libre(){
 
     return -1;
 }
+
