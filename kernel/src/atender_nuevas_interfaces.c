@@ -344,7 +344,7 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
                         break;
                     
                     case VAR_FS_WRITE:
-                        enviar_fs_read_write(nodo_interfaz, variable_fs, FS_CREATE_CODE, pcb_a_enviar->PID);
+                        enviar_fs_read_write(nodo_interfaz, variable_fs, FS_WRITE_CODE, pcb_a_enviar->PID);
                         break;
                 }
 

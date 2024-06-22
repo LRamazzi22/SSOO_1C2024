@@ -18,6 +18,12 @@ typedef enum{
     DIALFS
 } interfaces;
 
+typedef struct {
+    char nombreArchivo[20 + 1];
+    int posicionInicial;
+    int tamanio;
+} t_archivo;
+
 //Variables Globales
 
 extern t_log* logger;
@@ -41,13 +47,14 @@ extern int BLOCK_COUNT;
 
 extern FILE* Archivo_bloques;
 extern FILE* Archivo_bitmap;
+extern FILE* Archivo_lista;
 
 extern void* archivo_bloques_en_mem;
 extern void* puntero_a_bits_de_bloques;
 
 extern t_bitarray* bitmap_bloques;
 
-
+extern t_list* lista_archivos;
 
 
 

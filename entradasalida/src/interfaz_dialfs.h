@@ -7,6 +7,7 @@
 void atender_peticiones_dialfs();
 void levantar_archivos();
 int buscar_bloque_libre();
+void copiar_lista_a_archivo();
 
 
 

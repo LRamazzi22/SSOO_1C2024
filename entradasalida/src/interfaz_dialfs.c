@@ -39,6 +39,17 @@ void atender_peticiones_dialfs(){
                         config_destroy(meta_config);
 
                         bitarray_set_bit(bitmap_bloques,bloque_elegido);
+
+                        t_archivo* nodo_lista = malloc(sizeof(t_archivo));
+
+                        strcpy(nodo_lista ->nombreArchivo, nombre_Archivo1);
+                        nodo_lista ->posicionInicial = bloque_elegido;
+                        nodo_lista ->tamanio = 0;
+
+                        list_add(lista_archivos, nodo_lista);
+
+                        copiar_lista_a_archivo();
+                    
                     }
                     else{
                         log_info(logger, "Se intenta crear un archivo que ya existe, no se hara nada");
@@ -46,7 +57,7 @@ void atender_peticiones_dialfs(){
 
                     free(path_archivo);
 
-                    log_info(logger_obligatorio, "PID: <%d> - Crear Archivo: <%s>",pid1,nombre_Archivo1);
+                    log_info(logger_obligatorio, "PID: %d - Crear Archivo: %s",pid1,nombre_Archivo1);
 
                     t_paquete* paquete = crear_paquete(EXITO_IO);
                     agregar_int_a_paquete(paquete,pid1);
@@ -84,13 +95,24 @@ void atender_peticiones_dialfs(){
 
                     remove(path_archivo2);
 
+                    for(int i = 0; i < list_size(lista_archivos); i++){
+                        t_archivo* nodo_lista = list_get(lista_archivos,i);
+
+                        if(strcmp(nodo_lista ->nombreArchivo,nombre_Archivo2)==0){
+                            list_remove(lista_archivos, i);
+                            free(nodo_lista);
+                            break;
+                        }
+                    }
+
+                    copiar_lista_a_archivo();
 
                 }
                 else{
                     log_info(logger, "Se intenta borrar un archivo que no existe, no se hara nada");
                 }
 
-                log_info(logger_obligatorio, "PID: <%d> - Eliminar Archivo: <%s>",pid2,nombre_Archivo2);
+                log_info(logger_obligatorio, "PID: %d - Eliminar Archivo: %s",pid2,nombre_Archivo2);
 
 
                 t_paquete* paquete = crear_paquete(EXITO_IO);
@@ -107,7 +129,80 @@ void atender_peticiones_dialfs(){
                 int pid3 = extraer_int_buffer(buffer, logger);
                 char* nombre_Archivo3 = extraer_string_buffer(buffer, logger);
                 int tamanio_a_truncar = extraer_int_buffer(buffer, logger);
-            
+
+                string_append(&nombre_Archivo3, "\n");
+
+                char* path_archivo3 = strdup(PATH_BASE_DIALFS);
+                string_append(&path_archivo3, nombre_Archivo3);
+
+                t_config* meta_config_truncate = config_create(path_archivo3);
+
+                int tam_actual = config_get_int_value(meta_config_truncate, "TAMANIO_ARCHIVO");
+
+                int primera_bloque = config_get_int_value(meta_config_truncate, "BLOQUE_INICIAL");
+
+                int cant_bloques_total = ceil((float)tam_actual/BLOCK_SIZE);
+
+                int ultimo_bloque = cant_bloques_total + primera_bloque -1;
+
+                if(tam_actual > tamanio_a_truncar){
+
+                    if((cant_bloques_total * BLOCK_SIZE) > tamanio_a_truncar){
+                        float tam_a_reducir = tam_actual - tamanio_a_truncar;
+
+                        int cant_bloques_a_reducir = floor(tam_a_reducir/BLOCK_SIZE);
+
+                        for(int i = 0; i < cant_bloques_a_reducir; i++){
+                            bitarray_clean_bit(bitmap_bloques,ultimo_bloque);
+                            ultimo_bloque--;
+                        }
+                    }
+                    
+
+                }
+                else if(tam_actual < tamanio_a_truncar){
+                    if((cant_bloques_total * BLOCK_SIZE) <  tamanio_a_truncar){
+                        float tam_a_aumentar = tamanio_a_truncar - tam_actual;
+
+                        int cant_bloques_a_aumentar = ceil(tam_a_aumentar/BLOCK_SIZE);
+
+                        bool hay_espacio_continuo = true;
+
+                        int pos_inicial = ultimo_bloque + 1;
+
+                        for(int i = 0; i< cant_bloques_a_aumentar; i++){
+
+                            if(bitarray_test_bit(bitmap_bloques, pos_inicial)){
+                                hay_espacio_continuo = false;
+                                break;
+                            }
+
+                            pos_inicial++;
+                        }
+
+                        if(hay_espacio_continuo){
+                            pos_inicial = ultimo_bloque + 1;
+
+                            for(int i = 0; i < cant_bloques_a_aumentar; i++){
+                                bitarray_set_bit(bitmap_bloques,pos_inicial);
+                                pos_inicial++;
+                            }
+
+                        }
+                        else{
+                            
+                        }
+
+                    }
+                    
+                }
+
+                log_info(logger_obligatorio, "PID: %d - Truncar Archivo: %s - Tamaño: %d",pid3,nombre_Archivo3,tamanio_a_truncar);
+
+                config_set_value(meta_config_truncate, "TAMANIO_ARCHIVO", string_itoa(tamanio_a_truncar));
+
+                free(nombre_Archivo3);
+
                 break;
             case FS_READ_CODE:
                 buffer = recibir_buffer(entradasalida_cliente_kernel);
@@ -117,6 +212,8 @@ void atender_peticiones_dialfs(){
                 int tam_total4 = extraer_int_buffer(buffer,logger);
                 int cant_dir_fisicas4 = extraer_int_buffer(buffer, logger);
 
+                string_append(&nombre_Archivo4, "\n");
+
 
                 void* leido_de_fs = malloc(tam_total4);
 
@@ -125,7 +222,7 @@ void atender_peticiones_dialfs(){
 
                 t_config* meta_config_read = config_create(path_archivo4);
 
-                int posicion_arch = config_get_int_value(meta_config_read, "BLOQUE INICIAL");
+                int posicion_arch = config_get_int_value(meta_config_read, "BLOQUE_INICIAL");
 
                 int desplazamiento_en_bloques = (posicion_arch * BLOCK_SIZE) + puntero_Arch4;
 
@@ -156,13 +253,18 @@ void atender_peticiones_dialfs(){
                     
                 }
 
-                log_info(logger_obligatorio,"PID: <%d> - Leer Archivo: <%s> - Tamaño a Leer: <%d> - Puntero Archivo: <%d>",pid4,nombre_Archivo4,tam_total4,puntero_Arch4);
+                log_info(logger_obligatorio,"PID: %d - Leer Archivo: %s - Tamaño a Leer: %d - Puntero Archivo: %d",pid4,nombre_Archivo4,tam_total4,puntero_Arch4);
 
                 free(nombre_Archivo4);
                 free(path_archivo4);
                 free(leido_de_fs);
 
                 config_destroy(meta_config_read);
+
+                t_paquete* paquete4 = crear_paquete(EXITO_IO);
+                agregar_int_a_paquete(paquete4, pid4);
+                enviar_paquete(paquete4, entradasalida_cliente_kernel);
+                eliminar_paquete(paquete4);
 
 
                 break;
@@ -174,6 +276,8 @@ void atender_peticiones_dialfs(){
                 int puntero_Arch5 = extraer_int_buffer(buffer, logger);
                 int tam_total5 = extraer_int_buffer(buffer,logger);
                 int cant_dir_fisicas5 = extraer_int_buffer(buffer, logger);
+
+                string_append(&nombre_Archivo5, "\n");
                 
                 void* contenido = malloc(tam_total5);
 
@@ -206,7 +310,7 @@ void atender_peticiones_dialfs(){
 
                 t_config* meta_config_write = config_create(path_archivo5);
 
-                int posicion_arch2 = config_get_int_value(meta_config_write, "BLOQUE INICIAL");
+                int posicion_arch2 = config_get_int_value(meta_config_write, "BLOQUE_INICIAL");
 
                 int desplazamiento_en_bloques2 = (posicion_arch2 * BLOCK_SIZE) + puntero_Arch5;
 
@@ -216,11 +320,16 @@ void atender_peticiones_dialfs(){
 
                 free(contenido);
 
-                log_info(logger_obligatorio,"PID: %d - Leer Archivo: %s - Tamaño a Leer: %d - Puntero Archivo: %d", pid5, nombre_Archivo5, tam_total5, puntero_Arch5);
+                log_info(logger_obligatorio,"PID: %d - Escribir Archivo: %s - Tamaño a Leer: %d - Puntero Archivo: %d", pid5, nombre_Archivo5, tam_total5, puntero_Arch5);
 
                 free(nombre_Archivo5);
 
                 free(path_archivo5);
+
+                t_paquete* paquete5 = crear_paquete(EXITO_IO);
+                agregar_int_a_paquete(paquete5, pid5);
+                enviar_paquete(paquete5, entradasalida_cliente_kernel);
+                eliminar_paquete(paquete5);
 
                 break;
             default:
@@ -283,7 +392,7 @@ void levantar_archivos(){
 
     puntero_a_bits_de_bloques = mmap(NULL, tamanio_bitmap, PROT_READ | PROT_WRITE, MAP_SHARED, fd_bitmap, 0);
 
-     fclose(Archivo_bloques);
+    fclose(Archivo_bloques);
 
     bitmap_bloques = bitarray_create_with_mode(puntero_a_bits_de_bloques, tamanio_bitmap, LSB_FIRST);
 
@@ -294,8 +403,29 @@ void levantar_archivos(){
     }
 
     free(nombre_archivo_bitmap);
-    
 
+    char* nombre_archivo_lista = strdup(PATH_BASE_DIALFS);
+    string_append(&nombre_archivo_lista, "lista_archivos.dat");
+
+    Archivo_lista = fopen(nombre_archivo_lista, "r+b");
+
+    if(Archivo_lista == NULL){
+        Archivo_lista = fopen(nombre_archivo_lista, "wb");
+        
+    }
+    else{
+        while(feof(Archivo_lista)){
+            t_archivo* nodo_archivo = malloc(sizeof(t_archivo));
+            fread(nodo_archivo, sizeof(t_archivo), 1, Archivo_lista);
+            list_add(lista_archivos,nodo_archivo);
+        }
+
+
+    }
+    
+    fclose(Archivo_lista);
+
+    free(nombre_archivo_bitmap);
 }
 
 int buscar_bloque_libre(){
@@ -308,5 +438,18 @@ int buscar_bloque_libre(){
     }
 
     return -1;
+}
+
+void copiar_lista_a_archivo(){
+    char* nombre_archivo_lista = strdup(PATH_BASE_DIALFS);
+    string_append(&nombre_archivo_lista, "lista_archivos.dat");
+
+    Archivo_lista = fopen(nombre_archivo_lista, "wb");
+
+    for(int i = 0; i < list_size(lista_archivos); i++){
+        t_archivo* nodo_lista = list_get(lista_archivos,i);
+
+        fwrite(nodo_lista, sizeof(t_archivo), 1, Archivo_lista);
+    }
 }
 

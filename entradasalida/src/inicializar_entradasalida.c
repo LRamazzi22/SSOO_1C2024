@@ -4,6 +4,8 @@ void inicializar_entradasalida(char* path_config){
     logger = iniciar_logger("./entradasalida.log", "EntradaSalida_Logger", LOG_LEVEL_INFO, 1);
     logger_obligatorio = iniciar_logger("./entradasalidaObligatorio.log", "EntradaSalida_Logger_Obligatorio", LOG_LEVEL_INFO,1);
     inicializar_config_entradasalida(path_config);
+
+    lista_archivos = list_create();
 }
 
 void inicializar_config_entradasalida(char* path_config){
