@@ -40,6 +40,12 @@ void atender_peticiones_dialfs(){
 
                         bitarray_set_bit(bitmap_bloques,bloque_elegido);
 
+                        float cant_block_float = BLOCK_COUNT;
+
+                        int tamanio_bitmap = ceil(cant_block_float/8);
+
+                        msync(puntero_a_bits_de_bloques, tamanio_bitmap, MS_SYNC);
+
                         t_archivo* nodo_lista = malloc(sizeof(t_archivo));
 
                         strcpy(nodo_lista ->nombreArchivo, nombre_Archivo1);
@@ -90,6 +96,12 @@ void atender_peticiones_dialfs(){
                         bitarray_clean_bit(bitmap_bloques,primera_bloque);
                         primera_bloque++;
                     }
+
+                    float cant_block_float = BLOCK_COUNT;
+
+                    int tamanio_bitmap = ceil(cant_block_float/8);
+
+                    msync(puntero_a_bits_de_bloques, tamanio_bitmap, MS_SYNC);
 
                     config_destroy(meta_config_delete);
 
@@ -253,6 +265,8 @@ void atender_peticiones_dialfs(){
                     
                 }
 
+                
+
                 log_info(logger_obligatorio,"PID: %d - Leer Archivo: %s - Tamaño a Leer: %d - Puntero Archivo: %d",pid4,nombre_Archivo4,tam_total4,puntero_Arch4);
 
                 free(nombre_Archivo4);
@@ -315,6 +329,8 @@ void atender_peticiones_dialfs(){
                 int desplazamiento_en_bloques2 = (posicion_arch2 * BLOCK_SIZE) + puntero_Arch5;
 
                 memcpy(archivo_bloques_en_mem + desplazamiento_en_bloques2,contenido ,tam_total5);
+
+                msync(archivo_bloques_en_mem, (BLOCK_COUNT * BLOCK_SIZE), MS_SYNC);
 
                 config_destroy(meta_config_write);
 
