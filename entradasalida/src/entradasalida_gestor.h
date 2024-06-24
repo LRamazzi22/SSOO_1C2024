@@ -24,6 +24,13 @@ typedef struct {
     int tamanio;
 } t_archivo;
 
+typedef struct {
+    char nombreArchivo[20 + 1];
+    int posicionInicial;
+    int tamanio;
+    void* datos;
+} t_archivo_compactacion;
+
 //Variables Globales
 
 extern t_log* logger;
@@ -44,6 +51,7 @@ extern char* PUERTO_MEMORIA;
 extern char* PATH_BASE_DIALFS;
 extern int BLOCK_SIZE;
 extern int BLOCK_COUNT;
+extern int RETRASO_COMPACTACION;
 
 extern FILE* Archivo_bloques;
 extern FILE* Archivo_bitmap;

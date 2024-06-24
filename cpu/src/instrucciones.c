@@ -825,7 +825,7 @@ void fs_truncate(char* interfaz, char* nombre_arch, char* registro_tam){
         tam_a_pasar = (int)(*registro2);
     }
     else if(tam_registro == 32){
-        uint8_t* registro2 = registro;
+        uint32_t* registro2 = registro;
         tam_a_pasar = (int)(*registro2);
     }
     agregar_int_a_paquete(paquete, tam_a_pasar);
@@ -845,7 +845,7 @@ void fs_read_write(char* interfaz,char* nombre_arch, char* registro_direccion, c
 
     int tam_registro;
     int puntero;
-    void* registro_punt = apuntar_a_registro(registro_tam, &tam_registro);
+    void* registro_punt = apuntar_a_registro(registro_puntero, &tam_registro);
 
     if(tam_registro == 8){
         uint8_t* registro2 = registro_punt;

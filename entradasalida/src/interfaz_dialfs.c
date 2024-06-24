@@ -202,7 +202,21 @@ void atender_peticiones_dialfs(){
 
                         }
                         else{
-                            
+                            log_info(logger_obligatorio, "PID: %d - Inicio Compactación.", pid3);
+                            int nuevo_bloque_inicial = realizar_compatacion(nombre_Archivo3);
+
+                            usleep(1000 * RETRASO_COMPACTACION);
+
+                            log_info(logger_obligatorio, "PID: %d - Fin Compactación.", pid3);
+
+                            pos_inicial = cant_bloques_total + nuevo_bloque_inicial;
+
+                            config_set_value(meta_config_truncate, "BLOQUE_INICIAL", string_itoa(nuevo_bloque_inicial));
+
+                            for(int i = 0; i < cant_bloques_a_aumentar; i++){
+                                bitarray_set_bit(bitmap_bloques,pos_inicial);
+                                pos_inicial++;
+                            }
                         }
 
                     }
@@ -212,6 +226,24 @@ void atender_peticiones_dialfs(){
                 log_info(logger_obligatorio, "PID: %d - Truncar Archivo: %s - Tamaño: %d",pid3,nombre_Archivo3,tamanio_a_truncar);
 
                 config_set_value(meta_config_truncate, "TAMANIO_ARCHIVO", string_itoa(tamanio_a_truncar));
+
+                config_save(meta_config_truncate);
+
+                config_destroy(meta_config_truncate);
+
+                for(int i = 0; i < list_size(lista_archivos); i++){
+                    t_archivo* nodo_lista =  list_get(lista_archivos,i);
+                    if(strcmp(nodo_lista ->nombreArchivo, nombre_Archivo3)==0){
+                        nodo_lista ->tamanio = tamanio_a_truncar;
+                    }
+                }
+
+                copiar_lista_a_archivo();
+
+                t_paquete* paquete3 = crear_paquete(EXITO_IO);
+                agregar_int_a_paquete(paquete3, pid3);
+                enviar_paquete(paquete3, entradasalida_cliente_kernel);
+                eliminar_paquete(paquete3);
 
                 free(nombre_Archivo3);
 
@@ -262,6 +294,8 @@ void atender_peticiones_dialfs(){
                     enviar_paquete(paquete1, entradasalida_cliente_memoria);
                     eliminar_paquete(paquete1);
                     free(copiar_a_mem);
+
+                    confirmacion_escritura();
                     
                 }
 
@@ -430,10 +464,20 @@ void levantar_archivos(){
         
     }
     else{
-        while(feof(Archivo_lista)){
+        fseek(Archivo_lista, 0, SEEK_END); 
+        float size = ftell(Archivo_lista);  
+        rewind(Archivo_lista);
+
+        int cant_archs = floor(size/sizeof(t_archivo));
+
+        int i = 0;
+        while(!feof(Archivo_lista) && i <cant_archs){
             t_archivo* nodo_archivo = malloc(sizeof(t_archivo));
             fread(nodo_archivo, sizeof(t_archivo), 1, Archivo_lista);
             list_add(lista_archivos,nodo_archivo);
+            i++;
+
+            //log_info(logger, "Nombre: %s. Tam: %d. Bloque Ini: %d", nodo_archivo ->nombreArchivo, nodo_archivo ->tamanio, nodo_archivo ->posicionInicial);
         }
 
 
@@ -441,7 +485,7 @@ void levantar_archivos(){
     
     fclose(Archivo_lista);
 
-    free(nombre_archivo_bitmap);
+    free(nombre_archivo_lista);
 }
 
 int buscar_bloque_libre(){
@@ -467,5 +511,120 @@ void copiar_lista_a_archivo(){
 
         fwrite(nodo_lista, sizeof(t_archivo), 1, Archivo_lista);
     }
+
+    fclose(Archivo_lista);
+
+    free(nombre_archivo_lista);
+}
+
+int realizar_compatacion(char* nombre_arch_a_expandirse){
+    t_list* lista_aux_compactacion = list_create();
+
+    for(int i = 0; i <list_size(lista_archivos); i++){
+        t_archivo* nodo_lista = list_get(lista_archivos,i);
+
+        t_archivo_compactacion* nodo_lista_aux = malloc(sizeof(t_archivo_compactacion));
+
+        strcpy(nodo_lista_aux ->nombreArchivo, nodo_lista ->nombreArchivo);
+        nodo_lista_aux ->posicionInicial = nodo_lista ->posicionInicial;
+        nodo_lista_aux ->tamanio = nodo_lista ->tamanio;
+
+        nodo_lista_aux ->datos = malloc(nodo_lista_aux ->tamanio);
+
+        memcpy(nodo_lista_aux ->datos, archivo_bloques_en_mem + (nodo_lista_aux ->posicionInicial * BLOCK_SIZE), nodo_lista_aux ->tamanio);
+
+        list_add(lista_aux_compactacion, nodo_lista_aux);
+        
+    }
+
+    int desplazamiento = 0;
+
+    for(int i = 0; i < BLOCK_COUNT; i++){
+        bitarray_clean_bit(bitmap_bloques,i);
+    }
+
+    for(int i = 0; i < list_size(lista_aux_compactacion); i++){
+        t_archivo_compactacion* nodo_aux = list_get(lista_aux_compactacion, i);
+
+        if(strcmp(nombre_arch_a_expandirse, nodo_aux ->nombreArchivo)){
+            memcpy(archivo_bloques_en_mem + desplazamiento, nodo_aux ->datos, nodo_aux ->tamanio);
+            free(nodo_aux ->datos);
+
+            int nueva_pos_inicial = desplazamiento/BLOCK_SIZE;
+
+            float tam_block_float = BLOCK_SIZE;
+
+            if(nodo_aux ->tamanio != 0){
+                desplazamiento = desplazamiento + (ceil(nodo_aux ->tamanio/tam_block_float) * BLOCK_SIZE);
+            }
+            else{
+                desplazamiento = desplazamiento + BLOCK_SIZE;
+            }
+
+            
+
+            t_archivo* nodo_lista = list_get(lista_archivos,i);
+
+            nodo_lista ->posicionInicial = nueva_pos_inicial;
+
+            char* path_archivo = strdup(PATH_BASE_DIALFS);
+            string_append(&path_archivo, nodo_lista ->nombreArchivo);
+
+            t_config* meta_config = config_create(path_archivo);
+
+            config_set_value(meta_config, "BLOQUE_INICIAL", string_itoa(nueva_pos_inicial));
+
+            config_save(meta_config);
+
+            config_destroy(meta_config);
+
+            for(int i = 0; i <ceil(nodo_aux ->tamanio/tam_block_float); i++){
+                bitarray_set_bit(bitmap_bloques,nueva_pos_inicial);
+                nueva_pos_inicial++;
+            }
+
+
+        }
+    }
+
+    int nueva_pos_inicial_arch_expa = desplazamiento/BLOCK_SIZE;
+
+    for(int i = 0; i < list_size(lista_aux_compactacion); i++){
+        t_archivo_compactacion* nodo_aux = list_get(lista_aux_compactacion, i);
+
+        if(strcmp(nodo_aux ->nombreArchivo, nombre_arch_a_expandirse)==0){
+            memcpy(archivo_bloques_en_mem + desplazamiento, nodo_aux ->datos, nodo_aux ->tamanio);
+            free(nodo_aux ->datos);
+
+            float tam_block_float = BLOCK_SIZE;
+
+            t_archivo* nodo_lista = list_get(lista_archivos,i);
+
+            nodo_lista ->posicionInicial = nueva_pos_inicial_arch_expa;
+
+            char* path_archivo = strdup(PATH_BASE_DIALFS);
+            string_append(&path_archivo, nodo_lista ->nombreArchivo);
+
+            t_config* meta_config = config_create(path_archivo);
+
+            config_set_value(meta_config, "BLOQUE_INICIAL", string_itoa(nueva_pos_inicial_arch_expa));
+
+            config_save(meta_config);
+
+            config_destroy(meta_config);
+
+            int nueva_pos_inicial = nueva_pos_inicial_arch_expa;
+
+            for(int i = 0; i <ceil(nodo_aux ->tamanio/tam_block_float); i++){
+                bitarray_set_bit(bitmap_bloques,nueva_pos_inicial);
+                nueva_pos_inicial++;
+            }
+
+        }
+    }
+
+    list_destroy_and_destroy_elements(lista_aux_compactacion, free);
+
+    return nueva_pos_inicial_arch_expa;
 }
 

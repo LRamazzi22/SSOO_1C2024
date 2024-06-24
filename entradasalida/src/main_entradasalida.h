@@ -29,6 +29,7 @@ char* PUERTO_MEMORIA;
 char* PATH_BASE_DIALFS;
 int BLOCK_SIZE;
 int BLOCK_COUNT;
+int RETRASO_COMPACTACION;
 
 FILE* Archivo_bloques;
 FILE* Archivo_bitmap;
