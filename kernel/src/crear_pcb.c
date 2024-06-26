@@ -41,6 +41,7 @@ pcb* creacion_pcb(char* ruta_pseudocodigo){
     strcpy(el_pcb ->recurso_bloqueante, "No");
 
     log_info(logger_obligatorio, "Se crea el proceso %d en NEW", el_pcb->PID);
+    free(pid_clave);
     return el_pcb;
 
 }

@@ -24,6 +24,13 @@ void inicializar_memoria(){
 
     diccionario_de_instrucciones = dictionary_create();
     diccionario_de_tdp = dictionary_create();
+
+    pthread_mutex_init(&mutex_para_leer_pseudo, NULL);
+    pthread_mutex_init(&mutex_para_diccionario_instrucciones, NULL);
+    pthread_mutex_init(&mutex_para_diccionario_tdp, NULL);
+    pthread_mutex_init(&mutex_para_marcos_libres, NULL);
+    pthread_mutex_init(&mutex_para_mem_de_usuario, NULL);
+    
 }
 
 void inicializar_config_memoria(){

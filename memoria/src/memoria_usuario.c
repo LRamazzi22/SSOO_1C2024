@@ -7,6 +7,8 @@ int cambiar_memoria_de_proceso(int pid, int nuevo_tam){
     nodo_dic_tdp* nodo_tdp = dictionary_get(diccionario_de_tdp,clave_pid);
     pthread_mutex_unlock(&mutex_para_diccionario_tdp);
 
+    free(clave_pid);
+
     int tam_actual = list_size(nodo_tdp -> tdp_del_proceso) * TAM_PAGINA;
 
     if(nodo_tdp ->tam_de_proceso > nuevo_tam){

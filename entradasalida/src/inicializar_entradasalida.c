@@ -6,6 +6,8 @@ void inicializar_entradasalida(char* path_config){
     inicializar_config_entradasalida(path_config);
 
     lista_archivos = list_create();
+
+    pthread_mutex_init(&mutex_para_interfaz, NULL);
 }
 
 void inicializar_config_entradasalida(char* path_config){

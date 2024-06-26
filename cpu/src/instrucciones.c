@@ -794,6 +794,7 @@ io_std_fs* io_std_fs_get_dir_fis(char* interfaz, char* registro_direccion, char*
     }
 
     nueva_peticion ->cant_dir_fisicas = list_size(nueva_peticion ->lista_dir_fisicas);
+    free(dir_fisica);
 
     return nueva_peticion;
 

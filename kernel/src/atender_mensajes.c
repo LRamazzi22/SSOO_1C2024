@@ -203,9 +203,9 @@ void atender_cpu_dispatch(){
 
 					}
 					else{
-						free(interfaz1);
 						free(nombre_Arch1);
 					}
+					free(interfaz1);
 					pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
 
 					break;
@@ -246,9 +246,9 @@ void atender_cpu_dispatch(){
 
 					}
 					else{
-						free(interfaz2);
 						free(nombre_Arch2);
 					}
+					free(interfaz2);
 					pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
 
 					break;
@@ -292,9 +292,9 @@ void atender_cpu_dispatch(){
 
 					}
 					else{
-						free(interfaz3);
 						free(nombre_Arch3);
 					}
+					free(interfaz3);
 					pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
 
 					break;
@@ -491,6 +491,10 @@ void atender_cpu_dispatch(){
 							char* recurso_lista = strdup(recurso_signal);
 							list_add(pcb_a_desbloquear ->lista_recursos_tomados,recurso_lista);
 
+							if(pcb_a_desbloquear ->tiempo_en_ejecucion != NULL){
+								temporal_destroy(pcb_a_desbloquear ->tiempo_en_ejecucion);
+							}
+
 
 							pthread_mutex_lock(&mutex_cola_ready);
 							queue_push(cola_ready,pcb_a_desbloquear);
@@ -538,6 +542,9 @@ void atender_cpu_dispatch(){
 			
 							enviar_paquete(paquete_pcb_a_enviar, kernel_cliente_dispatch);
 							eliminar_paquete(paquete_pcb_a_enviar);
+							if(pcb_a_senial ->tiempo_en_ejecucion != NULL){
+								temporal_destroy(pcb_a_senial ->tiempo_en_ejecucion);
+							}
 							pcb_a_senial ->tiempo_en_ejecucion = temporal_create();
 							atender_cpu_dispatch();
 						}
@@ -559,6 +566,10 @@ void atender_cpu_dispatch(){
 
 
 					recibir_contexto_de_ejecucion(buffer,pcb_a_guardar);
+
+					if(pcb_a_guardar ->tiempo_en_ejecucion != NULL){
+						temporal_destroy(pcb_a_guardar ->tiempo_en_ejecucion);
+					}
 
 					log_info(logger_obligatorio,"PID: %d - Desalojado por fin de Quantum",pcb_a_guardar ->PID);
 					pcb_a_guardar->estado_proceso = READY;

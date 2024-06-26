@@ -128,6 +128,10 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
                     log_de_lista_de_ready();
 			        pthread_mutex_unlock(&mutex_cola_ready);
                 }
+
+                if(un_pcb ->tiempo_en_ejecucion != NULL){
+                    temporal_destroy(un_pcb ->tiempo_en_ejecucion);
+                }
 			    
 
                 sem_post(&hay_proceso_en_ready);
@@ -435,9 +439,9 @@ void eliminar_variable(nodo_de_diccionario_interfaz* nodo_interfaz, nodo_de_dicc
 
         if(variable_fs ->tipo_variable == VAR_FS_READ || variable_fs ->tipo_variable == VAR_FS_WRITE){
             list_destroy_and_destroy_elements(variable_fs->dir_fisicas ->lista_dir_fisicas, free);
+            free(variable_fs ->dir_fisicas ->interfaz);
             free(variable_fs->dir_fisicas);
         }
-
         free(variable_fs ->nombre_Archivo);
         free(variable_fs);
     }

@@ -10,7 +10,7 @@ void atender_peticiones_stdin(){
                 int tam_total = extraer_int_buffer(buffer,logger);
                 int cant_dir_fisicas = extraer_int_buffer(buffer, logger);
                 
-                char* texto = malloc(tam_total + 1);
+                char* texto = malloc(tam_total + 2);
                 printf("Ingrese el texto correspondiente al PID %d: \n", pid);
                 fgets(texto,1000 + tam_total, stdin);
                 //texto[strcspn(texto, "\n")] = '\0';

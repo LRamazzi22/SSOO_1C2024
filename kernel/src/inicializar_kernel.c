@@ -33,6 +33,18 @@ void inicializar_kernel(){
     sem_init(&detener_planificacion_salida_cpu,0,0);
     sem_init(&detener_planificacion_to_ready,0,0);
 
+    pthread_mutex_init(&mutex_cola_new, NULL);
+    pthread_mutex_init(&mutex_cola_ready, NULL);
+    pthread_mutex_init(&mutex_cola_exit, NULL);
+    pthread_mutex_init(&mutex_cola_prioritaria, NULL);
+    pthread_mutex_init(&mutex_para_proceso_en_ejecucion, NULL);
+    pthread_mutex_init(&mutex_para_creacion_proceso, NULL);
+    pthread_mutex_init(&mutex_para_diccionario_entradasalida, NULL);
+    pthread_mutex_init(&mutex_para_diccionario_recursos, NULL);
+    pthread_mutex_init(&mutex_para_diccionario_blocked, NULL);
+    pthread_mutex_init(&mutex_para_eliminar_entradasalida, NULL);
+    pthread_mutex_init(&mutex_para_diccionario_de_todos_los_procesos, NULL);
+
     inicializar_recursos();
     
 }

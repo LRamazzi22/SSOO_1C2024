@@ -49,6 +49,8 @@ void atender_cpu_memoria(){
 			agregar_int_a_paquete(paquete2,*marco);
 			enviar_paquete(paquete2,cpu_cliente);
 			eliminar_paquete(paquete2);
+
+			free(pid_clave);
 			log_info(logger_obligatorio,"PID: %d - Pagina: %d - Marco: %d",pid2, num_pag, *marco);
 			break;
 		
@@ -127,6 +129,8 @@ void enviar_instruccion(int pc,int pid){
 	agregar_string_a_paquete(paquete, instruccion);
 	enviar_paquete(paquete, cpu_cliente);
     eliminar_paquete(paquete);
+
+	free(pid_clave);
 }
 
 void atender_kernel_memoria(){
@@ -154,6 +158,7 @@ void atender_kernel_memoria(){
 			crear_tdp_del_proceso(clave_pid);
 			free(clave_pid);
 			enviar_program_counter(programCounter);
+			free(ruta_pseudocodigo);
 			break;
 		case ELIMINAR_PROCESO_MEMORIA:
 			buffer = recibir_buffer(kernel_cliente);

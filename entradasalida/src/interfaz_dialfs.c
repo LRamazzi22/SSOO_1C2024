@@ -31,8 +31,12 @@ void atender_peticiones_dialfs(){
 
                         t_config* meta_config = config_create(path_archivo);
 
-                        config_set_value(meta_config, "BLOQUE_INICIAL", string_itoa(bloque_elegido));
+                        char* bloque_elegido_clave = string_itoa(bloque_elegido);
+
+                        config_set_value(meta_config, "BLOQUE_INICIAL", bloque_elegido_clave);
                         config_set_value(meta_config, "TAMANIO_ARCHIVO", "0");
+
+                        free(bloque_elegido_clave);
 
                         config_save(meta_config);
 
@@ -211,7 +215,11 @@ void atender_peticiones_dialfs(){
 
                             pos_inicial = cant_bloques_total + nuevo_bloque_inicial;
 
-                            config_set_value(meta_config_truncate, "BLOQUE_INICIAL", string_itoa(nuevo_bloque_inicial));
+                            char* nuevo_bloque_inicial_clave = string_itoa(nuevo_bloque_inicial);
+
+                            config_set_value(meta_config_truncate, "BLOQUE_INICIAL", nuevo_bloque_inicial_clave);
+
+                            free(nuevo_bloque_inicial_clave);
 
                             for(int i = 0; i < cant_bloques_a_aumentar; i++){
                                 bitarray_set_bit(bitmap_bloques,pos_inicial);
@@ -225,7 +233,11 @@ void atender_peticiones_dialfs(){
 
                 log_info(logger_obligatorio, "PID: %d - Truncar Archivo: %s - Tamaño: %d",pid3,nombre_Archivo3,tamanio_a_truncar);
 
-                config_set_value(meta_config_truncate, "TAMANIO_ARCHIVO", string_itoa(tamanio_a_truncar));
+                char* tam_truncar_clave = string_itoa(tamanio_a_truncar);
+
+                config_set_value(meta_config_truncate, "TAMANIO_ARCHIVO", tam_truncar_clave);
+
+                free(tam_truncar_clave);
 
                 config_save(meta_config_truncate);
 
@@ -572,7 +584,11 @@ int realizar_compatacion(char* nombre_arch_a_expandirse){
 
             t_config* meta_config = config_create(path_archivo);
 
-            config_set_value(meta_config, "BLOQUE_INICIAL", string_itoa(nueva_pos_inicial));
+            char* nueva_pos_inicial_clave = string_itoa(nueva_pos_inicial);
+
+            config_set_value(meta_config, "BLOQUE_INICIAL", nueva_pos_inicial_clave);
+
+            free(nueva_pos_inicial_clave);
 
             config_save(meta_config);
 
@@ -607,7 +623,11 @@ int realizar_compatacion(char* nombre_arch_a_expandirse){
 
             t_config* meta_config = config_create(path_archivo);
 
-            config_set_value(meta_config, "BLOQUE_INICIAL", string_itoa(nueva_pos_inicial_arch_expa));
+            char* nueva_pos_inicial_arch_expa_clave = string_itoa(nueva_pos_inicial_arch_expa);
+
+            config_set_value(meta_config, "BLOQUE_INICIAL", nueva_pos_inicial_arch_expa_clave);
+
+            free(nueva_pos_inicial_arch_expa_clave);
 
             config_save(meta_config);
 
