@@ -2,8 +2,8 @@
 
 int main(int argc, char* argv[]) {
      
-    char* nombre_interfaz = malloc(50);
-    char* path_config = malloc(256);
+    char* nombre_interfaz = malloc(50 + 2);
+    char* path_config = malloc(256 + 2);
     printf("Ingrese el nombre de la interfaz\n");
     fgets(nombre_interfaz,50,stdin);
     printf("Ingrese el config con el que desea inicializar la interfaz\n");

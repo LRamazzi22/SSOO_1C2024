@@ -2,7 +2,13 @@
 
 int main(int argc, char* argv[]) {
 
-    inicializar_kernel();
+    char* path_config = malloc(256 + 2);
+    printf("Ingrese el config con el que desea inicializar el Kernel\n");
+    fgets(path_config,256,stdin);
+
+    inicializar_kernel(path_config);
+
+    free(path_config);
     
     //Se inicia al kernel como servidor
     kernel_server = iniciar_servidor(PUERTO_ESCUCHA, logger);

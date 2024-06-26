@@ -3,8 +3,8 @@
 
 #include <kernel_gestor.h>
 
-void inicializar_kernel();
-void inicializar_config_kernel();
+void inicializar_kernel(char*);
+void inicializar_config_kernel(char*);
 void inicializar_recursos();
 
 #endif

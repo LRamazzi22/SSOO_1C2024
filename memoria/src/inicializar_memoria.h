@@ -3,7 +3,7 @@
 
 #include <memoria_gestor.h>
 
-void inicializar_memoria();
-void inicializar_config_memoria();
+void inicializar_memoria(char*);
+void inicializar_config_memoria(char*);
 
 #endif

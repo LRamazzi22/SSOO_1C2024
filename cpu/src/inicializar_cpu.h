@@ -3,8 +3,8 @@
 
 #include <cpu_gestor.h>
 
-void inicializar_cpu();
-void inicializar_config_cpu();
+void inicializar_cpu(char*);
+void inicializar_config_cpu(char*);
 t_registros_cpu* iniciar_registros_cpu();
 
 

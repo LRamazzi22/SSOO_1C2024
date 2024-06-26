@@ -1,7 +1,7 @@
 #include <inicializar_kernel.h>
 
-void inicializar_kernel(){
-    inicializar_config_kernel();
+void inicializar_kernel(char* path_config){
+    inicializar_config_kernel(path_config);
 
     pid_acumulado = 0;
     pid_a_eliminar = -1;
@@ -49,8 +49,19 @@ void inicializar_kernel(){
     
 }
 
-void inicializar_config_kernel(){
-    config = iniciar_config("./kernel_config.config");
+void inicializar_config_kernel(char* path_config){
+    char** string_sin_contra_barra = string_split(path_config,"\n");
+    char* path_configs = strdup("./");
+    string_append(&path_configs, string_sin_contra_barra[0]);
+    config = iniciar_config(path_configs);
+
+    string_array_destroy(string_sin_contra_barra);
+    free(path_configs);
+
+    if(config == NULL){
+        log_error(logger, "CONFIG INEXISTENTE");
+        exit(EXIT_FAILURE);
+    }
 
     PUERTO_ESCUCHA = config_get_string_value(config, "PUERTO_ESCUCHA");
     IP_MEMORIA = config_get_string_value(config,"IP_MEMORIA");
