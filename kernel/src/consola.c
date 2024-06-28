@@ -248,6 +248,8 @@ void iniciar_planificacion(){
                 sem_post(&(nodo ->detener_planificacion_recibir_respuestas_IO));
 
             }
+
+            list_destroy(lista_keys);
         }
         permitir_planificacion = true;
     }

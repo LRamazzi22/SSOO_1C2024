@@ -84,6 +84,7 @@ void inicializar_recursos(){
             nodo ->cola_bloqueados_recurso = queue_create();
             nodo ->instancias = atoi(INSTANCIAS_RECURSOS[i]);
             string_append(&RECURSOS[i],"\n");
+            pthread_mutex_init(&(nodo ->mutex_del_recurso), NULL);
             pthread_mutex_lock(&mutex_para_diccionario_recursos);
             dictionary_put(diccionario_recursos,RECURSOS[i], nodo);
             pthread_mutex_unlock(&mutex_para_diccionario_recursos);

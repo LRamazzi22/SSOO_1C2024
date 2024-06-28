@@ -474,6 +474,7 @@ void atender_cpu_dispatch(){
 							char* recurso_lista = list_get(pcb_a_senial ->lista_recursos_tomados,i);
 							if(strcmp(recurso_lista,recurso_signal)==0){
 								list_remove(pcb_a_senial ->lista_recursos_tomados,i);
+								free(recurso_lista);
 								break;
 							}
 						}

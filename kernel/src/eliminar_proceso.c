@@ -30,7 +30,7 @@ void eliminar_el_proceso(pcb* un_pcb){
     
     
     for(int i = 0; i<list_size(un_pcb ->lista_recursos_tomados); i++){
-        char* un_recurso = list_remove(un_pcb ->lista_recursos_tomados, i);
+        char* un_recurso = list_get(un_pcb ->lista_recursos_tomados, i);
 
         pthread_mutex_lock(&mutex_para_diccionario_recursos);
         nodo_recursos* nodo_del_recurso = dictionary_get(diccionario_recursos,un_recurso);
@@ -63,7 +63,7 @@ void eliminar_el_proceso(pcb* un_pcb){
         pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
     }
     
-    list_destroy(un_pcb ->lista_recursos_tomados);
+    list_destroy_and_destroy_elements(un_pcb ->lista_recursos_tomados, free);
     switch(un_pcb ->razon_salida){
         case EXITO:
             log_info(logger_obligatorio, "Finaliza el proceso %d - Motivo: SUCCESS",un_pcb->PID);

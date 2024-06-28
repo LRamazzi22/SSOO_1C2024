@@ -3,7 +3,7 @@
 int main(int argc, char* argv[]) {
 
 	char* path_config = malloc(256 + 2);
-    printf("Ingrese el config con el que desea inicializar el CPU\n");
+    printf("Ingrese el config con el que desea inicializar la Memoria\n");
     fgets(path_config,256,stdin);
 
     inicializar_memoria(path_config);

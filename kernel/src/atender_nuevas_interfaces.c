@@ -18,6 +18,7 @@ void atender_nueva_interfaz(void* cliente_entradasalida){
         sem_init(&(nodo ->hay_proceso_en_bloqueados),0,0);
         sem_init(&(nodo ->detener_planificacion_enviar_peticion_IO),0,0);
         sem_init(&(nodo ->detener_planificacion_recibir_respuestas_IO),0,0);
+        pthread_mutex_init(&(nodo ->mutex_interfaz_siendo_usada), NULL);
 
         pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
         dictionary_put(diccionario_entrada_salida,nombre_interfaz,nodo);
@@ -27,6 +28,9 @@ void atender_nueva_interfaz(void* cliente_entradasalida){
 
         nuevo_nodo_blocked ->cola_bloqueados = queue_create();
         nuevo_nodo_blocked ->cola_Variables = queue_create();
+
+        pthread_mutex_init(&(nuevo_nodo_blocked ->mutex_para_cola_bloqueados), NULL);
+        pthread_mutex_init(&(nuevo_nodo_blocked ->mutex_para_cola_variables), NULL);
 
         pthread_mutex_lock(&mutex_para_diccionario_blocked);
         dictionary_put(diccionario_blocked,nombre_interfaz,nuevo_nodo_blocked);
