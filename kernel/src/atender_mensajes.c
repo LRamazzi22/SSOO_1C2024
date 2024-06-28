@@ -630,8 +630,9 @@ nodo_de_diccionario_interfaz* comprobrar_existencia_de_interfaz(pcb* el_pcb, cha
 	}
 	el_pcb ->razon_salida = INTERFAZ_INVALIDA;
 
-	mandar_a_exit(el_pcb);
 	log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", el_pcb ->PID);
+	mandar_a_exit(el_pcb);
+	
 
 	return NULL;
 }

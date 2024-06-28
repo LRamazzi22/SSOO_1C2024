@@ -30,11 +30,13 @@ int leer_archivo(char *nombArch, t_dictionary* diccionario,char* clave_pid){
         pthread_mutex_unlock(&mutex_para_diccionario_instrucciones);
 
         fclose(archivo_pseudo);
+        free(archivo);
         pthread_mutex_unlock(&mutex_para_leer_pseudo);
         return programCounter;
     }
     else{
        pthread_mutex_unlock(&mutex_para_leer_pseudo);
+       free(archivo);
        return -1; 
     }
     

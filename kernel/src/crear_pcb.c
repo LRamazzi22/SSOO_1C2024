@@ -8,6 +8,7 @@ pcb* creacion_pcb(char* ruta_pseudocodigo){
     pid_acumulado++;
     el_pcb ->quantum_restante = QUANTUM;
     el_pcb ->lista_recursos_tomados = list_create();
+    el_pcb ->tiempo_en_ejecucion = NULL;
     t_paquete* paquete_codeop_ruta = crear_paquete(CREAR_PROCESO);
     agregar_int_a_paquete(paquete_codeop_ruta,el_pcb->PID);
     agregar_string_a_paquete(paquete_codeop_ruta,ruta_pseudocodigo);
@@ -39,6 +40,7 @@ pcb* creacion_pcb(char* ruta_pseudocodigo){
 
     strcpy(el_pcb ->interfaz_bloqueante, "No");
     strcpy(el_pcb ->recurso_bloqueante, "No");
+    
 
     log_info(logger_obligatorio, "Se crea el proceso %d en NEW", el_pcb->PID);
     free(pid_clave);

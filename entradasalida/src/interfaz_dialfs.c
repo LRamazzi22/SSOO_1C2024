@@ -258,6 +258,7 @@ void atender_peticiones_dialfs(){
                 eliminar_paquete(paquete3);
 
                 free(nombre_Archivo3);
+                free(path_archivo3);
 
                 break;
             case FS_READ_CODE:
@@ -599,6 +600,8 @@ int realizar_compatacion(char* nombre_arch_a_expandirse){
                 nueva_pos_inicial++;
             }
 
+            free(path_archivo);
+
 
         }
     }
@@ -639,6 +642,8 @@ int realizar_compatacion(char* nombre_arch_a_expandirse){
                 bitarray_set_bit(bitmap_bloques,nueva_pos_inicial);
                 nueva_pos_inicial++;
             }
+
+            free(path_archivo);
 
         }
     }

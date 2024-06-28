@@ -290,6 +290,7 @@ void atender_entradasalida_memoria(void* cliente){
 		case -1:
 			log_info(logger, "La Entrada/Salida se desconecto");
 			continuar_while = false;
+			free(cliente_entrada_salida);
 			break;
 		default:
 			log_warning(logger,"Operacion desconocida. No quieras meter la pata");

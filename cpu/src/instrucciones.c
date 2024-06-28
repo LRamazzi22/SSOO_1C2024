@@ -803,18 +803,21 @@ io_std_fs* io_std_fs_get_dir_fis(char* interfaz, char* registro_direccion, char*
 void fs_create_delete(char* interfaz, char* nombre_Arch, int cod_op){
     t_paquete* paquete = crear_paquete(cod_op);
     cargar_registros_a_paquete(paquete);
-    string_append(&interfaz,"\n");
-    agregar_string_a_paquete(paquete,interfaz);
+    char* interfaz_nuevo = strdup(interfaz);
+    string_append(&interfaz_nuevo,"\n");
+    agregar_string_a_paquete(paquete,interfaz_nuevo);
     agregar_string_a_paquete(paquete,nombre_Arch);
     enviar_paquete(paquete, kernel_cliente_dispatch);
     eliminar_paquete(paquete);
+    free(interfaz_nuevo);
 }
 
 void fs_truncate(char* interfaz, char* nombre_arch, char* registro_tam){
     t_paquete* paquete = crear_paquete(FS_TRUNCATE_CODE);
     cargar_registros_a_paquete(paquete);
-    string_append(&interfaz,"\n");
-    agregar_string_a_paquete(paquete, interfaz);
+    char* interfaz_nuevo = strdup(interfaz);
+    string_append(&interfaz_nuevo,"\n");
+    agregar_string_a_paquete(paquete, interfaz_nuevo);
     agregar_string_a_paquete(paquete, nombre_arch);
 
     int tam_registro;
@@ -833,6 +836,8 @@ void fs_truncate(char* interfaz, char* nombre_arch, char* registro_tam){
 
     enviar_paquete(paquete, kernel_cliente_dispatch);
     eliminar_paquete(paquete);
+
+    free(interfaz_nuevo);
 
 }
 
