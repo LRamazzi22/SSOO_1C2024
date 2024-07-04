@@ -25,7 +25,8 @@ void eliminar_el_proceso(pcb* un_pcb){
     borrar_registros_pcb(un_pcb);
 
     if(un_pcb ->tiempo_en_ejecucion != NULL){
-        temporal_destroy(un_pcb ->tiempo_en_ejecucion);
+        free(un_pcb ->tiempo_en_ejecucion);
+        un_pcb ->tiempo_en_ejecucion = NULL;
     }
     
     
@@ -49,7 +50,8 @@ void eliminar_el_proceso(pcb* un_pcb){
 			list_add(un_pcb ->lista_recursos_tomados,recurso_lista);
 
             if(pcb_a_desbloquear ->tiempo_en_ejecucion != NULL){
-                temporal_destroy(pcb_a_desbloquear -> tiempo_en_ejecucion);
+                free(pcb_a_desbloquear -> tiempo_en_ejecucion);
+                pcb_a_desbloquear ->tiempo_en_ejecucion = NULL;
             }
 
 

@@ -36,7 +36,7 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
 
         if(permitir_planificacion){
             permitir_planificacion = false;
-            usleep(500 * 1000);
+            //usleep(500 * 1000);
             pthread_mutex_lock(&mutex_para_diccionario_de_todos_los_procesos);
             pcb* el_pcb_a_eliminar = dictionary_get(diccionario_de_todos_los_procesos,comando_por_partes[1]);
             pthread_mutex_unlock(&mutex_para_diccionario_de_todos_los_procesos);
@@ -49,7 +49,7 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
             iniciar_planificacion();
         }
         else{
-            usleep(500 * 1000);
+            //usleep(500 * 1000);
             pthread_mutex_lock(&mutex_para_diccionario_de_todos_los_procesos);
             pcb* el_pcb_a_eliminar = dictionary_get(diccionario_de_todos_los_procesos,comando_por_partes[1]);
             pthread_mutex_unlock(&mutex_para_diccionario_de_todos_los_procesos);
@@ -263,7 +263,7 @@ void ejecutar_script(char* nombre_archivo){
 
     if(archivo_script != NULL){
         while(!feof(archivo_script)){
-            usleep(500 * 1000);
+            //usleep(500 * 1000);
             char instruccion_consola[256];
             fgets(instruccion_consola,256,archivo_script);
 

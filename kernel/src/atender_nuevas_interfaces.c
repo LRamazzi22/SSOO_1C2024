@@ -107,7 +107,8 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
 
                 if(strcmp(ALGORITMO_PLANIFICACION, "vrr")==0){
                     int64_t tiempo_ejecutado = temporal_gettime(un_pcb ->tiempo_en_ejecucion);
-					temporal_destroy(un_pcb ->tiempo_en_ejecucion);
+					free(un_pcb ->tiempo_en_ejecucion);
+                    un_pcb ->tiempo_en_ejecucion = NULL;
                     if(tiempo_ejecutado < un_pcb -> quantum_restante){
                         un_pcb ->quantum_restante = un_pcb ->quantum_restante - tiempo_ejecutado;
 
@@ -127,14 +128,14 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
                     }
                 }
                 else{
+                    if(un_pcb ->tiempo_en_ejecucion != NULL){
+                        free(un_pcb ->tiempo_en_ejecucion);
+                        un_pcb ->tiempo_en_ejecucion = NULL;
+                    }
                     pthread_mutex_lock(&mutex_cola_ready);
 			        queue_push(cola_ready,un_pcb);
                     log_de_lista_de_ready();
 			        pthread_mutex_unlock(&mutex_cola_ready);
-                }
-
-                if(un_pcb ->tiempo_en_ejecucion != NULL){
-                    temporal_destroy(un_pcb ->tiempo_en_ejecucion);
                 }
 			    
 

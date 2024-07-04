@@ -384,7 +384,8 @@ void atender_cpu_dispatch(){
 
 						if(nodo_del_recurso -> instancias < 0){
 							pcb_a_esperar ->estado_proceso = BLOCKED;
-							temporal_destroy(pcb_a_esperar ->tiempo_en_ejecucion);
+							free(pcb_a_esperar ->tiempo_en_ejecucion);
+							pcb_a_esperar ->tiempo_en_ejecucion = NULL;
 							log_info(logger_obligatorio,"PID: %d - Estado Anterior: EXECUTE - Estado Actual: BLOCKED", pcb_a_esperar->PID);
 							log_info(logger_obligatorio, "PID: %d - Bloqueado por: %s",pcb_a_esperar ->PID, recurso);
 							strcpy(pcb_a_esperar ->recurso_bloqueante, recurso);
@@ -394,7 +395,8 @@ void atender_cpu_dispatch(){
 							char* recurso_lista = strdup(recurso);
 							list_add(pcb_a_esperar ->lista_recursos_tomados,recurso_lista);
 							int64_t tiempo_ejecutado = temporal_gettime(pcb_a_esperar ->tiempo_en_ejecucion);
-							temporal_destroy(pcb_a_esperar ->tiempo_en_ejecucion);
+							free(pcb_a_esperar ->tiempo_en_ejecucion);
+							pcb_a_esperar ->tiempo_en_ejecucion = NULL;
 							if(tiempo_ejecutado < pcb_a_esperar ->quantum_restante){
 								pcb_a_esperar ->quantum_restante = pcb_a_esperar ->quantum_restante - tiempo_ejecutado;
 
@@ -493,7 +495,8 @@ void atender_cpu_dispatch(){
 							list_add(pcb_a_desbloquear ->lista_recursos_tomados,recurso_lista);
 
 							if(pcb_a_desbloquear ->tiempo_en_ejecucion != NULL){
-								temporal_destroy(pcb_a_desbloquear ->tiempo_en_ejecucion);
+								free(pcb_a_desbloquear ->tiempo_en_ejecucion);
+								pcb_a_desbloquear ->tiempo_en_ejecucion = NULL;
 							}
 
 
@@ -506,7 +509,8 @@ void atender_cpu_dispatch(){
 						}
 						if(strcmp(ALGORITMO_PLANIFICACION,"rr")==0 || strcmp(ALGORITMO_PLANIFICACION,"vrr")==0){ //ROUND ROBIN O VIRTUAL ROUND ROBIN
 							int64_t tiempo_ejecutado = temporal_gettime(pcb_a_senial ->tiempo_en_ejecucion);
-							temporal_destroy(pcb_a_senial ->tiempo_en_ejecucion);
+							free(pcb_a_senial ->tiempo_en_ejecucion);
+							pcb_a_senial ->tiempo_en_ejecucion = NULL;
 							if(tiempo_ejecutado < pcb_a_senial ->quantum_restante){
 								pcb_a_senial ->quantum_restante = pcb_a_senial ->quantum_restante - tiempo_ejecutado;
 
@@ -544,7 +548,8 @@ void atender_cpu_dispatch(){
 							enviar_paquete(paquete_pcb_a_enviar, kernel_cliente_dispatch);
 							eliminar_paquete(paquete_pcb_a_enviar);
 							if(pcb_a_senial ->tiempo_en_ejecucion != NULL){
-								temporal_destroy(pcb_a_senial ->tiempo_en_ejecucion);
+								free(pcb_a_senial ->tiempo_en_ejecucion);
+								pcb_a_senial ->tiempo_en_ejecucion = NULL;
 							}
 							pcb_a_senial ->tiempo_en_ejecucion = temporal_create();
 							atender_cpu_dispatch();
@@ -569,7 +574,8 @@ void atender_cpu_dispatch(){
 					recibir_contexto_de_ejecucion(buffer,pcb_a_guardar);
 
 					if(pcb_a_guardar ->tiempo_en_ejecucion != NULL){
-						temporal_destroy(pcb_a_guardar ->tiempo_en_ejecucion);
+						free(pcb_a_guardar ->tiempo_en_ejecucion);
+						pcb_a_guardar ->tiempo_en_ejecucion = NULL;
 					}
 
 					log_info(logger_obligatorio,"PID: %d - Desalojado por fin de Quantum",pcb_a_guardar ->PID);

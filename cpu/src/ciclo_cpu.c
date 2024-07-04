@@ -183,7 +183,7 @@ int decodificar_instruccion(){
     } else if (!strcmp(instruccion_separada[0],"IO_FS_READ")) {
         return IO_FS_READ;
         
-    } else if (!strcmp(instruccion_separada[0], "EXIT")) {
+    } else if (!strcmp(instruccion_separada[0], "EXIT") || !strcmp(instruccion_separada[0], "EXIT\n")) {
         return EXIT;
         
     } else {

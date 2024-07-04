@@ -33,9 +33,6 @@ int main(int argc, char* argv[]) {
 
     iniciar_planificacion_largo_plazo();
     iniciar_planificacion_corto_plazo();
-    
-
-    sleep(1);
 
     consola_kernel();
     
