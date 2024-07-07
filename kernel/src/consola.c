@@ -19,8 +19,6 @@ void consola_kernel(){
 
 void validar_y_ejecutar_comando(char** comando_por_partes){
     
-    //En cuanto se agreguen las funciones de los comandos, hay que agregar mas validaciones
-    
     if(strcmp(comando_por_partes[0],"EJECUTAR_SCRIPT")==0 && (string_array_size(comando_por_partes)==2) && (strcmp(comando_por_partes[1],"")!=0)){
         
         ejecutar_script(comando_por_partes[1]);
@@ -28,8 +26,9 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
     else if((strcmp(comando_por_partes[0],"INICIAR_PROCESO")==0) && (string_array_size(comando_por_partes)==2) && (strcmp(comando_por_partes[1],"")!=0)){
         pthread_t hilo_crear_proceso;
         char* ruta = strdup(comando_por_partes[1]);
-        pthread_create(&hilo_crear_proceso, NULL, (void*)crear_proceso,(void*)ruta);
-        pthread_detach(hilo_crear_proceso);
+        //pthread_create(&hilo_crear_proceso, NULL, (void*)crear_proceso,(void*)ruta);
+        //pthread_detach(hilo_crear_proceso);
+        crear_proceso((void*)ruta);
     }
     else if(strcmp(comando_por_partes[0],"FINALIZAR_PROCESO")==0){
         
@@ -381,17 +380,23 @@ void eliminar_proceso_por_usuario(pcb* el_pcb_a_eliminar){
                     free(dir_fisicas);
                 }
                 else if(strcmp(nodo_de_interfaz ->tipo_de_interfaz, "dialfs")==0){
-            
-                }
-
-                if(!queue_is_empty(nodo_blocked ->cola_bloqueados)){
-                     sem_wait(&(nodo_de_interfaz ->hay_proceso_en_bloqueados));
-                }   
+                    var_fs* variable_fs = variable;
+                    
+                    if(variable_fs ->tipo_variable == VAR_FS_READ || variable_fs ->tipo_variable == VAR_FS_WRITE){
+                        list_destroy_and_destroy_elements(variable_fs->dir_fisicas ->lista_dir_fisicas, free);
+                        free(variable_fs ->dir_fisicas ->interfaz);
+                        free(variable_fs->dir_fisicas);
+                    }
+                    free(variable_fs ->nombre_Archivo);
+                    free(variable_fs);
+                }  
                
-
-
-
+                
+                if(queue_size(nodo_blocked ->cola_bloqueados) > 1){
+                    sem_wait(&(nodo_de_interfaz ->hay_proceso_en_bloqueados));
                 }
+
+            }
                 else if(strcmp(el_pcb_a_eliminar ->recurso_bloqueante, "No")!=0){
                         
                     pthread_mutex_lock(&mutex_para_diccionario_recursos);

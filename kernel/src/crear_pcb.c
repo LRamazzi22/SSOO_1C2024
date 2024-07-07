@@ -3,8 +3,7 @@
 pcb* creacion_pcb(char* ruta_pseudocodigo){
     pcb* el_pcb = malloc(sizeof(pcb));
     el_pcb ->estado_proceso = NEW;
-    el_pcb ->PID = pid_acumulado;
-    // Agregar mutex? 
+    el_pcb ->PID = pid_acumulado; 
     pid_acumulado++;
     el_pcb ->quantum_restante = QUANTUM;
     el_pcb ->lista_recursos_tomados = list_create();
@@ -16,8 +15,8 @@ pcb* creacion_pcb(char* ruta_pseudocodigo){
     eliminar_paquete(paquete_codeop_ruta);
     int programCounter = recibir_PC_memoria();
     if(programCounter <0){
-        return NULL;
         pid_acumulado--;
+        return NULL;
     }
     el_pcb ->registros_cpu_en_pcb = malloc(sizeof(t_registros_cpu));
     el_pcb ->registros_cpu_en_pcb->PC = malloc(sizeof(uint32_t));

@@ -359,6 +359,9 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
                 }
             }
         }
+        else{
+            sem_post(&(nodo_interfaz ->se_puede_enviar_proceso));
+        }
         
 
         
