@@ -11,6 +11,8 @@ void atender_peticiones_dialfs(){
                 int pid1 = extraer_int_buffer(buffer, logger);
                 char* nombre_Archivo1 = extraer_string_buffer(buffer, logger);
 
+                usleep(TIEMPO_UNIDAD_TRABAJO * 1000);
+
                 int bloque_elegido = buscar_bloque_libre();
 
                 if(bloque_elegido == -1){
@@ -83,6 +85,8 @@ void atender_peticiones_dialfs(){
                 int pid2 = extraer_int_buffer(buffer, logger);
                 char* nombre_Archivo2 = extraer_string_buffer(buffer, logger);
 
+                usleep(TIEMPO_UNIDAD_TRABAJO * 1000);
+
                 char* path_archivo2 = strdup(PATH_BASE_DIALFS);
                 string_append(&path_archivo2, nombre_Archivo2);
 
@@ -145,6 +149,8 @@ void atender_peticiones_dialfs(){
                 int pid3 = extraer_int_buffer(buffer, logger);
                 char* nombre_Archivo3 = extraer_string_buffer(buffer, logger);
                 int tamanio_a_truncar = extraer_int_buffer(buffer, logger);
+
+                usleep(TIEMPO_UNIDAD_TRABAJO * 1000);
 
                 string_append(&nombre_Archivo3, "\n");
 
@@ -269,6 +275,8 @@ void atender_peticiones_dialfs(){
                 int tam_total4 = extraer_int_buffer(buffer,logger);
                 int cant_dir_fisicas4 = extraer_int_buffer(buffer, logger);
 
+                usleep(TIEMPO_UNIDAD_TRABAJO * 1000);
+
                 string_append(&nombre_Archivo4, "\n");
 
 
@@ -338,6 +346,8 @@ void atender_peticiones_dialfs(){
                 int tam_total5 = extraer_int_buffer(buffer,logger);
                 int cant_dir_fisicas5 = extraer_int_buffer(buffer, logger);
 
+                usleep(TIEMPO_UNIDAD_TRABAJO * 1000);
+
                 string_append(&nombre_Archivo5, "\n");
                 
                 void* contenido = malloc(tam_total5);
@@ -383,7 +393,7 @@ void atender_peticiones_dialfs(){
 
                 free(contenido);
 
-                log_info(logger_obligatorio,"PID: %d - Escribir Archivo: %s - Tamaño a Leer: %d - Puntero Archivo: %d", pid5, nombre_Archivo5, tam_total5, puntero_Arch5);
+                log_info(logger_obligatorio,"PID: %d - Escribir Archivo: %s - Tamaño a Escribir: %d - Puntero Archivo: %d", pid5, nombre_Archivo5, tam_total5, puntero_Arch5);
 
                 free(nombre_Archivo5);
 
