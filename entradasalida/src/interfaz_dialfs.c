@@ -69,7 +69,7 @@ void atender_peticiones_dialfs(){
 
                     free(path_archivo);
 
-                    log_info(logger_obligatorio, "PID: %d - Crear Archivo: %s",pid1,nombre_Archivo1);
+                    log_info(logger_obligatorio, "Interfaz: %s - PID: %d - Crear Archivo: %s",nombre_interfaz,pid1,nombre_Archivo1);
 
                     t_paquete* paquete = crear_paquete(EXITO_IO);
                     agregar_int_a_paquete(paquete,pid1);
@@ -132,7 +132,7 @@ void atender_peticiones_dialfs(){
                     log_info(logger, "Se intenta borrar un archivo que no existe, no se hara nada");
                 }
 
-                log_info(logger_obligatorio, "PID: %d - Eliminar Archivo: %s",pid2,nombre_Archivo2);
+                log_info(logger_obligatorio, "Interfaz: %s - PID: %d - Eliminar Archivo: %s",nombre_interfaz,pid2,nombre_Archivo2);
 
 
                 t_paquete* paquete = crear_paquete(EXITO_IO);
@@ -212,12 +212,12 @@ void atender_peticiones_dialfs(){
 
                         }
                         else{
-                            log_info(logger_obligatorio, "PID: %d - Inicio Compactación.", pid3);
+                            log_info(logger_obligatorio, "Interfaz: %s - PID: %d - Inicio Compactación.",nombre_interfaz, pid3);
                             int nuevo_bloque_inicial = realizar_compatacion(nombre_Archivo3);
 
                             usleep(1000 * RETRASO_COMPACTACION);
 
-                            log_info(logger_obligatorio, "PID: %d - Fin Compactación.", pid3);
+                            log_info(logger_obligatorio, "Interfaz: %s - PID: %d - Fin Compactación.", nombre_interfaz,pid3);
 
                             pos_inicial = cant_bloques_total + nuevo_bloque_inicial;
 
@@ -237,7 +237,7 @@ void atender_peticiones_dialfs(){
                     
                 }
 
-                log_info(logger_obligatorio, "PID: %d - Truncar Archivo: %s - Tamaño: %d",pid3,nombre_Archivo3,tamanio_a_truncar);
+                log_info(logger_obligatorio, "Interfaz: %s - PID: %d - Truncar Archivo: %s - Tamaño: %d",nombre_interfaz,pid3,nombre_Archivo3,tamanio_a_truncar);
 
                 char* tam_truncar_clave = string_itoa(tamanio_a_truncar);
 
@@ -322,7 +322,7 @@ void atender_peticiones_dialfs(){
 
                 
 
-                log_info(logger_obligatorio,"PID: %d - Leer Archivo: %s - Tamaño a Leer: %d - Puntero Archivo: %d",pid4,nombre_Archivo4,tam_total4,puntero_Arch4);
+                log_info(logger_obligatorio,"Interfaz: %s - PID: %d - Leer Archivo: %s - Tamaño a Leer: %d - Puntero Archivo: %d",nombre_interfaz,pid4,nombre_Archivo4,tam_total4,puntero_Arch4);
 
                 free(nombre_Archivo4);
                 free(path_archivo4);
@@ -393,7 +393,7 @@ void atender_peticiones_dialfs(){
 
                 free(contenido);
 
-                log_info(logger_obligatorio,"PID: %d - Escribir Archivo: %s - Tamaño a Escribir: %d - Puntero Archivo: %d", pid5, nombre_Archivo5, tam_total5, puntero_Arch5);
+                log_info(logger_obligatorio,"Interfaz: %s - PID: %d - Escribir Archivo: %s - Tamaño a Escribir: %d - Puntero Archivo: %d", nombre_interfaz,pid5, nombre_Archivo5, tam_total5, puntero_Arch5);
 
                 free(nombre_Archivo5);
 

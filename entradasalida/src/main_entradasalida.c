@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[]) {
      
-    char* nombre_interfaz = malloc(50 + 2);
+    nombre_interfaz = malloc(50 + 2);
     char* path_config = malloc(256 + 2);
     printf("Ingrese el nombre de la interfaz\n");
     fgets(nombre_interfaz,50,stdin);
@@ -32,6 +32,14 @@ int main(int argc, char* argv[]) {
     }
     
     enviar_handshake("Entrada/Salida", entradasalida_cliente_kernel);
+
+
+    for(int i = 0; i < strlen(nombre_interfaz); i++){
+        if(nombre_interfaz[i] == '\n'){
+            nombre_interfaz[i] = '\0';
+            break;
+        }
+    }
 
 
     switch (tipo_de_interfaz){

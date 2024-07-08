@@ -37,6 +37,8 @@ extern t_log* logger;
 extern t_log* logger_obligatorio;
 extern t_config* config;
 
+extern char* nombre_interfaz;
+
 extern int entradasalida_cliente_memoria;
 extern int entradasalida_cliente_kernel;
 

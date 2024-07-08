@@ -53,7 +53,7 @@ void atender_peticiones_stdin(){
 
                 free(texto);
 
-                log_info(logger_obligatorio, "PID: %d - Operacion: IO_STDIN_READ", pid);
+                log_info(logger_obligatorio, "Interfaz: %s - PID: %d - Operacion: IO_STDIN_READ", nombre_interfaz,pid);
                 
 
 

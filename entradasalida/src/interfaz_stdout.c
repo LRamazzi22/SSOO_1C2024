@@ -41,7 +41,7 @@ void atender_peticiones_stdout(){
                 printf("El texto leido correspondiente al PID %d es: %s \n",pid, texto);
                 free(texto);
 
-                log_info(logger_obligatorio, "PID: %d - Operacion: IO_STDOUT_WRITE", pid);
+                log_info(logger_obligatorio, "Interfaz: %s - PID: %d - Operacion: IO_STDOUT_WRITE", nombre_interfaz,pid);
                 
                 t_paquete* paquete = crear_paquete(EXITO_IO);
                 agregar_int_a_paquete(paquete,pid);

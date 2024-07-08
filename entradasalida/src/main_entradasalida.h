@@ -13,6 +13,8 @@ t_log* logger;
 t_log* logger_obligatorio;
 t_config* config;
 
+char* nombre_interfaz;
+
 int entradasalida_cliente_memoria;
 int entradasalida_cliente_kernel;
 
