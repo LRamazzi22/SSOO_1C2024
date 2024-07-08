@@ -375,6 +375,7 @@ void eliminar_proceso_por_usuario(pcb* el_pcb_a_eliminar){
                 }
                 else if(strcmp(nodo_de_interfaz ->tipo_de_interfaz, "stdin")==0 || strcmp(nodo_de_interfaz ->tipo_de_interfaz, "stdout")==0){
                     io_std_fs* dir_fisicas = variable;
+                    free(dir_fisicas ->interfaz);
 
                     list_destroy_and_destroy_elements(dir_fisicas ->lista_dir_fisicas, free);
                     free(dir_fisicas);

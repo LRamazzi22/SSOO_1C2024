@@ -94,9 +94,8 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
             nodo_de_diccionario_interfaz* nodo_interfaz = dictionary_get(diccionario_entrada_salida,nombre_cliente ->nombre);
             pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
 
-            eliminar_variable(nodo_interfaz, nodo_bloqueados);
-
             if(un_pcb != NULL){
+                eliminar_variable(nodo_interfaz, nodo_bloqueados);
                 pthread_mutex_lock(&(nodo_bloqueados ->mutex_para_cola_bloqueados));
                 eliminar_pcb_cola(nodo_bloqueados -> cola_bloqueados, un_pcb);
                 pthread_mutex_unlock(&(nodo_bloqueados ->mutex_para_cola_bloqueados));
