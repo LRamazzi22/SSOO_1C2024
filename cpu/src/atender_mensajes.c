@@ -178,8 +178,14 @@ bool confirmacion_escritura(){
 		case ESCRITURA_CODE:
 			buffer = recibir_buffer(cpu_cliente_memoria);
 			char* confirm = extraer_string_buffer(buffer, logger);
+
+			if(strcmp(confirm, "Ok")==0){
+				free(confirm);
+				return true;
+			}
 			
-			return (strcmp(confirm, "Ok")==0);
+			free(confirm);
+			return false;
 
 			break;
 		case -1:

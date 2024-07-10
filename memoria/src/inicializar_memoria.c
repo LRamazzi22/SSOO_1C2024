@@ -1,9 +1,9 @@
 #include <inicializar_memoria.h>
 
-void inicializar_memoria(){
+void inicializar_memoria(char* path_config){
     logger = iniciar_logger("./memoria.log", "Memoria_Logger", LOG_LEVEL_DEBUG, 1);
     logger_obligatorio = iniciar_logger("./memoriaObligatorio.log", "Memoria_Logger_Obligatorio", LOG_LEVEL_INFO,1);
-    inicializar_config_memoria();
+    inicializar_config_memoria(path_config);
 
 
     if(TAM_MEMORIA % TAM_PAGINA != 0){
@@ -24,10 +24,28 @@ void inicializar_memoria(){
 
     diccionario_de_instrucciones = dictionary_create();
     diccionario_de_tdp = dictionary_create();
+
+    pthread_mutex_init(&mutex_para_leer_pseudo, NULL);
+    pthread_mutex_init(&mutex_para_diccionario_instrucciones, NULL);
+    pthread_mutex_init(&mutex_para_diccionario_tdp, NULL);
+    pthread_mutex_init(&mutex_para_marcos_libres, NULL);
+    pthread_mutex_init(&mutex_para_mem_de_usuario, NULL);
+
 }
 
-void inicializar_config_memoria(){
-    config = iniciar_config("./memoria_config.config");
+void inicializar_config_memoria(char* path_config){
+    char** string_sin_contra_barra = string_split(path_config,"\n");
+    char* path_configs = strdup("./");
+    string_append(&path_configs, string_sin_contra_barra[0]);
+    config = iniciar_config(path_configs);
+
+    string_array_destroy(string_sin_contra_barra);
+    free(path_configs);
+
+    if(config == NULL){
+        log_error(logger, "CONFIG INEXISTENTE");
+        exit(EXIT_FAILURE);
+    }
     
 
     PUERTO_ESCUCHA = config_get_string_value(config, "PUERTO_ESCUCHA");

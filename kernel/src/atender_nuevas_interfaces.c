@@ -18,6 +18,7 @@ void atender_nueva_interfaz(void* cliente_entradasalida){
         sem_init(&(nodo ->hay_proceso_en_bloqueados),0,0);
         sem_init(&(nodo ->detener_planificacion_enviar_peticion_IO),0,0);
         sem_init(&(nodo ->detener_planificacion_recibir_respuestas_IO),0,0);
+        pthread_mutex_init(&(nodo ->mutex_interfaz_siendo_usada), NULL);
 
         pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
         dictionary_put(diccionario_entrada_salida,nombre_interfaz,nodo);
@@ -27,6 +28,9 @@ void atender_nueva_interfaz(void* cliente_entradasalida){
 
         nuevo_nodo_blocked ->cola_bloqueados = queue_create();
         nuevo_nodo_blocked ->cola_Variables = queue_create();
+
+        pthread_mutex_init(&(nuevo_nodo_blocked ->mutex_para_cola_bloqueados), NULL);
+        pthread_mutex_init(&(nuevo_nodo_blocked ->mutex_para_cola_variables), NULL);
 
         pthread_mutex_lock(&mutex_para_diccionario_blocked);
         dictionary_put(diccionario_blocked,nombre_interfaz,nuevo_nodo_blocked);
@@ -86,7 +90,12 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
 
             pcb* un_pcb = buscar_proceso_en_cola(pid,nodo_bloqueados);
 
+            pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
+            nodo_de_diccionario_interfaz* nodo_interfaz = dictionary_get(diccionario_entrada_salida,nombre_cliente ->nombre);
+            pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
+
             if(un_pcb != NULL){
+                eliminar_variable(nodo_interfaz, nodo_bloqueados);
                 pthread_mutex_lock(&(nodo_bloqueados ->mutex_para_cola_bloqueados));
                 eliminar_pcb_cola(nodo_bloqueados -> cola_bloqueados, un_pcb);
                 pthread_mutex_unlock(&(nodo_bloqueados ->mutex_para_cola_bloqueados));
@@ -97,7 +106,8 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
 
                 if(strcmp(ALGORITMO_PLANIFICACION, "vrr")==0){
                     int64_t tiempo_ejecutado = temporal_gettime(un_pcb ->tiempo_en_ejecucion);
-					temporal_destroy(un_pcb ->tiempo_en_ejecucion);
+					free(un_pcb ->tiempo_en_ejecucion);
+                    un_pcb ->tiempo_en_ejecucion = NULL;
                     if(tiempo_ejecutado < un_pcb -> quantum_restante){
                         un_pcb ->quantum_restante = un_pcb ->quantum_restante - tiempo_ejecutado;
 
@@ -117,6 +127,10 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
                     }
                 }
                 else{
+                    if(un_pcb ->tiempo_en_ejecucion != NULL){
+                        free(un_pcb ->tiempo_en_ejecucion);
+                        un_pcb ->tiempo_en_ejecucion = NULL;
+                    }
                     pthread_mutex_lock(&mutex_cola_ready);
 			        queue_push(cola_ready,un_pcb);
                     log_de_lista_de_ready();
@@ -126,10 +140,6 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
 
                 sem_post(&hay_proceso_en_ready);
             }
-			
-            pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
-            nodo_de_diccionario_interfaz* nodo_interfaz = dictionary_get(diccionario_entrada_salida,nombre_cliente ->nombre);
-            pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
 
             sem_post(&(nodo_interfaz ->se_puede_enviar_proceso));
             break;
@@ -143,6 +153,12 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
 			nodo_de_diccionario_blocked* nodo_bloqueados2 = dictionary_get(diccionario_blocked, nombre_cliente ->nombre);
 			pthread_mutex_unlock(&mutex_para_diccionario_blocked);
 
+            pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
+            nodo_de_diccionario_interfaz* nodo_interfaz2 = dictionary_get(diccionario_entrada_salida,nombre_cliente ->nombre);
+            pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
+
+            eliminar_variable(nodo_interfaz2, nodo_bloqueados2);
+
             pcb* un_pcb2 = buscar_proceso_en_cola(pid2,nodo_bloqueados);
 
             if(un_pcb2 != NULL){
@@ -151,14 +167,12 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
                 pthread_mutex_unlock(&(nodo_bloqueados2 ->mutex_para_cola_bloqueados));
 
                 un_pcb2 ->estado_proceso = EXIT_PROCESS;
+                un_pcb2 ->razon_salida = FALLO_EN_IO;
 
                 mandar_a_exit(un_pcb2);
                 log_info(logger_obligatorio,"PID: %d - Estado Anterior: BLOCKED - Estado Actual: EXIT", un_pcb2 ->PID);
 
             }
-            pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
-            nodo_de_diccionario_interfaz* nodo_interfaz2 = dictionary_get(diccionario_entrada_salida,nombre_cliente ->nombre);
-            pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
 
             sem_post(&(nodo_interfaz2 ->se_puede_enviar_proceso));
 
@@ -171,13 +185,7 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
             pthread_mutex_lock(&mutex_para_diccionario_entradasalida);
             nodo_de_diccionario_interfaz* nodo = dictionary_remove(diccionario_entrada_salida,nombre_cliente ->nombre);
             pthread_mutex_unlock(&mutex_para_diccionario_entradasalida);
-            free(nodo ->tipo_de_interfaz);
-            liberar_conexion(*nodo ->cliente);
-            free(nodo ->cliente);
-            sem_destroy(&(nodo ->hay_proceso_en_bloqueados));
-            sem_destroy(&(nodo ->se_puede_enviar_proceso));
-            pthread_mutex_destroy(&(nodo ->mutex_interfaz_siendo_usada));
-            free(nodo);
+            
 
             pcb* el_pcb;
 
@@ -196,10 +204,7 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
                 el_pcb = queue_pop(nodo_de_bloqueados -> cola_bloqueados);
                 pthread_mutex_unlock(&(nodo_de_bloqueados->mutex_para_cola_bloqueados));
 
-                pthread_mutex_lock(&(nodo_de_bloqueados ->mutex_para_cola_variables));
-                void* variable_a_borrar = queue_pop(nodo_de_bloqueados ->cola_Variables);
-                free(variable_a_borrar);
-                pthread_mutex_unlock(&(nodo_de_bloqueados ->mutex_para_cola_variables));
+                eliminar_variable(nodo, nodo_de_bloqueados);
 
                 el_pcb ->razon_salida = INTERFAZ_INVALIDA;
 
@@ -212,6 +217,15 @@ void atender_mensajes_interfaz(void* nombre_interfaz_y_cliente){
             pthread_mutex_destroy(&(nodo_de_bloqueados ->mutex_para_cola_bloqueados));
             pthread_mutex_destroy(&(nodo_de_bloqueados ->mutex_para_cola_variables));
             free(nodo_de_bloqueados);
+
+            free(nodo ->tipo_de_interfaz);
+            liberar_conexion(*nodo ->cliente);
+            free(nodo ->cliente);
+            sem_destroy(&(nodo ->hay_proceso_en_bloqueados));
+            sem_destroy(&(nodo ->se_puede_enviar_proceso));
+            pthread_mutex_destroy(&(nodo ->mutex_interfaz_siendo_usada));
+            free(nodo);
+
             continuar_while = false;
 
             pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
@@ -262,7 +276,7 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
         if(pcb_a_enviar != NULL){
             if(strcmp(nodo_interfaz ->tipo_de_interfaz, "Generica")==0){
                 pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
-                int* tiempo_espera = queue_pop(nodo_blocked ->cola_Variables);
+                int* tiempo_espera = queue_peek(nodo_blocked ->cola_Variables);
                 pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
 
                 t_paquete* paquete = crear_paquete(ESPERAR_GEN);
@@ -270,11 +284,10 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
                 agregar_int_a_paquete(paquete,*tiempo_espera);
                 enviar_paquete(paquete,*nodo_interfaz ->cliente);
                 eliminar_paquete(paquete);
-                free(tiempo_espera);
             }
             else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "stdin")==0){
                 pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
-                io_std* dir_fisicas = queue_pop(nodo_blocked ->cola_Variables);
+                io_std_fs* dir_fisicas = queue_peek(nodo_blocked ->cola_Variables);
                 pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
 
                 t_paquete* paquete2 = crear_paquete(STD_READ_CODE);
@@ -289,13 +302,11 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
                 }
                 enviar_paquete(paquete2, *nodo_interfaz ->cliente);
                 eliminar_paquete(paquete2);
-                list_destroy_and_destroy_elements(dir_fisicas ->lista_dir_fisicas, free);
-                free(dir_fisicas);
                 
             }
             else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "stdout")==0){
                 pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
-                io_std* dir_fisicas = queue_pop(nodo_blocked ->cola_Variables);
+                io_std_fs* dir_fisicas = queue_peek(nodo_blocked ->cola_Variables);
                 pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
 
                 t_paquete* paquete2 = crear_paquete(STD_WRITE_CODE);
@@ -310,12 +321,45 @@ void enviar_proceso_interfaz(void* nombre_interfaz_y_cliente){
                 }
                 enviar_paquete(paquete2, *nodo_interfaz ->cliente);
                 eliminar_paquete(paquete2);
-                list_destroy_and_destroy_elements(dir_fisicas ->lista_dir_fisicas, free);
-                free(dir_fisicas);
+
             }
             else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "dialfs")==0){
-                
+                pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
+                var_fs* variable_fs = queue_peek(nodo_blocked ->cola_Variables);
+                pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
+
+                switch(variable_fs ->tipo_variable){
+
+                    case VAR_FS_CREATE:
+                        enviar_fs_create_delete(nodo_interfaz, variable_fs, FS_CREATE_CODE, pcb_a_enviar->PID);
+                        break;
+                    
+                    case VAR_FS_DELETE:
+                        enviar_fs_create_delete(nodo_interfaz, variable_fs, FS_DELETE_CODE, pcb_a_enviar->PID);                 
+                        break;
+                    
+                    case VAR_FS_TRUNCATE:
+                        t_paquete* paquete = crear_paquete(FS_TRUNCATE_CODE);
+                        agregar_int_a_paquete(paquete, pcb_a_enviar ->PID);
+                        agregar_string_a_paquete(paquete,variable_fs ->nombre_Archivo);
+                        agregar_int_a_paquete(paquete, variable_fs ->tam_truncate);
+                        enviar_paquete(paquete, *nodo_interfaz ->cliente);
+                        eliminar_paquete(paquete);
+                        
+                        break;
+
+                    case VAR_FS_READ:
+                        enviar_fs_read_write(nodo_interfaz, variable_fs, FS_READ_CODE, pcb_a_enviar->PID);
+                        break;
+                    
+                    case VAR_FS_WRITE:
+                        enviar_fs_read_write(nodo_interfaz, variable_fs, FS_WRITE_CODE, pcb_a_enviar->PID);
+                        break;
+                }
             }
+        }
+        else{
+            sem_post(&(nodo_interfaz ->se_puede_enviar_proceso));
         }
         
 
@@ -350,4 +394,62 @@ void atender_las_nuevas_interfaces(){
         pthread_detach(hilo_atender_entradasalida);
     }
     
+}
+
+void enviar_fs_create_delete(nodo_de_diccionario_interfaz* nodo_interfaz, var_fs* variable_fs, int cod_op, int PID){
+    t_paquete* paquete = crear_paquete(cod_op);
+    agregar_int_a_paquete(paquete, PID);
+    agregar_string_a_paquete(paquete, variable_fs ->nombre_Archivo);
+    enviar_paquete(paquete, *nodo_interfaz ->cliente);
+    eliminar_paquete(paquete);                                             
+}
+
+void enviar_fs_read_write(nodo_de_diccionario_interfaz* nodo_interfaz, var_fs* variable_fs, int cod_op, int PID){
+    t_paquete* paquete = crear_paquete(cod_op);
+    agregar_int_a_paquete(paquete, PID);
+    agregar_string_a_paquete(paquete,variable_fs ->nombre_Archivo);
+    agregar_int_a_paquete(paquete, variable_fs ->puntero_Arch);
+
+    agregar_int_a_paquete(paquete, variable_fs-> dir_fisicas ->tam);
+    agregar_int_a_paquete(paquete, variable_fs->dir_fisicas ->cant_dir_fisicas);
+
+    for(int i = 0; i < list_size(variable_fs->dir_fisicas ->lista_dir_fisicas); i++){
+        dir_fis_y_tam* dir_fisica_y_tam = list_get(variable_fs ->dir_fisicas ->lista_dir_fisicas, i);
+        agregar_int_a_paquete(paquete, dir_fisica_y_tam ->dir_fisica);
+        agregar_int_a_paquete(paquete, dir_fisica_y_tam ->tam);
+    }
+    enviar_paquete(paquete, *nodo_interfaz ->cliente);
+    eliminar_paquete(paquete);
+   
+}
+
+void eliminar_variable(nodo_de_diccionario_interfaz* nodo_interfaz, nodo_de_diccionario_blocked* nodo_blocked){
+    if(strcmp(nodo_interfaz ->tipo_de_interfaz, "Generica")==0){
+        pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
+        int* tiempo_espera = queue_pop(nodo_blocked ->cola_Variables);
+        pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
+        free(tiempo_espera);
+    }
+    else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "stdin")==0 || strcmp(nodo_interfaz ->tipo_de_interfaz, "stdout")==0){
+        pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
+        io_std_fs* dir_fisicas = queue_pop(nodo_blocked ->cola_Variables);
+        pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
+        list_destroy_and_destroy_elements(dir_fisicas ->lista_dir_fisicas, free);
+        free(dir_fisicas ->interfaz);
+        free(dir_fisicas);
+                    
+    }
+    else if(strcmp(nodo_interfaz ->tipo_de_interfaz, "dialfs")==0){
+        pthread_mutex_lock(&(nodo_blocked ->mutex_para_cola_variables));
+        var_fs* variable_fs = queue_pop(nodo_blocked ->cola_Variables);
+        pthread_mutex_unlock(&(nodo_blocked ->mutex_para_cola_variables));
+
+        if(variable_fs ->tipo_variable == VAR_FS_READ || variable_fs ->tipo_variable == VAR_FS_WRITE){
+            list_destroy_and_destroy_elements(variable_fs->dir_fisicas ->lista_dir_fisicas, free);
+            free(variable_fs ->dir_fisicas ->interfaz);
+            free(variable_fs->dir_fisicas);
+        }
+        free(variable_fs ->nombre_Archivo);
+        free(variable_fs);
+    }
 }

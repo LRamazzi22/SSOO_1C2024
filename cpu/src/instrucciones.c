@@ -660,7 +660,7 @@ bool copy_string(int tamanio) {
 }
 
 void std_read_write(char* interfaz, char* registro_direccion, char* registro_tam, char* tipo_interfaz){
-    io_std* conjunto_dir_fisicas = io_std_get_dir_fis(interfaz, registro_direccion, registro_tam);
+    io_std_fs* conjunto_dir_fisicas = io_std_fs_get_dir_fis(interfaz, registro_direccion, registro_tam);
 
     t_paquete* paquete6 = crear_paquete(STD_READ_WRITE_CODE);
     cargar_registros_a_paquete(paquete6);
@@ -683,8 +683,8 @@ void std_read_write(char* interfaz, char* registro_direccion, char* registro_tam
     free(conjunto_dir_fisicas);
 }
 
-io_std* io_std_get_dir_fis(char* interfaz, char* registro_direccion, char* registro_tam){
-    io_std* nueva_peticion = malloc(sizeof(io_std));
+io_std_fs* io_std_fs_get_dir_fis(char* interfaz, char* registro_direccion, char* registro_tam){
+    io_std_fs* nueva_peticion = malloc(sizeof(io_std_fs));
 
     nueva_peticion ->interfaz = strdup(interfaz);
     string_append(&nueva_peticion ->interfaz, "\n");
@@ -794,9 +794,93 @@ io_std* io_std_get_dir_fis(char* interfaz, char* registro_direccion, char* regis
     }
 
     nueva_peticion ->cant_dir_fisicas = list_size(nueva_peticion ->lista_dir_fisicas);
+    free(dir_fisica);
 
     return nueva_peticion;
 
+}
+
+void fs_create_delete(char* interfaz, char* nombre_Arch, int cod_op){
+    t_paquete* paquete = crear_paquete(cod_op);
+    cargar_registros_a_paquete(paquete);
+    char* interfaz_nuevo = strdup(interfaz);
+    string_append(&interfaz_nuevo,"\n");
+    agregar_string_a_paquete(paquete,interfaz_nuevo);
+    agregar_string_a_paquete(paquete,nombre_Arch);
+    enviar_paquete(paquete, kernel_cliente_dispatch);
+    eliminar_paquete(paquete);
+    free(interfaz_nuevo);
+}
+
+void fs_truncate(char* interfaz, char* nombre_arch, char* registro_tam){
+    t_paquete* paquete = crear_paquete(FS_TRUNCATE_CODE);
+    cargar_registros_a_paquete(paquete);
+    char* interfaz_nuevo = strdup(interfaz);
+    string_append(&interfaz_nuevo,"\n");
+    agregar_string_a_paquete(paquete, interfaz_nuevo);
+    agregar_string_a_paquete(paquete, nombre_arch);
+
+    int tam_registro;
+    int tam_a_pasar;
+    void* registro = apuntar_a_registro(registro_tam, &tam_registro);
+
+    if(tam_registro == 8){
+        uint8_t* registro2 = registro;
+        tam_a_pasar = (int)(*registro2);
+    }
+    else if(tam_registro == 32){
+        uint32_t* registro2 = registro;
+        tam_a_pasar = (int)(*registro2);
+    }
+    agregar_int_a_paquete(paquete, tam_a_pasar);
+
+    enviar_paquete(paquete, kernel_cliente_dispatch);
+    eliminar_paquete(paquete);
+
+    free(interfaz_nuevo);
+
+}
+
+void fs_read_write(char* interfaz,char* nombre_arch, char* registro_direccion, char* registro_tam, char* registro_puntero, char* lectura_o_escritura){
+    io_std_fs* conjunto_dir_fisicas = io_std_fs_get_dir_fis(interfaz, registro_direccion, registro_tam);
+
+    t_paquete* paquete6 = crear_paquete(FS_READ_WRITE_CODE);
+    cargar_registros_a_paquete(paquete6);
+
+    agregar_string_a_paquete(paquete6,nombre_arch);
+
+    int tam_registro;
+    int puntero;
+    void* registro_punt = apuntar_a_registro(registro_puntero, &tam_registro);
+
+    if(tam_registro == 8){
+        uint8_t* registro2 = registro_punt;
+        puntero = (int)(*registro2);
+    }
+    else if(tam_registro == 32){
+        uint8_t* registro2 = registro_punt;
+        puntero = (int)(*registro2);
+    }
+    agregar_int_a_paquete(paquete6, puntero);
+
+    agregar_string_a_paquete(paquete6, lectura_o_escritura);
+    
+    agregar_string_a_paquete(paquete6, conjunto_dir_fisicas ->interfaz);
+    agregar_int_a_paquete(paquete6, conjunto_dir_fisicas ->tam);
+    agregar_int_a_paquete(paquete6, conjunto_dir_fisicas ->cant_dir_fisicas);
+
+    for(int i = 0; i < conjunto_dir_fisicas ->cant_dir_fisicas; i++){
+        dir_fis_y_tam*  dir_fisica_y_tam = list_get(conjunto_dir_fisicas ->lista_dir_fisicas, i);
+        agregar_int_a_paquete(paquete6, dir_fisica_y_tam ->dir_fisica);
+        agregar_int_a_paquete(paquete6, dir_fisica_y_tam ->tam);
+    }
+
+    enviar_paquete(paquete6, kernel_cliente_dispatch);
+    eliminar_paquete(paquete6);
+
+    list_destroy_and_destroy_elements(conjunto_dir_fisicas ->lista_dir_fisicas, free);
+    free(conjunto_dir_fisicas ->interfaz);
+    free(conjunto_dir_fisicas);
 }
 
 void* apuntar_a_registro (char* regist, int* puntero_a_tamano) {

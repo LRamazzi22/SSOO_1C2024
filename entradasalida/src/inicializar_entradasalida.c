@@ -4,6 +4,10 @@ void inicializar_entradasalida(char* path_config){
     logger = iniciar_logger("./entradasalida.log", "EntradaSalida_Logger", LOG_LEVEL_INFO, 1);
     logger_obligatorio = iniciar_logger("./entradasalidaObligatorio.log", "EntradaSalida_Logger_Obligatorio", LOG_LEVEL_INFO,1);
     inicializar_config_entradasalida(path_config);
+
+    lista_archivos = list_create();
+
+    pthread_mutex_init(&mutex_para_interfaz, NULL);
 }
 
 void inicializar_config_entradasalida(char* path_config){
@@ -24,4 +28,5 @@ void inicializar_config_entradasalida(char* path_config){
     PATH_BASE_DIALFS = config_get_string_value(config, "PATH_BASE_DIALFS");
     BLOCK_SIZE = config_get_int_value(config, "BLOCK_SIZE");
     BLOCK_COUNT = config_get_int_value(config, "BLOCK_COUNT");
+    RETRASO_COMPACTACION = config_get_int_value(config, "RETRASO_COMPACTACION");
 }

@@ -12,6 +12,8 @@
 #include <netdb.h>
 #include <string.h>
 #include <time.h>
+#include <sys/mman.h>
+#include <sys/types.h>
 #include <commons/string.h>
 #include <commons/collections/list.h>
 #include <commons/collections/dictionary.h>
@@ -40,6 +42,12 @@ typedef enum
     STD_READ_WRITE_CODE,
     STD_READ_CODE,
     STD_WRITE_CODE,
+    FS_CREATE_CODE,
+    FS_DELETE_CODE,
+    FS_TRUNCATE_CODE,
+    FS_READ_WRITE_CODE,
+    FS_READ_CODE,
+    FS_WRITE_CODE,
     WAIT_CODE,
     SIGNAL_CODE,
     EXITO_IO,
@@ -50,9 +58,18 @@ typedef enum
     OUT_OF_MEM_CODE,
     RESIZE_CODE,
     LECTURA_CODE,
-    ESCRITURA_CODE,
+    ESCRITURA_CODE
 
 } op_code;
+
+typedef enum{
+    VAR_FS_CREATE,
+    VAR_FS_DELETE,
+    VAR_FS_TRUNCATE,
+    VAR_FS_READ,
+    VAR_FS_WRITE
+
+} tipo_var_fs;
 
 
 typedef struct
@@ -72,7 +89,7 @@ typedef struct{
     int tam;
     int cant_dir_fisicas;
     t_list* lista_dir_fisicas;
-} io_std;
+} io_std_fs;
 
 typedef struct{
     int dir_fisica;

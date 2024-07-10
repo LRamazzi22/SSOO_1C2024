@@ -72,14 +72,6 @@ void atender_cpu_dispatch(){
 
 					recibir_contexto_de_ejecucion(buffer,pcb_a_finalizar);
 
-					if(pcb_a_finalizar ->PID == pid_a_eliminar){ //Si el proceso que salio del cpu es al que se le mando la interrupcion de eliminarlo
-						pcb_a_finalizar ->razon_salida = FINALIZADO_POR_USUARIO;
-						mandar_a_exit(pcb_a_finalizar);
-						log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", pcb_a_finalizar ->PID);
-						pid_a_eliminar = -1;
-						break;
-					}
-
 					pcb_a_finalizar ->razon_salida = EXITO;
 					mandar_a_exit(pcb_a_finalizar);
 					log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", pcb_a_finalizar ->PID);
@@ -93,14 +85,6 @@ void atender_cpu_dispatch(){
 					pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
 
 					recibir_contexto_de_ejecucion(buffer,pcb_a_finalizar_por_mem);
-
-					if(pcb_a_finalizar_por_mem ->PID == pid_a_eliminar){ //Si el proceso que salio del cpu es al que se le mando la interrupcion de eliminarlo
-						pcb_a_finalizar_por_mem ->razon_salida = FINALIZADO_POR_USUARIO;
-						mandar_a_exit(pcb_a_finalizar_por_mem);
-						log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", pcb_a_finalizar_por_mem ->PID);
-						pid_a_eliminar = -1;
-						break;
-					}
 
 					pcb_a_finalizar_por_mem ->razon_salida = FUERA_DE_MEMORIA;
 					mandar_a_exit(pcb_a_finalizar_por_mem);
@@ -122,15 +106,6 @@ void atender_cpu_dispatch(){
 					int* tiempo_espera = malloc(sizeof(int));
 					*tiempo_espera = extraer_int_buffer(buffer,logger);
 
-					if(pcb_del_proceso ->PID == pid_a_eliminar){ //Si el proceso que salio del cpu es al que se le mando la interrupcion de eliminarlo
-						pcb_del_proceso ->razon_salida = FINALIZADO_POR_USUARIO;
-						mandar_a_exit(pcb_del_proceso);
-						pid_a_eliminar = -1;
-						free(interfaz);
-						free(tiempo_espera);
-						break;
-					}
-
 					pthread_mutex_lock(&mutex_para_eliminar_entradasalida);
 					nodo_de_diccionario_interfaz* nodo_de_interfaz = comprobrar_existencia_de_interfaz(pcb_del_proceso,interfaz,tipo_interfaz);
 
@@ -145,6 +120,9 @@ void atender_cpu_dispatch(){
 
 						sem_post(&(nodo_de_interfaz ->hay_proceso_en_bloqueados));
 
+					}
+					else{
+						free(tiempo_espera);
 					}
 					pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
 					free(interfaz);
@@ -161,17 +139,7 @@ void atender_cpu_dispatch(){
 
 					char* tipo_interfaz1 = extraer_string_buffer(buffer, logger);
 
-					io_std* dir_fisicas = extraer_dir_fisicas_de_buffer(buffer);
-
-					if(pcb_a_std_read_write ->PID == pid_a_eliminar){
-						pcb_a_std_read_write ->razon_salida = FINALIZADO_POR_USUARIO;
-						mandar_a_exit(pcb_a_std_read_write);
-						pid_a_eliminar = -1;
-
-						free(dir_fisicas ->interfaz);
-						list_destroy_and_destroy_elements(dir_fisicas ->lista_dir_fisicas, free);
-						free(dir_fisicas);
-					}
+					io_std_fs* dir_fisicas = extraer_dir_fisicas_de_buffer(buffer);
 
 					pthread_mutex_lock(&mutex_para_eliminar_entradasalida);
 					nodo_de_diccionario_interfaz* nodo_interfaz1 = comprobrar_existencia_de_interfaz(pcb_a_std_read_write, dir_fisicas ->interfaz, tipo_interfaz1);
@@ -188,9 +156,203 @@ void atender_cpu_dispatch(){
 						sem_post(&(nodo_interfaz1 ->hay_proceso_en_bloqueados));
 
 					}
+					else{
+						free(dir_fisicas ->interfaz);
+						list_destroy_and_destroy_elements(dir_fisicas ->lista_dir_fisicas, free);
+						free(dir_fisicas);
+					}
 					pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
 
 					free(tipo_interfaz1);
+
+					break;
+
+				case FS_CREATE_CODE:
+					buffer = recibir_buffer(kernel_cliente_dispatch);
+
+					pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
+					pcb* pcb_create = proceso_en_ejecucion;
+					pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
+
+					recibir_contexto_de_ejecucion(buffer, pcb_create);
+
+					char* interfaz1 = extraer_string_buffer(buffer, logger);
+					char* nombre_Arch1 = extraer_string_buffer(buffer, logger);
+
+					char* tipo_interfaz2 = "dialfs";
+
+					pthread_mutex_lock(&mutex_para_eliminar_entradasalida);
+					nodo_de_diccionario_interfaz* nodo_interfaz2 = comprobrar_existencia_de_interfaz(pcb_create, interfaz1, tipo_interfaz2);
+
+					if(nodo_interfaz2 != NULL){
+						pthread_mutex_lock(&mutex_para_diccionario_blocked);
+						nodo_de_diccionario_blocked* nodo_bloqueados2 = dictionary_get(diccionario_blocked, interfaz1);
+						pthread_mutex_unlock(&mutex_para_diccionario_blocked);
+
+						var_fs* variable_para_cola = malloc(sizeof(var_fs));
+
+						variable_para_cola ->tipo_variable = VAR_FS_CREATE;
+						variable_para_cola ->nombre_Archivo = nombre_Arch1;
+
+						pthread_mutex_lock(&(nodo_bloqueados2 ->mutex_para_cola_variables));
+						queue_push(nodo_bloqueados2 ->cola_Variables, variable_para_cola);
+						pthread_mutex_unlock(&(nodo_bloqueados2 ->mutex_para_cola_variables));
+
+
+						sem_post(&(nodo_interfaz2 ->hay_proceso_en_bloqueados));
+
+					}
+					else{
+						free(nombre_Arch1);
+					}
+					free(interfaz1);
+					pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
+
+					break;
+				
+				case FS_DELETE_CODE:
+					buffer = recibir_buffer(kernel_cliente_dispatch);
+
+					pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
+					pcb* pcb_delete = proceso_en_ejecucion;
+					pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
+
+					recibir_contexto_de_ejecucion(buffer, pcb_delete);
+
+					char* interfaz2 = extraer_string_buffer(buffer, logger);
+					char* nombre_Arch2 = extraer_string_buffer(buffer, logger);
+
+					char* tipo_interfaz3 = "dialfs";
+
+					pthread_mutex_lock(&mutex_para_eliminar_entradasalida);
+					nodo_de_diccionario_interfaz* nodo_interfaz3 = comprobrar_existencia_de_interfaz(pcb_delete, interfaz2, tipo_interfaz3);
+
+					if(nodo_interfaz3 != NULL){
+						pthread_mutex_lock(&mutex_para_diccionario_blocked);
+						nodo_de_diccionario_blocked* nodo_bloqueados3 = dictionary_get(diccionario_blocked, interfaz2);
+						pthread_mutex_unlock(&mutex_para_diccionario_blocked);
+
+						var_fs* variable_para_cola = malloc(sizeof(var_fs));
+
+						variable_para_cola ->tipo_variable = VAR_FS_DELETE;
+						variable_para_cola ->nombre_Archivo = nombre_Arch2;
+
+						pthread_mutex_lock(&(nodo_bloqueados3 ->mutex_para_cola_variables));
+						queue_push(nodo_bloqueados3 ->cola_Variables, variable_para_cola);
+						pthread_mutex_unlock(&(nodo_bloqueados3 ->mutex_para_cola_variables));
+
+
+						sem_post(&(nodo_interfaz3 ->hay_proceso_en_bloqueados));
+
+					}
+					else{
+						free(nombre_Arch2);
+					}
+					free(interfaz2);
+					pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
+
+					break;
+
+				case FS_TRUNCATE_CODE:
+					buffer = recibir_buffer(kernel_cliente_dispatch);
+
+					pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
+					pcb* pcb_truncate = proceso_en_ejecucion;
+					pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
+
+					recibir_contexto_de_ejecucion(buffer, pcb_truncate);
+
+					char* interfaz3 = extraer_string_buffer(buffer, logger);
+					char* nombre_Arch3 = extraer_string_buffer(buffer, logger);
+
+					int tam_a_truncar = extraer_int_buffer(buffer, logger);
+
+					char* tipo_interfaz4 = "dialfs";
+
+					pthread_mutex_lock(&mutex_para_eliminar_entradasalida);
+					nodo_de_diccionario_interfaz* nodo_interfaz4 = comprobrar_existencia_de_interfaz(pcb_truncate, interfaz3, tipo_interfaz4);
+
+					if(nodo_interfaz4 != NULL){
+						pthread_mutex_lock(&mutex_para_diccionario_blocked);
+						nodo_de_diccionario_blocked* nodo_bloqueados4 = dictionary_get(diccionario_blocked, interfaz3);
+						pthread_mutex_unlock(&mutex_para_diccionario_blocked);
+
+						var_fs* variable_para_cola = malloc(sizeof(var_fs));
+
+						variable_para_cola ->tipo_variable = VAR_FS_TRUNCATE;
+						variable_para_cola ->nombre_Archivo = nombre_Arch3;
+						variable_para_cola ->tam_truncate = tam_a_truncar;
+
+						pthread_mutex_lock(&(nodo_bloqueados4 ->mutex_para_cola_variables));
+						queue_push(nodo_bloqueados4 ->cola_Variables, variable_para_cola);
+						pthread_mutex_unlock(&(nodo_bloqueados4 ->mutex_para_cola_variables));
+						
+
+						sem_post(&(nodo_interfaz4 ->hay_proceso_en_bloqueados));
+
+					}
+					else{
+						free(nombre_Arch3);
+					}
+					free(interfaz3);
+					pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
+
+					break;
+
+				case FS_READ_WRITE_CODE:
+					buffer = recibir_buffer(kernel_cliente_dispatch);
+
+					pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
+					pcb* pcb_fs_read_write = proceso_en_ejecucion;
+					pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
+
+					recibir_contexto_de_ejecucion(buffer, pcb_fs_read_write);
+
+					char* nombre_Arch4 = extraer_string_buffer(buffer, logger);
+					int puntero_arch = extraer_int_buffer(buffer, logger);
+					char* lectura_o_escritura = extraer_string_buffer(buffer, logger);
+
+					char* tipo_interfaz5 = "dialfs";
+
+					io_std_fs* dir_fisicas_fs = extraer_dir_fisicas_de_buffer(buffer);
+
+					pthread_mutex_lock(&mutex_para_eliminar_entradasalida);
+					nodo_de_diccionario_interfaz* nodo_interfaz5 = comprobrar_existencia_de_interfaz(pcb_fs_read_write, dir_fisicas_fs ->interfaz, tipo_interfaz5);
+
+					if(nodo_interfaz5 != NULL){
+						pthread_mutex_lock(&mutex_para_diccionario_blocked);
+						nodo_de_diccionario_blocked* nodo_bloqueados5 = dictionary_get(diccionario_blocked,dir_fisicas_fs ->interfaz);
+						pthread_mutex_unlock(&mutex_para_diccionario_blocked);
+
+						var_fs* variable_para_cola = malloc(sizeof(var_fs));
+						variable_para_cola ->nombre_Archivo = nombre_Arch4;
+						variable_para_cola ->puntero_Arch = puntero_arch;
+						variable_para_cola ->dir_fisicas = dir_fisicas_fs;
+						
+						if(strcmp(lectura_o_escritura, "lectura")==0){
+							variable_para_cola ->tipo_variable = VAR_FS_READ;
+						}
+						else if(strcmp(lectura_o_escritura, "escritura")==0){
+							variable_para_cola ->tipo_variable = VAR_FS_WRITE;
+						}
+						
+						free(lectura_o_escritura);
+
+						pthread_mutex_lock(&(nodo_bloqueados5 ->mutex_para_cola_variables));
+						queue_push(nodo_bloqueados5 ->cola_Variables, variable_para_cola);
+						pthread_mutex_unlock(&(nodo_bloqueados5 ->mutex_para_cola_variables));
+
+						sem_post(&(nodo_interfaz5 ->hay_proceso_en_bloqueados));
+
+					}
+					else{
+						free(nombre_Arch4);
+						free(lectura_o_escritura);
+						free(dir_fisicas_fs ->interfaz);
+						list_destroy_and_destroy_elements(dir_fisicas_fs ->lista_dir_fisicas, free);
+						free(dir_fisicas_fs);
+					}
+					pthread_mutex_unlock(&mutex_para_eliminar_entradasalida);
 
 					break;
 
@@ -204,14 +366,6 @@ void atender_cpu_dispatch(){
 					recibir_contexto_de_ejecucion(buffer,pcb_a_esperar);
 
 					char* recurso = extraer_string_buffer(buffer,logger);
-
-					if(pcb_a_esperar ->PID == pid_a_eliminar){ //Si el proceso que salio del cpu es al que se le mando la interrupcion de eliminarlo
-						pcb_a_esperar ->razon_salida = FINALIZADO_POR_USUARIO;
-						mandar_a_exit(pcb_a_esperar);
-						pid_a_eliminar = -1;
-						free(recurso);
-						break;
-					}
 
 					bool existe_recurso;
 
@@ -230,7 +384,8 @@ void atender_cpu_dispatch(){
 
 						if(nodo_del_recurso -> instancias < 0){
 							pcb_a_esperar ->estado_proceso = BLOCKED;
-							temporal_destroy(pcb_a_esperar ->tiempo_en_ejecucion);
+							free(pcb_a_esperar ->tiempo_en_ejecucion);
+							pcb_a_esperar ->tiempo_en_ejecucion = NULL;
 							log_info(logger_obligatorio,"PID: %d - Estado Anterior: EXECUTE - Estado Actual: BLOCKED", pcb_a_esperar->PID);
 							log_info(logger_obligatorio, "PID: %d - Bloqueado por: %s",pcb_a_esperar ->PID, recurso);
 							strcpy(pcb_a_esperar ->recurso_bloqueante, recurso);
@@ -240,7 +395,8 @@ void atender_cpu_dispatch(){
 							char* recurso_lista = strdup(recurso);
 							list_add(pcb_a_esperar ->lista_recursos_tomados,recurso_lista);
 							int64_t tiempo_ejecutado = temporal_gettime(pcb_a_esperar ->tiempo_en_ejecucion);
-							temporal_destroy(pcb_a_esperar ->tiempo_en_ejecucion);
+							free(pcb_a_esperar ->tiempo_en_ejecucion);
+							pcb_a_esperar ->tiempo_en_ejecucion = NULL;
 							if(tiempo_ejecutado < pcb_a_esperar ->quantum_restante){
 								pcb_a_esperar ->quantum_restante = pcb_a_esperar ->quantum_restante - tiempo_ejecutado;
 
@@ -305,14 +461,6 @@ void atender_cpu_dispatch(){
 
 					char* recurso_signal = extraer_string_buffer(buffer,logger);
 
-					if(pcb_a_senial ->PID == pid_a_eliminar){ //Si el proceso que salio del cpu es al que se le mando la interrupcion de eliminarlo
-						pcb_a_senial ->razon_salida = FINALIZADO_POR_USUARIO;
-						mandar_a_exit(pcb_a_senial);
-						pid_a_eliminar = -1;
-						free(recurso_signal);
-						break;
-					}
-
 					bool existe_recurso_signal;
 
 					pthread_mutex_lock(&mutex_para_diccionario_recursos);
@@ -328,6 +476,7 @@ void atender_cpu_dispatch(){
 							char* recurso_lista = list_get(pcb_a_senial ->lista_recursos_tomados,i);
 							if(strcmp(recurso_lista,recurso_signal)==0){
 								list_remove(pcb_a_senial ->lista_recursos_tomados,i);
+								free(recurso_lista);
 								break;
 							}
 						}
@@ -345,6 +494,11 @@ void atender_cpu_dispatch(){
 							char* recurso_lista = strdup(recurso_signal);
 							list_add(pcb_a_desbloquear ->lista_recursos_tomados,recurso_lista);
 
+							if(pcb_a_desbloquear ->tiempo_en_ejecucion != NULL){
+								free(pcb_a_desbloquear ->tiempo_en_ejecucion);
+								pcb_a_desbloquear ->tiempo_en_ejecucion = NULL;
+							}
+
 
 							pthread_mutex_lock(&mutex_cola_ready);
 							queue_push(cola_ready,pcb_a_desbloquear);
@@ -355,7 +509,8 @@ void atender_cpu_dispatch(){
 						}
 						if(strcmp(ALGORITMO_PLANIFICACION,"rr")==0 || strcmp(ALGORITMO_PLANIFICACION,"vrr")==0){ //ROUND ROBIN O VIRTUAL ROUND ROBIN
 							int64_t tiempo_ejecutado = temporal_gettime(pcb_a_senial ->tiempo_en_ejecucion);
-							temporal_destroy(pcb_a_senial ->tiempo_en_ejecucion);
+							free(pcb_a_senial ->tiempo_en_ejecucion);
+							pcb_a_senial ->tiempo_en_ejecucion = NULL;
 							if(tiempo_ejecutado < pcb_a_senial ->quantum_restante){
 								pcb_a_senial ->quantum_restante = pcb_a_senial ->quantum_restante - tiempo_ejecutado;
 
@@ -392,6 +547,10 @@ void atender_cpu_dispatch(){
 			
 							enviar_paquete(paquete_pcb_a_enviar, kernel_cliente_dispatch);
 							eliminar_paquete(paquete_pcb_a_enviar);
+							if(pcb_a_senial ->tiempo_en_ejecucion != NULL){
+								free(pcb_a_senial ->tiempo_en_ejecucion);
+								pcb_a_senial ->tiempo_en_ejecucion = NULL;
+							}
 							pcb_a_senial ->tiempo_en_ejecucion = temporal_create();
 							atender_cpu_dispatch();
 						}
@@ -414,13 +573,11 @@ void atender_cpu_dispatch(){
 
 					recibir_contexto_de_ejecucion(buffer,pcb_a_guardar);
 
-					if(pcb_a_guardar ->PID == pid_a_eliminar){ //Si el proceso que salio del cpu es al que se le mando la interrupcion de eliminarlo
-						pcb_a_guardar ->razon_salida = FINALIZADO_POR_USUARIO;
-						mandar_a_exit(pcb_a_guardar);
-						log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", pcb_a_guardar ->PID);
-						pid_a_eliminar = -1;
-						break;
+					if(pcb_a_guardar ->tiempo_en_ejecucion != NULL){
+						free(pcb_a_guardar ->tiempo_en_ejecucion);
+						pcb_a_guardar ->tiempo_en_ejecucion = NULL;
 					}
+
 					log_info(logger_obligatorio,"PID: %d - Desalojado por fin de Quantum",pcb_a_guardar ->PID);
 					pcb_a_guardar->estado_proceso = READY;
 					log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: READY", pcb_a_guardar->PID);
@@ -479,14 +636,15 @@ nodo_de_diccionario_interfaz* comprobrar_existencia_de_interfaz(pcb* el_pcb, cha
 	}
 	el_pcb ->razon_salida = INTERFAZ_INVALIDA;
 
-	mandar_a_exit(el_pcb);
 	log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", el_pcb ->PID);
+	mandar_a_exit(el_pcb);
+	
 
 	return NULL;
 }
 
-io_std* extraer_dir_fisicas_de_buffer(t_buffer* buffer){
-	io_std* conjunto_de_dir_fisicas = malloc(sizeof(io_std));
+io_std_fs* extraer_dir_fisicas_de_buffer(t_buffer* buffer){
+	io_std_fs* conjunto_de_dir_fisicas = malloc(sizeof(io_std_fs));
 	conjunto_de_dir_fisicas ->interfaz = extraer_string_buffer(buffer, logger);
 	conjunto_de_dir_fisicas ->tam = extraer_int_buffer(buffer, logger);
 	conjunto_de_dir_fisicas ->cant_dir_fisicas = extraer_int_buffer(buffer, logger);

@@ -2,8 +2,8 @@
 
 int main(int argc, char* argv[]) {
      
-    char* nombre_interfaz = malloc(50);
-    char* path_config = malloc(256);
+    nombre_interfaz = malloc(50 + 2);
+    char* path_config = malloc(256 + 2);
     printf("Ingrese el nombre de la interfaz\n");
     fgets(nombre_interfaz,50,stdin);
     printf("Ingrese el config con el que desea inicializar la interfaz\n");
@@ -34,6 +34,14 @@ int main(int argc, char* argv[]) {
     enviar_handshake("Entrada/Salida", entradasalida_cliente_kernel);
 
 
+    for(int i = 0; i < strlen(nombre_interfaz); i++){
+        if(nombre_interfaz[i] == '\n'){
+            nombre_interfaz[i] = '\0';
+            break;
+        }
+    }
+
+
     switch (tipo_de_interfaz){
         case GENERICO:
             atender_peticiones_generica();
@@ -45,6 +53,8 @@ int main(int argc, char* argv[]) {
             atender_peticiones_stdout();
             break;
         case DIALFS:
+            levantar_archivos();
+            atender_peticiones_dialfs();
             break;
         default:
             break;
@@ -72,6 +82,7 @@ int definir_tipo_interfaz(){
         return STDOUT;
     }
     else if(strcmp(TIPO_INTERFAZ,"dialfs")==0){
+        
         return DIALFS;
     }
     else{

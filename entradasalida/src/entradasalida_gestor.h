@@ -18,11 +18,26 @@ typedef enum{
     DIALFS
 } interfaces;
 
+typedef struct {
+    char nombreArchivo[20 + 1];
+    int posicionInicial;
+    int tamanio;
+} t_archivo;
+
+typedef struct {
+    char nombreArchivo[20 + 1];
+    int posicionInicial;
+    int tamanio;
+    void* datos;
+} t_archivo_compactacion;
+
 //Variables Globales
 
 extern t_log* logger;
 extern t_log* logger_obligatorio;
 extern t_config* config;
+
+extern char* nombre_interfaz;
 
 extern int entradasalida_cliente_memoria;
 extern int entradasalida_cliente_kernel;
@@ -38,8 +53,18 @@ extern char* PUERTO_MEMORIA;
 extern char* PATH_BASE_DIALFS;
 extern int BLOCK_SIZE;
 extern int BLOCK_COUNT;
+extern int RETRASO_COMPACTACION;
 
+extern FILE* Archivo_bloques;
+extern FILE* Archivo_bitmap;
+extern FILE* Archivo_lista;
 
+extern void* archivo_bloques_en_mem;
+extern void* puntero_a_bits_de_bloques;
+
+extern t_bitarray* bitmap_bloques;
+
+extern t_list* lista_archivos;
 
 
 

@@ -2,7 +2,13 @@
 
 int main(int argc, char* argv[]) {
 
-    inicializar_memoria();
+	char* path_config = malloc(256 + 2);
+    printf("Ingrese el config con el que desea inicializar la Memoria\n");
+    fgets(path_config,256,stdin);
+
+    inicializar_memoria(path_config);
+
+	free(path_config);
 		
 	//Se inicia la memoria como servidor
     memoria_server = iniciar_servidor(PUERTO_ESCUCHA, logger);

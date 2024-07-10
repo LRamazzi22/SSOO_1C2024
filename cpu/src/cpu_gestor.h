@@ -16,6 +16,11 @@ typedef enum{
     SLEEP_GEN,
     STD_READ,
     STD_WRITE,
+    FS_CREATE,
+    FS_DELETE,
+    FS_TRUNCATE,
+    FS_READ,
+    FS_WRITE,
     WAIT_RECURSO,
     SIGNAL_RECURSO,
     SIN_MEMORIA

@@ -1,7 +1,7 @@
 #include <inicializar_kernel.h>
 
-void inicializar_kernel(){
-    inicializar_config_kernel();
+void inicializar_kernel(char* path_config){
+    inicializar_config_kernel(path_config);
 
     pid_acumulado = 0;
     pid_a_eliminar = -1;
@@ -33,12 +33,35 @@ void inicializar_kernel(){
     sem_init(&detener_planificacion_salida_cpu,0,0);
     sem_init(&detener_planificacion_to_ready,0,0);
 
+    pthread_mutex_init(&mutex_cola_new, NULL);
+    pthread_mutex_init(&mutex_cola_ready, NULL);
+    pthread_mutex_init(&mutex_cola_exit, NULL);
+    pthread_mutex_init(&mutex_cola_prioritaria, NULL);
+    pthread_mutex_init(&mutex_para_proceso_en_ejecucion, NULL);
+    pthread_mutex_init(&mutex_para_creacion_proceso, NULL);
+    pthread_mutex_init(&mutex_para_diccionario_entradasalida, NULL);
+    pthread_mutex_init(&mutex_para_diccionario_recursos, NULL);
+    pthread_mutex_init(&mutex_para_diccionario_blocked, NULL);
+    pthread_mutex_init(&mutex_para_eliminar_entradasalida, NULL);
+    pthread_mutex_init(&mutex_para_diccionario_de_todos_los_procesos, NULL);
+
     inicializar_recursos();
     
 }
 
-void inicializar_config_kernel(){
-    config = iniciar_config("./kernel_config.config");
+void inicializar_config_kernel(char* path_config){
+    char** string_sin_contra_barra = string_split(path_config,"\n");
+    char* path_configs = strdup("./");
+    string_append(&path_configs, string_sin_contra_barra[0]);
+    config = iniciar_config(path_configs);
+
+    string_array_destroy(string_sin_contra_barra);
+    free(path_configs);
+
+    if(config == NULL){
+        log_error(logger, "CONFIG INEXISTENTE");
+        exit(EXIT_FAILURE);
+    }
 
     PUERTO_ESCUCHA = config_get_string_value(config, "PUERTO_ESCUCHA");
     IP_MEMORIA = config_get_string_value(config,"IP_MEMORIA");
@@ -61,6 +84,7 @@ void inicializar_recursos(){
             nodo ->cola_bloqueados_recurso = queue_create();
             nodo ->instancias = atoi(INSTANCIAS_RECURSOS[i]);
             string_append(&RECURSOS[i],"\n");
+            pthread_mutex_init(&(nodo ->mutex_del_recurso), NULL);
             pthread_mutex_lock(&mutex_para_diccionario_recursos);
             dictionary_put(diccionario_recursos,RECURSOS[i], nodo);
             pthread_mutex_unlock(&mutex_para_diccionario_recursos);

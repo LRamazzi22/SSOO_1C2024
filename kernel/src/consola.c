@@ -19,24 +19,23 @@ void consola_kernel(){
 
 void validar_y_ejecutar_comando(char** comando_por_partes){
     
-    //En cuanto se agreguen las funciones de los comandos, hay que agregar mas validaciones
-    
     if(strcmp(comando_por_partes[0],"EJECUTAR_SCRIPT")==0 && (string_array_size(comando_por_partes)==2) && (strcmp(comando_por_partes[1],"")!=0)){
         
         ejecutar_script(comando_por_partes[1]);
     }
     else if((strcmp(comando_por_partes[0],"INICIAR_PROCESO")==0) && (string_array_size(comando_por_partes)==2) && (strcmp(comando_por_partes[1],"")!=0)){
-        pthread_t hilo_crear_proceso;
+        //pthread_t hilo_crear_proceso;
         char* ruta = strdup(comando_por_partes[1]);
-        pthread_create(&hilo_crear_proceso, NULL, (void*)crear_proceso,(void*)ruta);
-        pthread_detach(hilo_crear_proceso);
+        //pthread_create(&hilo_crear_proceso, NULL, (void*)crear_proceso,(void*)ruta);
+        //pthread_detach(hilo_crear_proceso);
+        crear_proceso((void*)ruta);
     }
     else if(strcmp(comando_por_partes[0],"FINALIZAR_PROCESO")==0){
         
 
         if(permitir_planificacion){
             permitir_planificacion = false;
-            usleep(500 * 1000);
+            //usleep(500 * 1000);
             pthread_mutex_lock(&mutex_para_diccionario_de_todos_los_procesos);
             pcb* el_pcb_a_eliminar = dictionary_get(diccionario_de_todos_los_procesos,comando_por_partes[1]);
             pthread_mutex_unlock(&mutex_para_diccionario_de_todos_los_procesos);
@@ -49,7 +48,7 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
             iniciar_planificacion();
         }
         else{
-            usleep(500 * 1000);
+            //usleep(500 * 1000);
             pthread_mutex_lock(&mutex_para_diccionario_de_todos_los_procesos);
             pcb* el_pcb_a_eliminar = dictionary_get(diccionario_de_todos_los_procesos,comando_por_partes[1]);
             pthread_mutex_unlock(&mutex_para_diccionario_de_todos_los_procesos);
@@ -83,154 +82,117 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
         GRADO_MULTIPROGRAMACION = nuevo_grado_multi;
     }
     else if(strcmp(comando_por_partes[0],"PROCESO_ESTADO")==0 && (string_array_size(comando_por_partes)==1)){
-        printf("Hola, soy proceso estado\n");
-        pcb* pcb_revisar;
-        int largo_cola;
-        printf("COLA NEW: \n");
+         printf("Hola, soy proceso estado\n");
+    pcb* pcb_revisar;
+    int largo_cola;
 
-        pthread_mutex_lock(&mutex_cola_new);
-        largo_cola = queue_size(cola_new);
-        pthread_mutex_unlock(&mutex_cola_new);
+    // COLA NEW
+    printf("COLA NEW: \n");
+    pthread_mutex_lock(&mutex_cola_new);
+    largo_cola = queue_size(cola_new);
+    for(int i = 0; i < largo_cola; i++) {
+        pcb_revisar = list_get(cola_new->elements, i);
+        printf("%d\n", pcb_revisar->PID);
+    }
+    pthread_mutex_unlock(&mutex_cola_new);
 
-        for(int i = 0; i< largo_cola; i++){
+    // COLA READY
+    printf("COLA READY: \n");
+    pthread_mutex_lock(&mutex_cola_ready);
+    largo_cola = queue_size(cola_ready);
+    for(int i = 0; i < largo_cola; i++) {
+        pcb_revisar = list_get(cola_ready->elements, i);
+        printf("%d\n", pcb_revisar->PID);
+    }
+    pthread_mutex_unlock(&mutex_cola_ready);
 
-            pthread_mutex_lock(&mutex_cola_new);
-            pcb_revisar = list_get(cola_new->elements,i);
-            pthread_mutex_unlock(&mutex_cola_new);
-
-            printf("%d\n",pcb_revisar ->PID);
+    // COLA READY PRIORITARIA (si aplica)
+    if(strcmp(ALGORITMO_PLANIFICACION, "vrr") == 0) {
+        printf("COLA READY PRIORITARIA: \n");
+        pthread_mutex_lock(&mutex_cola_prioritaria);
+        largo_cola = queue_size(cola_ready_prioritaria);
+        for(int i = 0; i < largo_cola; i++) {
+            pcb_revisar = list_get(cola_ready_prioritaria->elements, i);
+            printf("%d\n", pcb_revisar->PID);
         }
-        printf("COLA READY: \n");
+        pthread_mutex_unlock(&mutex_cola_prioritaria);
+    }
 
-        pthread_mutex_lock(&mutex_cola_ready);
-        largo_cola = queue_size(cola_ready);
-        pthread_mutex_unlock(&mutex_cola_ready);
+    // COLA EXEC
+    printf("COLA EXEC: \n");
+    if(proceso_en_ejecucion != NULL) {
+        printf("%d\n", proceso_en_ejecucion->PID);
+    } else {
+        printf("\n");
+    }
 
-        for(int i = 0; i< largo_cola; i++){
-
-            pthread_mutex_lock(&mutex_cola_ready);
-            pcb_revisar = list_get(cola_ready->elements,i);
-            pthread_mutex_unlock(&mutex_cola_ready);
-
-            printf("%d\n",pcb_revisar ->PID);
-        }
-
-        if(strcmp(ALGORITMO_PLANIFICACION, "vrr")==0){
-            printf("COLA READY PRIORITARIA: \n");
-
-            pthread_mutex_lock(&mutex_cola_prioritaria);
-            largo_cola = queue_size(cola_ready_prioritaria);
-            pthread_mutex_unlock(&mutex_cola_prioritaria);
-
-            for(int i = 0; i< largo_cola; i++){
-
-                pthread_mutex_lock(&mutex_cola_prioritaria);
-                pcb_revisar = list_get(cola_ready_prioritaria->elements,i);
-                pthread_mutex_unlock(&mutex_cola_prioritaria);
-
-                printf("%d\n",pcb_revisar ->PID);
-            }
-        }
-        printf("COLA EXEC: \n");
-        if(proceso_en_ejecucion != NULL){
-            printf("%d\n",proceso_en_ejecucion ->PID);
-        }
-        else{
-            printf("\n");
-        }
-        printf("COLAS BLOCKED: \n");
-        bool diccionario_vacio;
-
-        pthread_mutex_lock(&mutex_para_diccionario_blocked);
-        diccionario_vacio = dictionary_is_empty(diccionario_blocked);
+    // COLAS BLOCKED
+    printf("COLAS BLOCKED: \n");
+    pthread_mutex_lock(&mutex_para_diccionario_blocked);
+    bool diccionario_vacio = dictionary_is_empty(diccionario_blocked);
+    if(!diccionario_vacio) {
+        t_list* lista_keys = dictionary_keys(diccionario_blocked);
         pthread_mutex_unlock(&mutex_para_diccionario_blocked);
 
-        if(!diccionario_vacio){
-            nodo_de_diccionario_blocked* nodo;
-
+        for(int i = 0; i < list_size(lista_keys); i++) {
+            char* interfaz_o_recurso = list_get(lista_keys, i);
             pthread_mutex_lock(&mutex_para_diccionario_blocked);
-            t_list* lista_keys = dictionary_keys(diccionario_blocked);
+            nodo_de_diccionario_blocked* nodo = dictionary_get(diccionario_blocked, interfaz_o_recurso);
             pthread_mutex_unlock(&mutex_para_diccionario_blocked);
 
-            for(int i = 0; i<list_size(lista_keys); i++){
-                char* interfaz_o_recurso = list_get(lista_keys,i);
-
-                pthread_mutex_lock(&mutex_para_diccionario_blocked);
-                nodo = dictionary_get(diccionario_blocked,interfaz_o_recurso);
-                pthread_mutex_unlock(&mutex_para_diccionario_blocked);
-
-                printf("COLA BLOCKED DE %s",interfaz_o_recurso);
-
-                pthread_mutex_lock(&(nodo ->mutex_para_cola_bloqueados));
-                largo_cola = queue_size(nodo ->cola_bloqueados);
-                pthread_mutex_unlock(&(nodo ->mutex_para_cola_bloqueados));
-
-                for(int p = 0; p<largo_cola; p++){
-
-                    pthread_mutex_lock(&(nodo ->mutex_para_cola_bloqueados));
-                    pcb_revisar = list_get(nodo ->cola_bloqueados ->elements,p);
-                    pthread_mutex_unlock(&(nodo ->mutex_para_cola_bloqueados));
-
-                    printf("%d\n",pcb_revisar ->PID);
-                }
-
+            printf("COLA BLOCKED DE %s\n", interfaz_o_recurso);
+            pthread_mutex_lock(&(nodo->mutex_para_cola_bloqueados));
+            largo_cola = queue_size(nodo->cola_bloqueados);
+            for(int p = 0; p < largo_cola; p++) {
+                pcb_revisar = list_get(nodo->cola_bloqueados->elements, p);
+                printf("%d\n", pcb_revisar->PID);
             }
-            list_destroy(lista_keys);
+            pthread_mutex_unlock(&(nodo->mutex_para_cola_bloqueados));
         }
+        list_destroy(lista_keys);
+    } else {
+        pthread_mutex_unlock(&mutex_para_diccionario_blocked);
+    }
 
-        pthread_mutex_lock(&mutex_para_diccionario_recursos);
-        diccionario_vacio = dictionary_is_empty(diccionario_recursos);
+    // COLAS BLOCKED POR RECURSOS
+    pthread_mutex_lock(&mutex_para_diccionario_recursos);
+    diccionario_vacio = dictionary_is_empty(diccionario_recursos);
+    if(!diccionario_vacio) {
+        t_list* lista_keys_recurso = dictionary_keys(diccionario_recursos);
         pthread_mutex_unlock(&mutex_para_diccionario_recursos);
 
-        if(!diccionario_vacio){
-            nodo_recursos* nodo_del_recurso;
-
+        for(int i = 0; i < list_size(lista_keys_recurso); i++) {
+            char* recurso = list_get(lista_keys_recurso, i);
             pthread_mutex_lock(&mutex_para_diccionario_recursos);
-            t_list* lista_keys_recurso = dictionary_keys(diccionario_recursos);
+            nodo_recursos* nodo_del_recurso = dictionary_get(diccionario_recursos, recurso);
             pthread_mutex_unlock(&mutex_para_diccionario_recursos);
 
-            for(int i = 0; i<list_size(lista_keys_recurso); i++){
-                char* recurso = list_get(lista_keys_recurso,i);
-
-                pthread_mutex_lock(&mutex_para_diccionario_recursos);
-                nodo_del_recurso = dictionary_get(diccionario_recursos,recurso);
-                pthread_mutex_unlock(&mutex_para_diccionario_recursos);
-
-                printf("COLA BLOCKED DE %s",recurso);
-
-                pthread_mutex_lock(&(nodo_del_recurso ->mutex_del_recurso));
-                largo_cola = queue_size(nodo_del_recurso ->cola_bloqueados_recurso);
-                
-
-                for(int p = 0; p<largo_cola; p++){
-                    pcb_revisar = list_get(nodo_del_recurso ->cola_bloqueados_recurso ->elements,p);
-
-                    printf("%d\n",pcb_revisar ->PID);
-                }
-                pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
+            printf("COLA BLOCKED DE %s\n", recurso);
+            pthread_mutex_lock(&(nodo_del_recurso->mutex_del_recurso));
+            largo_cola = queue_size(nodo_del_recurso->cola_bloqueados_recurso);
+            for(int p = 0; p < largo_cola; p++) {
+                pcb_revisar = list_get(nodo_del_recurso->cola_bloqueados_recurso->elements, p);
+                printf("%d\n", pcb_revisar->PID);
             }
-            list_destroy(lista_keys_recurso);
+            pthread_mutex_unlock(&(nodo_del_recurso->mutex_del_recurso));
         }
-
-        printf("COLA EXIT: \n");
-
-        pthread_mutex_lock(&mutex_cola_exit);
-        largo_cola = queue_size(cola_exit);
-        pthread_mutex_unlock(&mutex_cola_exit);
-
-        for(int i = 0; i< largo_cola; i++){
-
-            pthread_mutex_lock(&mutex_cola_exit);
-            pcb_revisar = list_get(cola_exit->elements,i);
-            pthread_mutex_unlock(&mutex_cola_exit);
-
-            printf("%d\n",pcb_revisar ->PID);
-        }
-        
+        list_destroy(lista_keys_recurso);
+    } else {
+        pthread_mutex_unlock(&mutex_para_diccionario_recursos);
     }
-    else{
-        log_error(logger, "ERROR. COMANDO NO RECONOCIDO O SINTAXIS ERRONEA");
+
+    // COLA EXIT
+    printf("COLA EXIT: \n");
+    pthread_mutex_lock(&mutex_cola_exit);
+    largo_cola = queue_size(cola_exit);
+    for(int i = 0; i < largo_cola; i++) {
+        pcb_revisar = list_get(cola_exit->elements, i);
+        printf("%d\n", pcb_revisar->PID);
     }
+    pthread_mutex_unlock(&mutex_cola_exit);
+} else {
+    log_error(logger, "ERROR. COMANDO NO RECONOCIDO O SINTAXIS ERRONEA");
+}
     
 }
 
@@ -285,6 +247,8 @@ void iniciar_planificacion(){
                 sem_post(&(nodo ->detener_planificacion_recibir_respuestas_IO));
 
             }
+
+            list_destroy(lista_keys);
         }
         permitir_planificacion = true;
     }
@@ -298,7 +262,7 @@ void ejecutar_script(char* nombre_archivo){
 
     if(archivo_script != NULL){
         while(!feof(archivo_script)){
-            usleep(500 * 1000);
+            //usleep(500 * 1000);
             char instruccion_consola[256];
             fgets(instruccion_consola,256,archivo_script);
 
@@ -314,13 +278,12 @@ void ejecutar_script(char* nombre_archivo){
             string_array_destroy(comando_por_partes);
 
         }
-
+        fclose(archivo_script);
     }
     else{
         log_error(logger,"No existe ese archivo de Script");
     }
 
-    fclose(archivo_script);
     free(archivo);
 }
 
@@ -411,23 +374,30 @@ void eliminar_proceso_por_usuario(pcb* el_pcb_a_eliminar){
                     free(variable);
                 }
                 else if(strcmp(nodo_de_interfaz ->tipo_de_interfaz, "stdin")==0 || strcmp(nodo_de_interfaz ->tipo_de_interfaz, "stdout")==0){
-                    io_std* dir_fisicas = variable;
+                    io_std_fs* dir_fisicas = variable;
+                    free(dir_fisicas ->interfaz);
 
                     list_destroy_and_destroy_elements(dir_fisicas ->lista_dir_fisicas, free);
                     free(dir_fisicas);
                 }
                 else if(strcmp(nodo_de_interfaz ->tipo_de_interfaz, "dialfs")==0){
-            
-                }
-
-                if(!queue_is_empty(nodo_blocked ->cola_bloqueados)){
-                     sem_wait(&(nodo_de_interfaz ->hay_proceso_en_bloqueados));
-                }   
+                    var_fs* variable_fs = variable;
+                    
+                    if(variable_fs ->tipo_variable == VAR_FS_READ || variable_fs ->tipo_variable == VAR_FS_WRITE){
+                        list_destroy_and_destroy_elements(variable_fs->dir_fisicas ->lista_dir_fisicas, free);
+                        free(variable_fs ->dir_fisicas ->interfaz);
+                        free(variable_fs->dir_fisicas);
+                    }
+                    free(variable_fs ->nombre_Archivo);
+                    free(variable_fs);
+                }  
                
-
-
-
+                
+                if(queue_size(nodo_blocked ->cola_bloqueados) > 1){
+                    sem_wait(&(nodo_de_interfaz ->hay_proceso_en_bloqueados));
                 }
+
+            }
                 else if(strcmp(el_pcb_a_eliminar ->recurso_bloqueante, "No")!=0){
                         
                     pthread_mutex_lock(&mutex_para_diccionario_recursos);

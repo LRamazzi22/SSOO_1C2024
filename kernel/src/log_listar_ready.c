@@ -11,6 +11,7 @@ void log_de_lista_de_ready(){
         if(i != (queue_size(cola_ready)-1)){
             string_append(&lista, ", ");
         }
+        free(pid);
             
     }
     string_append(&lista, "]");
@@ -28,6 +29,8 @@ void log_de_lista_de_ready_prioritaria(){
         if(i != (queue_size(cola_ready_prioritaria)-1)){
             string_append(&lista, ", ");
         }
+
+        free(pid);
             
     }
     string_append(&lista, "]");

@@ -16,14 +16,22 @@ void eliminar_el_proceso(pcb* un_pcb){
     enviar_paquete(paquete,kernel_cliente_memoria);
     eliminar_paquete(paquete);
 
+    char* pid_clave = string_itoa(un_pcb ->PID);
+
     pthread_mutex_lock(&mutex_para_diccionario_de_todos_los_procesos);
-    dictionary_remove(diccionario_de_todos_los_procesos,string_itoa(un_pcb ->PID));
+    dictionary_remove(diccionario_de_todos_los_procesos,pid_clave);
     pthread_mutex_unlock(&mutex_para_diccionario_de_todos_los_procesos);
     
     borrar_registros_pcb(un_pcb);
+
+    if(un_pcb ->tiempo_en_ejecucion != NULL){
+        free(un_pcb ->tiempo_en_ejecucion);
+        un_pcb ->tiempo_en_ejecucion = NULL;
+    }
+    
     
     for(int i = 0; i<list_size(un_pcb ->lista_recursos_tomados); i++){
-        char* un_recurso = list_remove(un_pcb ->lista_recursos_tomados, i);
+        char* un_recurso = list_get(un_pcb ->lista_recursos_tomados, i);
 
         pthread_mutex_lock(&mutex_para_diccionario_recursos);
         nodo_recursos* nodo_del_recurso = dictionary_get(diccionario_recursos,un_recurso);
@@ -41,6 +49,11 @@ void eliminar_el_proceso(pcb* un_pcb){
             char* recurso_lista = strdup(un_recurso);
 			list_add(un_pcb ->lista_recursos_tomados,recurso_lista);
 
+            if(pcb_a_desbloquear ->tiempo_en_ejecucion != NULL){
+                free(pcb_a_desbloquear -> tiempo_en_ejecucion);
+                pcb_a_desbloquear ->tiempo_en_ejecucion = NULL;
+            }
+
 
 			pthread_mutex_lock(&mutex_cola_ready);
 			queue_push(cola_ready,pcb_a_desbloquear);
@@ -52,7 +65,7 @@ void eliminar_el_proceso(pcb* un_pcb){
         pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
     }
     
-    list_destroy(un_pcb ->lista_recursos_tomados);
+    list_destroy_and_destroy_elements(un_pcb ->lista_recursos_tomados, free);
     switch(un_pcb ->razon_salida){
         case EXITO:
             log_info(logger_obligatorio, "Finaliza el proceso %d - Motivo: SUCCESS",un_pcb->PID);
@@ -69,8 +82,12 @@ void eliminar_el_proceso(pcb* un_pcb){
         case FINALIZADO_POR_USUARIO:
             log_info(logger_obligatorio, "Finaliza el proceso %d - Motivo: INTERRUPTED_BY_USER",un_pcb->PID);
             break;
+        case FALLO_EN_IO:
+            log_info(logger_obligatorio, "Finaliza el proceso %d - Motivo: FALLO EN IO",un_pcb->PID);
+            break;
     }
     free(un_pcb);
+    free(pid_clave);
     if(espera_grado_multi > 0){
         espera_grado_multi--;
     }
@@ -91,4 +108,5 @@ void borrar_registros_pcb(pcb* un_pcb){
     free(un_pcb->registros_cpu_en_pcb->SI);
     free(un_pcb->registros_cpu_en_pcb->DI);
     free(un_pcb->registros_cpu_en_pcb->PC);
+    free(un_pcb ->registros_cpu_en_pcb);
 }

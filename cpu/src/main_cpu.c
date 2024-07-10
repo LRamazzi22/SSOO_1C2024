@@ -2,7 +2,13 @@
 
 int main(int argc, char* argv[]) {
 
-    inicializar_cpu();
+    char* path_config = malloc(256 + 2);
+    printf("Ingrese el config con el que desea inicializar el CPU\n");
+    fgets(path_config,256,stdin);
+
+    inicializar_cpu(path_config);
+
+    free(path_config);
 
     //Iniciar CPU como Server
     cpu_server_dispatch = iniciar_servidor(PUERTO_ESCUCHA_DISPATCH, logger);
