@@ -74,6 +74,12 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
         }
         else if(diferencia <0){
             espera_grado_multi = (-1)*diferencia;
+
+            int valor_semaforo;
+            sem_getvalue(&(multiprogramacion_permite_proceso_en_ready), &valor_semaforo);
+            for(int i = 0; i < (-diferencia) && i < valor_semaforo; i++){
+                sem_wait(&(multiprogramacion_permite_proceso_en_ready));
+            }
         }
         GRADO_MULTIPROGRAMACION = nuevo_grado_multi;
     }
