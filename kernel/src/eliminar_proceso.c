@@ -76,7 +76,7 @@ void eliminar_el_proceso(pcb* un_pcb){
         case INTERFAZ_INVALIDA:
             log_info(logger_obligatorio, "Finaliza el proceso %d - Motivo: INVALID_INTERFACE",un_pcb->PID);
             break;
-        case FUERA_DE_MEMORIA:
+        case SIN_MEMORIA:
             log_info(logger_obligatorio, "Finaliza el proceso %d - Motivo: OUT_OF_MEMORY",un_pcb->PID);
             break;
         case FINALIZADO_POR_USUARIO:
@@ -177,7 +177,7 @@ void eliminar_el_proceso_nuevo(pcb* un_pcb){
         case INTERFAZ_INVALIDA:
             log_info(logger_obligatorio, "Finaliza el proceso %d - Motivo: INVALID_INTERFACE",un_pcb->PID);
             break;
-        case FUERA_DE_MEMORIA:
+        case SIN_MEMORIA:
             log_info(logger_obligatorio, "Finaliza el proceso %d - Motivo: OUT_OF_MEMORY",un_pcb->PID);
             break;
         case FINALIZADO_POR_USUARIO:

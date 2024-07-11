@@ -86,7 +86,7 @@ void atender_cpu_dispatch(){
 
 					recibir_contexto_de_ejecucion(buffer,pcb_a_finalizar_por_mem);
 
-					pcb_a_finalizar_por_mem ->razon_salida = FUERA_DE_MEMORIA;
+					pcb_a_finalizar_por_mem ->razon_salida = SIN_MEMORIA;
 					mandar_a_exit(pcb_a_finalizar_por_mem);
 					log_info(logger_obligatorio, "PID: %d - Estado Anterior: EXECUTE - Estado Actual: EXIT", pcb_a_finalizar_por_mem ->PID);
 
