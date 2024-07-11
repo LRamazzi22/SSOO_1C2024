@@ -13,8 +13,8 @@
 //Variables Globales
 
 int pid_acumulado = 0;
-int cantidad_de_proceso_en_ejecucion;
-int pid_a_eliminar;
+// int cantidad_de_proceso_en_ejecucion;
+// int pid_a_eliminar;
 
 t_log* logger;
 t_log* logger_obligatorio;

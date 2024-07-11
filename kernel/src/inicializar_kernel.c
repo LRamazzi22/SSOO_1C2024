@@ -4,9 +4,9 @@ void inicializar_kernel(char* path_config){
     inicializar_config_kernel(path_config);
 
     pid_acumulado = 0;
-    pid_a_eliminar = -1;
+    // pid_a_eliminar = -1;
     espera_grado_multi = -1;
-    cantidad_de_proceso_en_ejecucion = GRADO_MULTIPROGRAMACION;
+    // cantidad_de_proceso_en_ejecucion = GRADO_MULTIPROGRAMACION;
     permitir_planificacion = true;
 
     logger = iniciar_logger("./kernel.log", "Kernel_Logger", LOG_LEVEL_INFO, 1);

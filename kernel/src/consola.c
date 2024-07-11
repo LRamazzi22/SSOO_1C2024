@@ -20,14 +20,10 @@ void consola_kernel(){
 void validar_y_ejecutar_comando(char** comando_por_partes){
     
     if(strcmp(comando_por_partes[0],"EJECUTAR_SCRIPT")==0 && (string_array_size(comando_por_partes)==2) && (strcmp(comando_por_partes[1],"")!=0)){
-        
         ejecutar_script(comando_por_partes[1]);
     }
     else if((strcmp(comando_por_partes[0],"INICIAR_PROCESO")==0) && (string_array_size(comando_por_partes)==2) && (strcmp(comando_por_partes[1],"")!=0)){
-        //pthread_t hilo_crear_proceso;
         char* ruta = strdup(comando_por_partes[1]);
-        //pthread_create(&hilo_crear_proceso, NULL, (void*)crear_proceso,(void*)ruta);
-        //pthread_detach(hilo_crear_proceso);
         crear_proceso((void*)ruta);
     }
     else if(strcmp(comando_por_partes[0],"FINALIZAR_PROCESO")==0){
@@ -304,7 +300,7 @@ void eliminar_proceso_por_usuario(pcb* el_pcb_a_eliminar){
             el_pcb_a_eliminar ->estado_proceso = EXIT_PROCESS;
 
             log_info(logger_obligatorio, "PID: %d - Estado Anterior: NEW - Estado Actual: EXIT", el_pcb_a_eliminar->PID);
-            eliminar_el_proceso(el_pcb_a_eliminar);
+            eliminar_el_proceso_nuevo(el_pcb_a_eliminar);
 
             break;
 
