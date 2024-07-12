@@ -410,6 +410,7 @@ void atender_cpu_dispatch(){
 								pcb_a_esperar ->tiempo_en_ejecucion = temporal_create();
 								pthread_create(&(pcb_a_esperar ->hilo_quantum),NULL,(void*)esperar_quantum,(void*)pcb_a_esperar);
 								pthread_detach(pcb_a_esperar ->hilo_quantum);
+								pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
 								atender_cpu_dispatch();
 							}
 							else{
@@ -427,8 +428,8 @@ void atender_cpu_dispatch(){
 								pthread_mutex_unlock(&mutex_cola_ready);
 
 								sem_post(&hay_proceso_en_ready);
+								pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
 							}
-							pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
 						}
 						else{ //ES FIFO
 							char* recurso_lista = strdup(recurso);
@@ -525,6 +526,7 @@ void atender_cpu_dispatch(){
 								pcb_a_senial ->tiempo_en_ejecucion = temporal_create();
 								pthread_create(&(pcb_a_senial ->hilo_quantum),NULL,(void*)esperar_quantum,(void*)pcb_a_senial);
 								pthread_detach(pcb_a_senial ->hilo_quantum);
+								pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
 								atender_cpu_dispatch();
 							}
 							else{
@@ -540,6 +542,7 @@ void atender_cpu_dispatch(){
 								pthread_mutex_unlock(&mutex_cola_ready);
 
 								sem_post(&hay_proceso_en_ready);
+								pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
 							}
 						}
 						else{ //ES FIFO
@@ -554,10 +557,9 @@ void atender_cpu_dispatch(){
 								pcb_a_senial ->tiempo_en_ejecucion = NULL;
 							}
 							pcb_a_senial ->tiempo_en_ejecucion = temporal_create();
+							pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
 							atender_cpu_dispatch();
 						}
-
-					pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
 					}
 					else{
 						pcb_a_senial -> razon_salida = RECURSO_INVALIDO;
