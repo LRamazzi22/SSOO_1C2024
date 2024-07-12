@@ -390,6 +390,7 @@ void atender_cpu_dispatch(){
 							log_info(logger_obligatorio, "PID: %d - Bloqueado por: %s",pcb_a_esperar ->PID, recurso);
 							strcpy(pcb_a_esperar ->recurso_bloqueante, recurso);
 							queue_push(nodo_del_recurso ->cola_bloqueados_recurso,pcb_a_esperar);
+							pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
 						}
 						else if(strcmp(ALGORITMO_PLANIFICACION,"rr")==0 || strcmp(ALGORITMO_PLANIFICACION,"vrr")==0){ //ROUND ROBIN O VIRTUAL ROUND ROBIN
 							char* recurso_lista = strdup(recurso);
@@ -427,6 +428,7 @@ void atender_cpu_dispatch(){
 
 								sem_post(&hay_proceso_en_ready);
 							}
+							pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
 						}
 						else{ //ES FIFO
 							char* recurso_lista = strdup(recurso);
@@ -437,6 +439,7 @@ void atender_cpu_dispatch(){
 			
 							enviar_paquete(paquete_pcb_a_enviar, kernel_cliente_dispatch);
 							eliminar_paquete(paquete_pcb_a_enviar);
+							pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
 							atender_cpu_dispatch();
 						}
 					pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
