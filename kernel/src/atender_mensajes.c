@@ -442,7 +442,6 @@ void atender_cpu_dispatch(){
 							pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
 							atender_cpu_dispatch();
 						}
-					pthread_mutex_unlock(&(nodo_del_recurso ->mutex_del_recurso));
 					}
 					else{
 						pcb_a_esperar ->razon_salida = RECURSO_INVALIDO;
