@@ -237,6 +237,12 @@ void atender_peticiones_dialfs(){
                     
                 }
 
+                float cant_block_float = BLOCK_COUNT;
+
+                int tamanio_bitmap = ceil(cant_block_float/8);
+
+                msync(puntero_a_bits_de_bloques, tamanio_bitmap, MS_SYNC);
+
                 log_info(logger_obligatorio, "Interfaz: %s - PID: %d - Truncar Archivo: %s - Tamaño: %d",nombre_interfaz,pid3,nombre_Archivo3,tamanio_a_truncar);
 
                 char* tam_truncar_clave = string_itoa(tamanio_a_truncar);
@@ -465,7 +471,7 @@ void levantar_archivos(){
 
     puntero_a_bits_de_bloques = mmap(NULL, tamanio_bitmap, PROT_READ | PROT_WRITE, MAP_SHARED, fd_bitmap, 0);
 
-    fclose(Archivo_bloques);
+    fclose(Archivo_bitmap);
 
     bitmap_bloques = bitarray_create_with_mode(puntero_a_bits_de_bloques, tamanio_bitmap, LSB_FIRST);
 
@@ -659,6 +665,8 @@ int realizar_compatacion(char* nombre_arch_a_expandirse){
     }
 
     list_destroy_and_destroy_elements(lista_aux_compactacion, free);
+
+    msync(archivo_bloques_en_mem, (BLOCK_COUNT * BLOCK_SIZE), MS_SYNC);
 
     return nueva_pos_inicial_arch_expa;
 }
