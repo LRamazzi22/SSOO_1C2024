@@ -59,10 +59,30 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
     }
     else if(strcmp(comando_por_partes[0],"DETENER_PLANIFICACION")==0 && (string_array_size(comando_por_partes)==1)){
         permitir_planificacion = false;
+
+        if ((strcmp(ALGORITMO_PLANIFICACION,"rr")==0 || strcmp(ALGORITMO_PLANIFICACION,"vrr")==0) && proceso_en_ejecucion != NULL) {
+            pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
+
+            pthread_cancel(proceso_en_ejecucion->hilo_quantum);
+            temporal_stop(proceso_en_ejecucion->tiempo_en_ejecucion);
+            int64_t tiempo_ejecutado = temporal_gettime(proceso_en_ejecucion ->tiempo_en_ejecucion);
+            if (tiempo_ejecutado < proceso_en_ejecucion->quantum_restante) {
+                proceso_en_ejecucion->quantum_restante = proceso_en_ejecucion->quantum_restante - tiempo_ejecutado;
+            }
+
+            pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
+        }
     }
     else if(strcmp(comando_por_partes[0],"INICIAR_PLANIFICACION")==0 && (string_array_size(comando_por_partes)==1)){
         
         iniciar_planificacion();
+        if ((strcmp(ALGORITMO_PLANIFICACION,"rr")==0 || strcmp(ALGORITMO_PLANIFICACION,"vrr")==0) && proceso_en_ejecucion != NULL) {
+            pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
+            pthread_create(&(proceso_en_ejecucion->hilo_quantum), NULL, (void*)esperar_quantum, (void*)proceso_en_ejecucion);
+            pthread_detach(proceso_en_ejecucion->hilo_quantum);
+            temporal_resume(proceso_en_ejecucion->tiempo_en_ejecucion);
+            pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
+        }
     }
     else if(strcmp(comando_por_partes[0],"MULTIPROGRAMACION")==0 && (string_array_size(comando_por_partes)==2) && (strcmp(comando_por_partes[1],"")!=0)){
         int nuevo_grado_multi = atoi(comando_por_partes[1]);
