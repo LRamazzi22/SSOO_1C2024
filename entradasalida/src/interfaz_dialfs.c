@@ -163,14 +163,23 @@ void atender_peticiones_dialfs(){
 
                 int primera_bloque = config_get_int_value(meta_config_truncate, "BLOQUE_INICIAL");
 
-                int cant_bloques_total = ceil((float)tam_actual/BLOCK_SIZE);
+                int cant_bloques_total;
+
+                if(tam_actual!=0){
+                    cant_bloques_total = ceil((float)tam_actual/BLOCK_SIZE);
+                }
+                else{
+                    cant_bloques_total = 1;
+                }
+
+                
 
                 int ultimo_bloque = cant_bloques_total + primera_bloque -1;
 
                 if(tam_actual > tamanio_a_truncar){
 
                     if((cant_bloques_total * BLOCK_SIZE) > tamanio_a_truncar){
-                        float tam_a_reducir = tam_actual - tamanio_a_truncar;
+                        float tam_a_reducir = (cant_bloques_total * BLOCK_SIZE) - tamanio_a_truncar;
 
                         int cant_bloques_a_reducir = floor(tam_a_reducir/BLOCK_SIZE);
 
@@ -184,7 +193,7 @@ void atender_peticiones_dialfs(){
                 }
                 else if(tam_actual < tamanio_a_truncar){
                     if((cant_bloques_total * BLOCK_SIZE) <  tamanio_a_truncar){
-                        float tam_a_aumentar = tamanio_a_truncar - tam_actual;
+                        float tam_a_aumentar = tamanio_a_truncar - (cant_bloques_total * BLOCK_SIZE);
 
                         int cant_bloques_a_aumentar = ceil(tam_a_aumentar/BLOCK_SIZE);
 
@@ -611,7 +620,16 @@ int realizar_compatacion(char* nombre_arch_a_expandirse){
 
             config_destroy(meta_config);
 
-            for(int i = 0; i <ceil(nodo_aux ->tamanio/tam_block_float); i++){
+            int cant_bloques_a_marcar;
+
+            if(nodo_aux ->tamanio !=0){
+                cant_bloques_a_marcar = ceil(nodo_aux ->tamanio/tam_block_float);
+            }
+            else{
+                cant_bloques_a_marcar = 1;
+            }
+
+            for(int i = 0; i <cant_bloques_a_marcar; i++){
                 bitarray_set_bit(bitmap_bloques,nueva_pos_inicial);
                 nueva_pos_inicial++;
             }
@@ -654,7 +672,16 @@ int realizar_compatacion(char* nombre_arch_a_expandirse){
 
             int nueva_pos_inicial = nueva_pos_inicial_arch_expa;
 
-            for(int i = 0; i <ceil(nodo_aux ->tamanio/tam_block_float); i++){
+            int cant_bloques_a_marcar;
+
+            if(nodo_aux ->tamanio !=0){
+                cant_bloques_a_marcar = ceil(nodo_aux ->tamanio/tam_block_float);
+            }
+            else{
+                cant_bloques_a_marcar = 1;
+            }
+
+            for(int i = 0; i <cant_bloques_a_marcar; i++){
                 bitarray_set_bit(bitmap_bloques,nueva_pos_inicial);
                 nueva_pos_inicial++;
             }
