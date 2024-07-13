@@ -242,6 +242,7 @@ void crear_proceso(void* ruta_pseudocodigo){
 
 void iniciar_planificacion(){
     if(!permitir_planificacion){
+	permitir_planificacion = true;
         sem_post(&detener_planificacion_corto_plazo);
         sem_post(&detener_planificacion_exit);
         sem_post(&detener_planificacion_salida_cpu);
@@ -273,7 +274,6 @@ void iniciar_planificacion(){
 
             list_destroy(lista_keys);
         }
-        permitir_planificacion = true;
     }
 }
 
