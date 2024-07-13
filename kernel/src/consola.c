@@ -24,7 +24,10 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
     }
     else if((strcmp(comando_por_partes[0],"INICIAR_PROCESO")==0) && (string_array_size(comando_por_partes)==2) && (strcmp(comando_por_partes[1],"")!=0)){
         char* ruta = strdup(comando_por_partes[1]);
-        crear_proceso((void*)ruta);
+	pthread_t hilo_crear_proceso;
+	pthread_create(&hilo_crear_proceso,NULL,(void*)crear_proceso, (void*)ruta);
+	pthread_detach(hilo_crear_proceso);
+
     }
     else if(strcmp(comando_por_partes[0],"FINALIZAR_PROCESO")==0){
         
