@@ -24,9 +24,7 @@ void validar_y_ejecutar_comando(char** comando_por_partes){
     }
     else if((strcmp(comando_por_partes[0],"INICIAR_PROCESO")==0) && (string_array_size(comando_por_partes)==2) && (strcmp(comando_por_partes[1],"")!=0)){
         char* ruta = strdup(comando_por_partes[1]);
-	pthread_t hilo_crear_proceso;
-	pthread_create(&hilo_crear_proceso,NULL,(void*)crear_proceso, (void*)ruta);
-	pthread_detach(hilo_crear_proceso);
+	crear_proceso((void*)ruta);
 
     }
     else if(strcmp(comando_por_partes[0],"FINALIZAR_PROCESO")==0){
@@ -286,6 +284,20 @@ void ejecutar_script(char* nombre_archivo){
     FILE* archivo_script = fopen(archivo, "r");
 
     if(archivo_script != NULL){
+	permitir_planificacion = false;
+
+        if ((strcmp(ALGORITMO_PLANIFICACION,"rr")==0 || strcmp(ALGORITMO_PLANIFICACION,"vrr")==0) && proceso_en_ejecucion != NULL) {
+            pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
+
+            pthread_cancel(proceso_en_ejecucion->hilo_quantum);
+            temporal_stop(proceso_en_ejecucion->tiempo_en_ejecucion);
+            int64_t tiempo_ejecutado = temporal_gettime(proceso_en_ejecucion ->tiempo_en_ejecucion);
+            if (tiempo_ejecutado < proceso_en_ejecucion->quantum_restante) {
+                proceso_en_ejecucion->quantum_restante = proceso_en_ejecucion->quantum_restante - tiempo_ejecutado;
+            }
+
+            pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
+        }
         while(!feof(archivo_script)){
             //usleep(500 * 1000);
             char instruccion_consola[256];
@@ -303,12 +315,20 @@ void ejecutar_script(char* nombre_archivo){
             string_array_destroy(comando_por_partes);
 
         }
+	 iniciar_planificacion();
+        if ((strcmp(ALGORITMO_PLANIFICACION,"rr")==0 || strcmp(ALGORITMO_PLANIFICACION,"vrr")==0) && proceso_en_ejecucion != NULL) {
+            pthread_mutex_lock(&mutex_para_proceso_en_ejecucion);
+            pthread_create(&(proceso_en_ejecucion->hilo_quantum), NULL, (void*)esperar_quantum, (void*)proceso_en_ejecucion);
+            pthread_detach(proceso_en_ejecucion->hilo_quantum);
+            temporal_resume(proceso_en_ejecucion->tiempo_en_ejecucion);
+            pthread_mutex_unlock(&mutex_para_proceso_en_ejecucion);
+        }
         fclose(archivo_script);
     }
     else{
         log_error(logger,"No existe ese archivo de Script");
     }
-
+	
     free(archivo);
 }
 
